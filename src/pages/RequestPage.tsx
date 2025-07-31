@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Music, DollarSign, User, MapPin, Calendar, Loader2, Send } from "lucide-react";
+import { CheckoutForm } from "@/components/page-components/request/CheckoutForm";
 
 interface DJProfile {
   id: string;
@@ -37,6 +38,8 @@ const RequestPage = () => {
   const [djEvents, setDjEvents] = useState<DJEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [currentRequestId, setCurrentRequestId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     song_title: "",
     artist_name: "",
@@ -47,15 +50,9 @@ const RequestPage = () => {
     event_id: ""
   });
 
-  useEffect(() => {
-    if (djId) {
-      fetchDJData();
-    }
-  }, [djId]);
-
-  const fetchDJData = async () => {
+  const fetchDJData = useCallback(async () => {
+    if (!djId) return;
     try {
-      // Obtener perfil del DJ
       const { data: profileData, error: profileError } = await supabase
         .from('dj_profiles')
         .select('*')
@@ -66,39 +63,44 @@ const RequestPage = () => {
       if (profileError) throw profileError;
       setDjProfile(profileData);
 
-      // Obtener eventos activos del DJ
       const { data: eventsData, error: eventsError } = await supabase
         .from('dj_events')
         .select('*')
-        .eq('dj_id', djId)
+        .eq('dj_id', profileData.id)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (eventsError) throw eventsError;
       setDjEvents(eventsData || []);
 
-      // Si hay eventos, seleccionar el primero por defecto
       if (eventsData && eventsData.length > 0) {
         setFormData(prev => ({ ...prev, event_id: eventsData[0].id }));
       }
 
-      // Establecer propina mínima por defecto
       if (profileData) {
         setFormData(prev => ({ 
           ...prev, 
           tip_amount: profileData.minimum_tip.toString() 
         }));
       }
-    } catch (error: any) {
-      toast({
-        title: "Error al cargar información del DJ",
-        description: error.message,
-        variant: "destructive",
-      });
+    } catch (error: unknown) {
+        let errorMessage = "Ocurrió un error desconocido.";
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        }
+        toast({
+            title: "Error al cargar información del DJ",
+            description: errorMessage,
+            variant: "destructive",
+        });
     } finally {
       setLoading(false);
     }
-  };
+  }, [djId, toast]);
+
+  useEffect(() => {
+    fetchDJData();
+  }, [fetchDJData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,11 +117,12 @@ const RequestPage = () => {
     }
 
     setSubmitting(true);
+
     try {
-      const { error } = await supabase
+      const { data: requestData, error: requestError } = await supabase
         .from('music_requests')
         .insert({
-          dj_id: djId,
+          dj_id: djProfile.id,
           event_id: formData.event_id || null,
           song_title: formData.song_title,
           artist_name: formData.artist_name,
@@ -128,299 +131,190 @@ const RequestPage = () => {
           tip_amount: tipAmount,
           message: formData.message || null,
           status: 'pending',
-          payment_status: 'pending'
+          payment_status: 'awaiting_payment'
+        })
+        .select()
+        .single();
+
+      if (requestError) throw requestError;
+      setCurrentRequestId(requestData.id);
+
+      const { data: paymentIntentData, error: paymentIntentError } = await supabase.functions.invoke('create-payment-intent', {
+        body: { amount: tipAmount, requestId: requestData.id },
+      });
+
+      if (paymentIntentError) throw paymentIntentError;
+
+      setClientSecret(paymentIntentData.clientSecret);
+    } catch (error: unknown) {
+        let errorMessage = "No se pudo iniciar el proceso de pago.";
+        if (error instanceof Error) {
+            errorMessage = error.message;
+        }
+        toast({
+            title: "Error al procesar la solicitud",
+            description: errorMessage,
+            variant: "destructive",
         });
-
-      if (error) throw error;
-
-      toast({
-        title: "¡Solicitud enviada!",
-        description: "Tu solicitud musical ha sido enviada al DJ.",
-      });
-
-      // Limpiar formulario
-      setFormData({
-        song_title: "",
-        artist_name: "",
-        client_name: "",
-        client_email: "",
-        tip_amount: djProfile.minimum_tip.toString(),
-        message: "",
-        event_id: djEvents.length > 0 ? djEvents[0].id : ""
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error al enviar solicitud",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setSubmitting(false);
+        setSubmitting(false);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "Fecha no disponible";
+    try {
+      return new Date(dateString).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return dateString;
+    }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Music className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
-          <p className="text-muted-foreground">Cargando información del DJ...</p>
-        </div>
+      <div className="flex items-center justify-center h-screen bg-background">
+        <Loader2 className="w-16 h-16 animate-spin text-primary" />
       </div>
     );
   }
 
   if (!djProfile) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Music className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-foreground mb-2">DJ no encontrado</h1>
-          <p className="text-muted-foreground">Este DJ no está disponible o no existe.</p>
-        </div>
+      <div className="flex items-center justify-center h-screen bg-background">
+        <Card className="w-full max-w-md mx-4">
+          <CardHeader>
+            <CardTitle>DJ no encontrado</CardTitle>
+            <CardDescription>
+              No se pudo encontrar un perfil activo para este DJ. Por favor, verifica el enlace.
+            </CardDescription>
+          </CardHeader>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/30 backdrop-blur-sm">
-        <div className="container mx-auto px-4 h-16 flex items-center">
-          <div className="flex items-center gap-3">
-            <Music className="w-8 h-8 text-primary" />
-            <div>
-              <h1 className="text-xl font-bold text-foreground">CueFlow</h1>
-              <p className="text-xs text-muted-foreground">Solicitudes Musicales</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Información del DJ */}
-          <div className="space-y-6">
-            <Card className="border-primary/20 bg-gradient-card">
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                    <User className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-2xl">{djProfile.stage_name}</CardTitle>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="secondary">
-                        ⭐ {djProfile.average_rating?.toFixed(1) || '0.0'}
-                      </Badge>
-                      <Badge variant="outline">
-                        {djProfile.total_requests} solicitudes
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
+    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/50 text-foreground">
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-1 space-y-6">
+            <Card className="overflow-hidden shadow-lg">
+              <div className="h-48 bg-gradient-to-r from-primary to-purple-600 flex items-center justify-center">
+                <User className="w-24 h-24 text-primary-foreground" />
+              </div>
+              <CardHeader className="text-center">
+                <CardTitle className="text-3xl font-bold">{djProfile.stage_name}</CardTitle>
+                <Badge variant="outline" className="mt-2">DJ Verificado</Badge>
               </CardHeader>
-              {djProfile.bio && (
-                <CardContent>
-                  <p className="text-muted-foreground">{djProfile.bio}</p>
-                </CardContent>
-              )}
-            </Card>
-
-            {/* Información de propinas */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-primary" />
-                  Información de Propinas
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Propina mínima:</span>
-                    <span className="font-semibold">${djProfile.minimum_tip.toFixed(2)}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Las propinas ayudan a que tu solicitud sea procesada más rápido
-                  </p>
-                </div>
+              <CardContent className="text-center text-muted-foreground">
+                <p>{djProfile.bio || "El DJ del pueblo."}</p>
               </CardContent>
             </Card>
 
-            {/* Eventos activos */}
             {djEvents.length > 0 && (
-              <Card>
+              <Card className="shadow-lg">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-primary" />
-                    Eventos Activos
-                  </CardTitle>
+                  <CardTitle>Evento Actual</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {djEvents.map((event) => (
-                    <div key={event.id} className="border border-border rounded-lg p-3">
-                      <h3 className="font-medium text-foreground">{event.name}</h3>
-                      {event.venue && (
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                          <MapPin className="w-3 h-3" />
-                          {event.venue}
-                        </div>
-                      )}
-                      {event.event_date && (
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                          <Calendar className="w-3 h-3" />
-                          {formatDate(event.event_date)}
-                        </div>
-                      )}
-                      {event.description && (
-                        <p className="text-sm text-muted-foreground mt-2">{event.description}</p>
-                      )}
-                    </div>
-                  ))}
+                <CardContent className="space-y-4">
+                  <h3 className="text-xl font-semibold">{djEvents[0].name}</h3>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <MapPin className="w-4 h-4" />
+                    <span>{djEvents[0].venue || "Lugar no especificado"}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Calendar className="w-4 h-4" />
+                    <span>{formatDate(djEvents[0].event_date)}</span>
+                  </div>
+                  <p className="text-sm">
+                    {djEvents[0].description || "¡Disfruta del evento!"}
+                  </p>
                 </CardContent>
               </Card>
             )}
           </div>
 
-          {/* Formulario de solicitud */}
-          <div>
-            <Card>
+          <div className="lg:col-span-2">
+            <Card className="shadow-xl">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Send className="w-5 h-5 text-primary" />
-                  Enviar Solicitud Musical
+                <CardTitle className="text-2xl flex items-center gap-2">
+                  <Music className="w-6 h-6 text-primary" />
+                  {clientSecret ? "Completa tu Pago" : "Envía tu Solicitud Musical"}
                 </CardTitle>
                 <CardDescription>
-                  Completa el formulario para solicitar una canción
+                  {clientSecret ? "Estás a un paso de enviar tu solicitud. Completa el pago de forma segura a continuación." : "Completa el formulario para enviar tu canción. Las solicitudes con mayor propina tienen prioridad."}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="song_title">Título de la Canción *</Label>
-                      <Input
-                        id="song_title"
-                        value={formData.song_title}
-                        onChange={(e) => setFormData({ ...formData, song_title: e.target.value })}
-                        placeholder="Ej: Despacito"
-                        required
-                      />
+                {clientSecret && currentRequestId ? (
+                  <CheckoutForm requestId={currentRequestId} />
+                ) : (
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="song_title">Título de la Canción *</Label>
+                        <Input id="song_title" value={formData.song_title} onChange={(e) => setFormData({ ...formData, song_title: e.target.value })} placeholder="Ej: Despacito" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="artist_name">Artista *</Label>
+                        <Input id="artist_name" value={formData.artist_name} onChange={(e) => setFormData({ ...formData, artist_name: e.target.value })} placeholder="Ej: Luis Fonsi" required />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="artist_name">Artista *</Label>
-                      <Input
-                        id="artist_name"
-                        value={formData.artist_name}
-                        onChange={(e) => setFormData({ ...formData, artist_name: e.target.value })}
-                        placeholder="Ej: Luis Fonsi"
-                        required
-                      />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="client_name">Tu Nombre *</Label>
+                        <Input id="client_name" value={formData.client_name} onChange={(e) => setFormData({ ...formData, client_name: e.target.value })} placeholder="Ej: María García" required />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="client_email">Tu Email (opcional)</Label>
+                        <Input id="client_email" type="email" value={formData.client_email} onChange={(e) => setFormData({ ...formData, client_email: e.target.value })} placeholder="maria@email.com" />
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="client_name">Tu Nombre *</Label>
-                      <Input
-                        id="client_name"
-                        value={formData.client_name}
-                        onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-                        placeholder="Ej: María García"
-                        required
-                      />
+                      <Label htmlFor="tip_amount" className="flex items-center gap-2">
+                        <DollarSign className="w-4 h-4" />
+                        Propina (USD) *
+                      </Label>
+                      <Input id="tip_amount" type="number" step="0.01" min={djProfile.minimum_tip} value={formData.tip_amount} onChange={(e) => setFormData({ ...formData, tip_amount: e.target.value })} required />
+                      <p className="text-xs text-muted-foreground">
+                        Mínimo: ${djProfile.minimum_tip.toFixed(2)}
+                      </p>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="client_email">Tu Email (opcional)</Label>
-                      <Input
-                        id="client_email"
-                        type="email"
-                        value={formData.client_email}
-                        onChange={(e) => setFormData({ ...formData, client_email: e.target.value })}
-                        placeholder="maria@email.com"
-                      />
-                    </div>
-                  </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="tip_amount" className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4" />
-                      Propina (USD) *
-                    </Label>
-                    <Input
-                      id="tip_amount"
-                      type="number"
-                      step="0.01"
-                      min={djProfile.minimum_tip}
-                      value={formData.tip_amount}
-                      onChange={(e) => setFormData({ ...formData, tip_amount: e.target.value })}
-                      required
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Mínimo: ${djProfile.minimum_tip.toFixed(2)}
-                    </p>
-                  </div>
-
-                  {djEvents.length > 1 && (
-                    <div className="space-y-2">
-                      <Label htmlFor="event_id">Evento</Label>
-                      <select
-                        id="event_id"
-                        value={formData.event_id}
-                        onChange={(e) => setFormData({ ...formData, event_id: e.target.value })}
-                        className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
-                      >
-                        {djEvents.map((event) => (
-                          <option key={event.id} value={event.id}>
-                            {event.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Mensaje (opcional)</Label>
-                    <Textarea
-                      id="message"
-                      value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      placeholder="¿Alguna dedicatoria o comentario especial?"
-                      rows={3}
-                    />
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    variant="hero" 
-                    className="w-full"
-                    disabled={submitting}
-                  >
-                    {submitting ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Enviando solicitud...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4 mr-2" />
-                        Enviar Solicitud (${parseFloat(formData.tip_amount || '0').toFixed(2)})
-                      </>
+                    {djEvents.length > 1 && (
+                      <div className="space-y-2">
+                        <Label htmlFor="event_id">Evento</Label>
+                        <select id="event_id" value={formData.event_id} onChange={(e) => setFormData({ ...formData, event_id: e.target.value })} className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm">
+                          {djEvents.map((event) => (
+                            <option key={event.id} value={event.id}>
+                              {event.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     )}
-                  </Button>
-                </form>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="message">Mensaje (opcional)</Label>
+                      <Textarea id="message" value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} placeholder="¿Alguna dedicatoria o comentario especial?" rows={3} />
+                    </div>
+
+                    <Button type="submit" variant="hero" className="w-full" disabled={submitting}>
+                      {submitting ? (
+                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Iniciando pago...</>
+                      ) : (
+                        <><Send className="w-4 h-4 mr-2" /> Continuar al Pago (${parseFloat(formData.tip_amount || '0').toFixed(2)})</>
+                      )}
+                    </Button>
+                  </form>
+                )}
               </CardContent>
             </Card>
           </div>

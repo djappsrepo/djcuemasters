@@ -5,7 +5,7 @@ CREATE TYPE public.app_role AS ENUM ('admin', 'dj', 'cliente');
 CREATE TYPE public.request_status AS ENUM ('pending', 'playing', 'played', 'rejected', 'archived');
 
 -- Create enum for payment status
-CREATE TYPE public.payment_status AS ENUM ('pending', 'completed', 'failed', 'refunded');
+CREATE TYPE public.payment_status AS ENUM ('pending', 'awaiting_payment', 'completed', 'failed', 'refunded');
 
 -- Create profiles table for additional user information
 CREATE TABLE public.profiles (
