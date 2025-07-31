@@ -8,6 +8,7 @@ import DJProfileSetup from "@/components/dj/DJProfileSetup";
 import DJStatsCards from "@/components/dj/DJStatsCards";
 import DJEventManager from "@/components/dj/DJEventManager";
 import DJRequestsQueue from "@/components/dj/DJRequestsQueue";
+import heroImage from '@/assets/dj-hero.jpg';
 
 const Dashboard = () => {
   const { user, profile, djProfile, signOut, loading } = useAuth();
@@ -46,7 +47,12 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div 
+      className="min-h-screen bg-background bg-cover bg-center relative"
+      style={{ backgroundImage: `url(${heroImage})` }}
+    >
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <div className="relative z-10">
       {/* Header */}
       <header className="border-b border-border bg-card/30 backdrop-blur-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -183,6 +189,7 @@ const Dashboard = () => {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
