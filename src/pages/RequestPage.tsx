@@ -1,17 +1,24 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Music, Loader2 } from "lucide-react";
+import { Tables } from "@/integrations/supabase/types";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { Music } from "lucide-react";
 import { CheckoutForm } from "@/components/page-components/request/CheckoutForm";
 import { DjProfileCard } from "@/components/page-components/request/DjProfileCard";
 import { RequestForm } from "@/components/page-components/request/RequestForm";
-import { DJProfile, DJEvent } from "@/types";
+
+// Definimos los tipos aquí para evitar importarlos de un archivo 'types' genérico
+type DJProfile = Tables<'dj_profiles'>;
+type DJEvent = Tables<'dj_events'>;
 
 const RequestPage = () => {
-  const { djId } = useParams();
+  const { djId } = useParams<{ djId: string }>();
   const { toast } = useToast();
+
   const [djProfile, setDjProfile] = useState<DJProfile | null>(null);
   const [djEvents, setDjEvents] = useState<DJEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,6 +38,7 @@ const RequestPage = () => {
 
   const fetchDJData = useCallback(async () => {
     if (!djId) return;
+    setLoading(true);
     try {
       const { data: profileData, error: profileError } = await supabase
         .from('dj_profiles')
@@ -39,7 +47,7 @@ const RequestPage = () => {
         .eq('active', true)
         .single();
 
-      if (profileError) throw profileError;
+      if (profileError) throw new Error("Perfil de DJ no encontrado o inactivo.");
       setDjProfile(profileData);
 
       const { data: eventsData, error: eventsError } = await supabase
@@ -50,10 +58,12 @@ const RequestPage = () => {
         .order('created_at', { ascending: false });
 
       if (eventsError) throw eventsError;
-      setDjEvents(eventsData || []);
+      
+      const activeEvents = eventsData || [];
+      setDjEvents(activeEvents);
 
-      if (eventsData && eventsData.length > 0) {
-        setFormData(prev => ({ ...prev, event_id: eventsData[0].id }));
+      if (activeEvents.length > 0) {
+        setFormData(prev => ({ ...prev, event_id: activeEvents[0].id }));
       }
 
       if (profileData) {
@@ -62,14 +72,10 @@ const RequestPage = () => {
           tip_amount: profileData.minimum_tip.toString() 
         }));
       }
-    } catch (error: unknown) {
-        let errorMessage = "Ocurrió un error desconocido.";
-        if (error instanceof Error) {
-            errorMessage = error.message;
-        }
+    } catch (error: any) {
         toast({
-            title: "Error al cargar información del DJ",
-            description: errorMessage,
+            title: "Error al cargar datos",
+            description: error.message,
             variant: "destructive",
         });
     } finally {
@@ -83,10 +89,13 @@ const RequestPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!djProfile) return;
+    if (!djProfile || !formData.event_id) {
+        toast({ title: "Error", description: "Por favor, selecciona un evento.", variant: "destructive" });
+        return;
+    }
 
     const tipAmount = parseFloat(formData.tip_amount);
-    if (tipAmount < djProfile.minimum_tip) {
+    if (isNaN(tipAmount) || tipAmount < djProfile.minimum_tip) {
       toast({
         title: "Propina insuficiente",
         description: `La propina mínima es $${djProfile.minimum_tip.toFixed(2)}`,
@@ -102,7 +111,7 @@ const RequestPage = () => {
         .from('music_requests')
         .insert({
           dj_id: djProfile.id,
-          event_id: formData.event_id || null,
+          event_id: formData.event_id,
           song_title: formData.song_title,
           artist_name: formData.artist_name,
           client_name: formData.client_name,
@@ -110,7 +119,7 @@ const RequestPage = () => {
           tip_amount: tipAmount,
           message: formData.message || null,
           status: 'pending',
-          payment_status: 'awaiting_payment'
+          payment_status: 'pending'
         })
         .select('id')
         .single();
@@ -127,18 +136,14 @@ const RequestPage = () => {
       if (functionError) throw functionError;
 
       setClientSecret(data.clientSecret);
-      setSubmitting(false); // Reset submitting state after success
 
-    } catch (error: unknown) {
-      let errorMessage = "Ocurrió un error desconocido.";
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      }
+    } catch (error: any) {
       toast({
         title: "Error al procesar la solicitud",
-        description: errorMessage,
+        description: error.message,
         variant: "destructive",
       });
+    } finally {
       setSubmitting(false);
     }
   };
@@ -173,8 +178,8 @@ const RequestPage = () => {
           </div>
 
           <div className="lg:col-span-2">
-            <div className="card">
-              <div className="card-header">
+            <Card>
+              <CardHeader>
                 <div className="flex items-center gap-3">
                   <Music className="w-6 h-6 text-primary" />
                   <h2 className="text-xl">Haz tu Solicitud Musical</h2>
@@ -182,10 +187,10 @@ const RequestPage = () => {
                 <p className="text-muted-foreground">
                   Completa el formulario para enviar tu canción y propina al DJ.
                 </p>
-              </div>
-              <div className="card-content">
+              </CardHeader>
+              <CardContent>
                 {clientSecret && currentRequestId ? (
-                  <CheckoutForm requestId={currentRequestId} />
+                  <CheckoutForm requestId={currentRequestId} clientSecret={clientSecret} />
                 ) : (
                   <RequestForm 
                     djProfile={djProfile}
@@ -198,8 +203,8 @@ const RequestPage = () => {
                     setAgreedToTerms={setAgreedToTerms}
                   />
                 )}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

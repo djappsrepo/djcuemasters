@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,118 +7,134 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { User, DollarSign, Loader2 } from "lucide-react";
+import { User, DollarSign, Loader2, Save } from "lucide-react";
+import type { Tables } from "@/integrations/supabase/types";
+
+type DJProfileFormData = Pick<Tables<'dj_profiles'>, 'stage_name' | 'bio' | 'minimum_tip'>;
 
 const DJProfileSetup = () => {
-  const { user, refreshProfile } = useAuth();
+  const { user, djProfile, refreshProfiles } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<DJProfileFormData>({
     stage_name: "",
     bio: "",
-    minimum_tip: "2.00"
+    minimum_tip: 2.00
   });
+
+  const isEditing = !!djProfile;
+
+  useEffect(() => {
+    if (djProfile) {
+      setFormData({
+        stage_name: djProfile.stage_name || "",
+        bio: djProfile.bio || "",
+        minimum_tip: djProfile.minimum_tip || 2.00
+      });
+    }
+  }, [djProfile]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: id === 'minimum_tip' ? parseFloat(value) || 0 : value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      toast({ title: "Error de autenticación", description: "Debes iniciar sesión para configurar tu perfil.", variant: "destructive" });
+      return;
+    }
 
     setLoading(true);
-    try {
-      const { error } = await supabase
-        .from('dj_profiles')
-        .insert({
-          user_id: user.id,
-          stage_name: formData.stage_name,
-          bio: formData.bio || null,
-          minimum_tip: parseFloat(formData.minimum_tip)
-        });
 
-      if (error) throw error;
+    const profileData = {
+      ...formData,
+      id: user.id, // The profile ID must match the user ID
+      updated_at: new Date().toISOString(),
+    };
 
-      toast({
-        title: "¡Perfil de DJ creado!",
-        description: "Tu perfil de DJ ha sido configurado correctamente.",
-      });
+    // The 'upsert' operation requires the 'user_id' field.
+    const submissionData = { ...profileData, user_id: user.id };
 
-      await refreshProfile();
-    } catch (error: any) {
-      toast({
-        title: "Error al crear perfil",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+    const { error } = await supabase
+      .from('dj_profiles')
+      .upsert(submissionData, { onConflict: 'id' });
+
+    setLoading(false);
+
+    if (error) {
+      toast({ title: `Error al ${isEditing ? 'actualizar' : 'crear'} el perfil`, description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: `¡Perfil ${isEditing ? 'actualizado' : 'creado'}!`, description: "Tu información ha sido guardada.", });
+      if (refreshProfiles) {
+        await refreshProfiles();
+      }
     }
   };
 
   return (
-    <Card className="border-primary/20 bg-gradient-card">
+    <Card className="max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <User className="w-5 h-5 text-primary" />
-          ¡Completa tu perfil de DJ!
-        </CardTitle>
+        <CardTitle>Configuración de Perfil de DJ</CardTitle>
         <CardDescription>
-          Configura tu información para empezar a recibir solicitudes musicales
+          {isEditing ? 'Actualiza tu información pública.' : 'Completa tu perfil para que los fans puedan encontrarte y enviarte propinas.'}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="stage_name">Nombre Artístico *</Label>
-            <Input
-              id="stage_name"
-              value={formData.stage_name}
-              onChange={(e) => setFormData({ ...formData, stage_name: e.target.value })}
-              placeholder="Ej: DJ Pulse"
-              required
-            />
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                id="stage_name"
+                value={formData.stage_name || ''}
+                onChange={handleInputChange}
+                placeholder="Ej: DJ Beatmaster"
+                required
+                className="pl-10"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="bio">Biografía</Label>
             <Textarea
               id="bio"
-              value={formData.bio}
-              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-              placeholder="Cuéntanos sobre tu estilo musical y experiencia..."
-              rows={3}
+              value={formData.bio || ''}
+              onChange={handleInputChange}
+              placeholder="Cuéntanos sobre tu estilo musical, experiencia, etc..."
+              rows={4}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="minimum_tip" className="flex items-center gap-2">
-              <DollarSign className="w-4 h-4" />
-              Propina Mínima (USD) *
-            </Label>
-            <Input
-              id="minimum_tip"
-              type="number"
-              step="0.01"
-              min="1.00"
-              value={formData.minimum_tip}
-              onChange={(e) => setFormData({ ...formData, minimum_tip: e.target.value })}
-              required
-            />
+            <Label htmlFor="minimum_tip">Propina Mínima Sugerida ($)</Label>
+            <div className="relative">
+              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                id="minimum_tip"
+                type="number"
+                value={formData.minimum_tip || 0}
+                onChange={handleInputChange}
+                placeholder="2.00"
+                step="0.01"
+                min="0"
+                className="pl-10"
+              />
+            </div>
           </div>
 
-          <Button 
-            type="submit" 
-            variant="hero" 
-            className="w-full"
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Creando perfil...
-              </>
-            ) : (
-              "Crear Perfil DJ"
-            )}
-          </Button>
+          <div className="flex justify-end pt-4">
+            <Button type="submit" disabled={loading} className="w-full sm:w-auto">
+              {loading ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Guardando...</>
+              ) : (
+                <><Save className="w-4 h-4 mr-2" /> {isEditing ? 'Guardar Cambios' : 'Crear Perfil'}</>
+              )}
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,7 +40,7 @@ export const RegisterForm = () => {
       <CardContent>
         <form onSubmit={handleSignUp} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="signup-fullname">Nombre Completo</Label>
+            <Label>Nombre Completo</Label>
             <Input
               id="signup-fullname"
               placeholder="Juan Pérez"
@@ -51,7 +51,7 @@ export const RegisterForm = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="signup-email">Email</Label>
+            <Label>Email</Label>
             <Input
               id="signup-email"
               type="email"
@@ -63,7 +63,7 @@ export const RegisterForm = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="signup-password">Contraseña</Label>
+            <Label>Contraseña</Label>
             <div className="relative">
               <Input
                 id="signup-password"
@@ -90,22 +90,26 @@ export const RegisterForm = () => {
           </div>
           <div className="space-y-3">
             <Label>Tipo de Cuenta</Label>
-            <RadioGroup value={role} onValueChange={(value) => setRole(value as 'dj' | 'cliente')}>
-              <div className="flex items-center space-x-2 p-3 border border-border rounded-lg hover:border-primary/30 transition-colors">
-                <RadioGroupItem value="cliente" id="cliente" />
-                <User className="w-4 h-4 text-accent" />
-                <div className="flex-1">
-                  <Label htmlFor="cliente" className="font-medium cursor-pointer">Cliente</Label>
-                  <p className="text-xs text-muted-foreground">Para hacer solicitudes musicales a DJs</p>
-                </div>
+            <RadioGroup defaultValue="cliente" className="grid grid-cols-2 gap-4">
+              <div>
+                <RadioGroupItem value="cliente" id="cliente" className="peer sr-only" />
+                <Label
+                  htmlFor="cliente"
+                  className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                >
+                  <User className="mb-3 h-6 w-6" />
+                  Cliente
+                </Label>
               </div>
-              <div className="flex items-center space-x-2 p-3 border border-border rounded-lg hover:border-primary/30 transition-colors">
-                <RadioGroupItem value="dj" id="dj" />
-                <Crown className="w-4 h-4 text-primary" />
-                <div className="flex-1">
-                  <Label htmlFor="dj" className="font-medium cursor-pointer">DJ Profesional</Label>
-                  <p className="text-xs text-muted-foreground">Para recibir solicitudes y monetizar eventos</p>
-                </div>
+              <div>
+                <RadioGroupItem value="dj" id="dj" className="peer sr-only" />
+                <Label
+                  htmlFor="dj"
+                  className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                >
+                  <Crown className="mb-3 h-6 w-6" />
+                  DJ
+                </Label>
               </div>
             </RadioGroup>
           </div>

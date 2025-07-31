@@ -1,317 +1,153 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { Music, DollarSign, User, Clock, Check, X, Play } from "lucide-react";
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Tables } from '@/integrations/supabase/types';
+import { useSupabaseQuery } from '@/hooks/use-supabase-query';
+import { useToast } from '@/hooks/use-toast';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { Check, XCircle, Music, User, Mail } from 'lucide-react';
 
-interface MusicRequest {
-  id: string;
-  song_title: string;
-  artist_name: string;
-  client_name: string;
-  client_email: string | null;
-  tip_amount: number;
-  message: string | null;
-  status: string;
-  payment_status: string;
-  created_at: string;
-  played_at: string | null;
+interface DJRequestsQueueProps {
+  eventId: string;
+  isEventActive: boolean;
 }
 
-const DJRequestsQueue = () => {
-  const { user } = useAuth();
+type MusicRequest = Tables<'music_requests'>;
+
+// Helper para obtener el color del badge según el estado del pago
+const getPaymentStatusVariant = (status: MusicRequest['payment_status']): 'success' | 'default' | 'destructive' | 'secondary' => {
+  switch (status) {
+    case 'completed':
+      return 'success';
+    case 'pending':
+      return 'default';
+    case 'failed':
+      return 'destructive';
+    default:
+      return 'secondary';
+  }
+};
+
+export const DJRequestsQueue = ({ eventId, isEventActive }: DJRequestsQueueProps) => {
   const { toast } = useToast();
-  const [requests, setRequests] = useState<MusicRequest[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  const fetchRequests = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
+  // Usamos el hook para obtener las solicitudes del evento actual
+  const {
+    data: requests,
+    isLoading,
+    error,
+    refetch,
+  } = useSupabaseQuery<MusicRequest[]>(['music_requests', eventId], 
+    (supabase) =>
+      supabase
         .from('music_requests')
         .select('*')
-        .eq('dj_id', user.id)
-        .order('created_at', { ascending: true });
+        .eq('event_id', eventId)
+        .order('created_at', { ascending: true }),
+    { enabled: !!eventId }
+  );
 
-      if (error) throw error;
-      setRequests(data || []);
-    } catch (error: any) {
+  // Asumimos que tienes una columna 'status' en tu tabla 'requests'
+  // para marcar si una canción fue 'played' o 'rejected'.
+  const handleUpdateRequestStatus = async (
+    requestId: string,
+    newStatus: 'played' | 'rejected' | 'pending'
+  ) => {
+    setUpdatingId(requestId);
+    const { error } = await supabase
+      .from('music_requests')
+      .update({ status: newStatus })
+      .eq('id', requestId);
+
+    if (error) {
       toast({
-        title: "Error al cargar solicitudes",
-        description: error.message,
-        variant: "destructive",
+        title: 'Error',
+        description: 'No se pudo actualizar la solicitud.',
+        variant: 'destructive',
       });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRequests();
-
-    // Configurar realtime para actualizaciones en vivo
-    const channel = supabase
-      .channel('music_requests_changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'music_requests',
-          filter: `dj_id=eq.${user?.id}`
-        },
-        () => {
-          fetchRequests();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user]);
-
-  const updateRequestStatus = async (requestId: string, status: string) => {
-    try {
-      const updateData: any = { status };
-      if (status === 'played') {
-        updateData.played_at = new Date().toISOString();
-      }
-
-      const { error } = await supabase
-        .from('music_requests')
-        .update(updateData)
-        .eq('id', requestId);
-
-      if (error) throw error;
-
-      const statusMessages = {
-        accepted: "Solicitud aceptada",
-        played: "Canción marcada como reproducida",
-        rejected: "Solicitud rechazada"
-      };
-
+    } else {
       toast({
-        title: statusMessages[status as keyof typeof statusMessages],
-        description: "El estado de la solicitud ha sido actualizado.",
+        title: 'Éxito',
+        description: `La solicitud ha sido marcada como ${newStatus}.`,
       });
-
-      fetchRequests();
-    } catch (error: any) {
-      toast({
-        title: "Error al actualizar solicitud",
-        description: error.message,
-        variant: "destructive",
-      });
+      refetch(); // Recargamos los datos para reflejar el cambio
     }
+    setUpdatingId(null);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'default';
-      case 'accepted': return 'secondary';
-      case 'played': return 'outline';
-      case 'rejected': return 'destructive';
-      default: return 'default';
-    }
-  };
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'pending': return 'Pendiente';
-      case 'accepted': return 'Aceptada';
-      case 'played': return 'Reproducida';
-      case 'rejected': return 'Rechazada';
-      default: return status;
-    }
-  };
-
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('es-ES', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const pendingRequests = requests.filter(req => req.status === 'pending');
-  const acceptedRequests = requests.filter(req => req.status === 'accepted');
-  const playedRequests = requests.filter(req => req.status === 'played');
-
-  if (loading) {
-    return (
-      <Card>
-        <CardContent className="py-8">
-          <div className="text-center text-muted-foreground">Cargando solicitudes...</div>
-        </CardContent>
-      </Card>
-    );
+  if (error) {
+    return <p className="text-destructive text-center">Error al cargar las solicitudes.</p>;
   }
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Music className="w-5 h-5 text-primary" />
-          Cola de Solicitudes
-        </CardTitle>
+        <CardTitle>Cola de Solicitudes</CardTitle>
         <CardDescription>
-          Gestiona las solicitudes musicales en tiempo real
+          Aquí están las canciones que tu público ha solicitado para este evento.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Solicitudes Pendientes */}
-        {pendingRequests.length > 0 && (
-          <div>
-            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <Clock className="w-4 h-4" />
-              Pendientes ({pendingRequests.length})
-            </h3>
-            <div className="space-y-3">
-              {pendingRequests.map((request) => (
-                <Card key={request.id} className="border-primary/20">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h4 className="font-medium text-foreground">
-                            {request.song_title} - {request.artist_name}
-                          </h4>
-                          <Badge variant={getStatusColor(request.status)}>
-                            {getStatusText(request.status)}
-                          </Badge>
-                        </div>
-                        
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
-                          <div className="flex items-center gap-1">
-                            <User className="w-3 h-3" />
-                            {request.client_name}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <DollarSign className="w-3 h-3" />
-                            ${request.tip_amount.toFixed(2)}
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {formatTime(request.created_at)}
-                          </div>
-                        </div>
-                        
-                        {request.message && (
-                          <p className="text-sm text-muted-foreground italic">
-                            "{request.message}"
-                          </p>
-                        )}
-                      </div>
-                      
-                      <div className="flex gap-2 ml-4">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => updateRequestStatus(request.id, 'accepted')}
-                        >
-                          <Check className="w-3 h-3" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => updateRequestStatus(request.id, 'rejected')}
-                        >
-                          <X className="w-3 h-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Solicitudes Aceptadas */}
-        {acceptedRequests.length > 0 && (
-          <div>
-            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-              <Check className="w-4 h-4" />
-              Aceptadas ({acceptedRequests.length})
-            </h3>
-            <div className="space-y-3">
-              {acceptedRequests.map((request) => (
-                <Card key={request.id} className="border-muted">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-medium text-foreground">
-                            {request.song_title} - {request.artist_name}
-                          </h4>
-                          <Badge variant={getStatusColor(request.status)}>
-                            {getStatusText(request.status)}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <span>{request.client_name}</span>
-                          <span>${request.tip_amount.toFixed(2)}</span>
-                        </div>
-                      </div>
-                      
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => updateRequestStatus(request.id, 'played')}
-                      >
-                        <Play className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Solicitudes Reproducidas (últimas 5) */}
-        {playedRequests.length > 0 && (
-          <div>
-            <h3 className="font-semibold text-foreground mb-3">
-              Últimas Reproducidas
-            </h3>
-            <div className="space-y-2">
-              {playedRequests.slice(-5).reverse().map((request) => (
-                <Card key={request.id} className="border-muted/50">
-                  <CardContent className="p-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-sm font-medium text-muted-foreground">
-                          {request.song_title} - {request.artist_name}
-                        </span>
-                        <div className="text-xs text-muted-foreground">
-                          {request.client_name} • ${request.tip_amount.toFixed(2)}
-                        </div>
-                      </div>
-                      <Badge variant="outline">Reproducida</Badge>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {requests.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            <Music className="w-12 h-12 mx-auto mb-3 opacity-50" />
-            <p>No hay solicitudes en este momento</p>
-            <p className="text-sm">Las solicitudes aparecerán aquí en tiempo real</p>
-          </div>
+      <CardContent className="space-y-4">
+        {requests && requests.length > 0 ? (
+          requests.map((request) => (
+            <Card key={request.id} className="p-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-bold text-lg flex items-center">
+                    <Music className="w-5 h-5 mr-2" /> {request.song_title}
+                  </h3>
+                  <p className="text-muted-foreground">{request.artist_name}</p>
+                  <div className="mt-2 text-sm">
+                    <p className="flex items-center"><User className="w-4 h-4 mr-2" />{request.client_name}</p>
+                    {request.client_email && <p className="flex items-center"><Mail className="w-4 h-4 mr-2" />{request.client_email}</p>}
+                  </div>
+                </div>
+                <Badge variant={getPaymentStatusVariant(request.payment_status) as 'secondary' | 'default' | 'destructive' | null | undefined}>
+                  {request.payment_status}
+                </Badge>
+              </div>
+              {request.message && <p className="mt-2 p-2 bg-muted rounded-md text-sm">"{request.message}"</p>}
+              
+              {isEventActive && (
+                <div className="flex justify-end space-x-2 mt-3">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleUpdateRequestStatus(request.id, 'rejected')}
+                    disabled={updatingId === request.id}
+                  >
+                    <XCircle className="w-4 h-4 mr-1" /> Rechazar
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => handleUpdateRequestStatus(request.id, 'played')}
+                    disabled={updatingId === request.id}
+                  >
+                    <Check className="w-4 h-4 mr-1" /> Marcar como Sonada
+                  </Button>
+                </div>
+              )}
+            </Card>
+          ))
+        ) : (
+          <p className="text-center text-muted-foreground py-4">
+            Aún no hay solicitudes para este evento.
+          </p>
         )}
       </CardContent>
     </Card>
   );
 };
-
-export default DJRequestsQueue;

@@ -1,128 +1,127 @@
-import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { Plus, Loader2, Calendar, MapPin } from "lucide-react";
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Tables } from '@/integrations/supabase/types';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useToast } from '@/hooks/use-toast';
+import { Loader2, ArrowLeft, Calendar, MapPin } from 'lucide-react';
+
+type DJEvent = Tables<'dj_events'>;
 
 interface DJEventFormProps {
-  onEventCreated: () => void;
+  eventToEdit?: DJEvent | null;
+  onSuccess: () => void;
+  onCancel: () => void;
 }
 
-const DJEventForm = ({ onEventCreated }: DJEventFormProps) => {
-  const { user } = useAuth();
+export const DJEventForm = ({ eventToEdit, onSuccess, onCancel }: DJEventFormProps) => {
+  const { djProfile } = useAuth();
   const { toast } = useToast();
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    venue: "",
-    event_date: ""
+    name: '',
+    description: '',
+    venue: '',
+    event_date: ''
   });
+
+  const isEditing = !!eventToEdit;
+
+  useEffect(() => {
+    if (isEditing) {
+      setFormData({
+        name: eventToEdit.name || '',
+        description: eventToEdit.description || '',
+        venue: eventToEdit.venue || '',
+        event_date: eventToEdit.event_date ? new Date(eventToEdit.event_date).toISOString().substring(0, 16) : ''
+      });
+    }
+  }, [eventToEdit, isEditing]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!djProfile?.id) {
+      toast({ title: 'Error de autenticación', description: 'No se encontró tu perfil de DJ.', variant: 'destructive' });
+      return;
+    }
 
     setLoading(true);
-    try {
-      const { error } = await supabase
-        .from('dj_events')
-        .insert({
-          dj_id: user.id,
-          name: formData.name,
-          description: formData.description || null,
-          venue: formData.venue || null,
-          event_date: formData.event_date ? new Date(formData.event_date).toISOString() : null,
-          is_active: true
-        });
 
-      if (error) throw error;
+    const eventData = {
+      dj_id: djProfile.id,
+      name: formData.name.trim(),
+      description: formData.description.trim() || null,
+      venue: formData.venue.trim() || null,
+      event_date: formData.event_date ? new Date(formData.event_date).toISOString() : null,
+      is_active: eventToEdit?.is_active ?? true,
+    };
 
-      toast({
-        title: "¡Evento creado!",
-        description: "Tu evento ha sido creado y está activo.",
-      });
+    const { error } = isEditing
+      ? await supabase.from('dj_events').update(eventData).eq('id', eventToEdit.id)
+      : await supabase.from('dj_events').insert(eventData);
 
-      setFormData({ name: "", description: "", venue: "", event_date: "" });
-      setOpen(false);
-      onEventCreated();
-    } catch (error: any) {
-      toast({
-        title: "Error al crear evento",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+    setLoading(false);
+
+    if (error) {
+      toast({ title: `Error al ${isEditing ? 'actualizar' : 'crear'} el evento`, description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: `¡Evento ${isEditing ? 'actualizado' : 'creado'}!`, description: `El evento ha sido ${isEditing ? 'actualizado' : 'creado'} correctamente.` });
+      onSuccess();
     }
   };
 
-  const formatDateTimeLocal = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="hero" className="w-full">
-          <Plus className="w-4 h-4 mr-2" />
-          Crear Nuevo Evento
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Crear Nuevo Evento</DialogTitle>
-          <DialogDescription>
-            Configura tu evento musical para recibir solicitudes
-          </DialogDescription>
-        </DialogHeader>
+    <Card className="max-w-2xl mx-auto">
+      <CardHeader>
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={onCancel} aria-label="Volver">
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <CardTitle>{isEditing ? 'Editar Evento' : 'Crear Nuevo Evento'}</CardTitle>
+            <CardDescription>{isEditing ? 'Modifica los detalles de tu evento.' : 'Configura un nuevo evento para recibir solicitudes.'}</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Nombre del Evento *</Label>
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={handleInputChange}
               placeholder="Ej: Noche de Salsa en La Terraza"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="venue" className="flex items-center gap-2">
-              <MapPin className="w-4 h-4" />
-              Lugar/Venue
-            </Label>
+            <Label htmlFor="venue" className="flex items-center gap-2"><MapPin className="w-4 h-4" />Lugar/Venue</Label>
             <Input
               id="venue"
               value={formData.venue}
-              onChange={(e) => setFormData({ ...formData, venue: e.target.value })}
+              onChange={handleInputChange}
               placeholder="Ej: Club La Terraza"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="event_date" className="flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Fecha y Hora
-            </Label>
+            <Label htmlFor="event_date" className="flex items-center gap-2"><Calendar className="w-4 h-4" />Fecha y Hora</Label>
             <Input
               id="event_date"
               type="datetime-local"
               value={formData.event_date}
-              onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
-              min={formatDateTimeLocal(new Date())}
+              onChange={handleInputChange}
             />
           </div>
 
@@ -131,40 +130,27 @@ const DJEventForm = ({ onEventCreated }: DJEventFormProps) => {
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={handleInputChange}
               placeholder="Describe tu evento, estilo musical, etc..."
               rows={3}
             />
           </div>
 
           <div className="flex gap-3 pt-4">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => setOpen(false)}
-              className="w-full"
-            >
+            <Button type="button" variant="outline" onClick={onCancel} className="w-full">
               Cancelar
             </Button>
-            <Button 
-              type="submit" 
-              variant="hero" 
-              className="w-full"
-              disabled={loading}
-            >
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creando...
-                </>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />{isEditing ? 'Guardando...' : 'Creando...'}</>
               ) : (
-                "Crear Evento"
+                isEditing ? 'Guardar Cambios' : 'Crear Evento'
               )}
             </Button>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </CardContent>
+    </Card>
   );
 };
 

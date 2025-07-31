@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,7 +34,7 @@ export const LoginForm = () => {
       <CardContent>
         <form onSubmit={handleSignIn} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="signin-email">Email</Label>
+            <Label>Email</Label>
             <Input
               id="signin-email"
               type="email"
@@ -46,7 +46,7 @@ export const LoginForm = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="signin-password">Contraseña</Label>
+            <Label>Contraseña</Label>
             <div className="relative">
               <Input
                 id="signin-password"

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +26,7 @@ const DJEventManager = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -38,20 +38,22 @@ const DJEventManager = () => {
 
       if (error) throw error;
       setEvents(data || []);
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error al cargar eventos",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Ocurrió un error desconocido",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast]);
 
   useEffect(() => {
-    fetchEvents();
-  }, [user]);
+    if(user) {
+      fetchEvents();
+    }
+  }, [user, fetchEvents]);
 
   const toggleEventStatus = async (eventId: string, currentStatus: boolean) => {
     try {
@@ -70,10 +72,10 @@ const DJEventManager = () => {
       });
 
       fetchEvents();
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error al actualizar evento",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Ocurrió un error desconocido",
         variant: "destructive",
       });
     }
@@ -96,10 +98,10 @@ const DJEventManager = () => {
       });
 
       fetchEvents();
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error al eliminar evento",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Ocurrió un error desconocido",
         variant: "destructive",
       });
     }
@@ -136,7 +138,7 @@ const DJEventManager = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <DJEventForm onEventCreated={fetchEvents} />
+        <DJEventForm onSuccess={fetchEvents} onCancel={() => {}} eventToEdit={null} />
         
         {events.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
