@@ -1,5 +1,6 @@
 import djIcon from "@/assets/dj-icon.jpg";
 import { Link } from 'react-router-dom';
+import { Twitter, MessageSquare, Phone } from 'lucide-react';
 
 export const Footer = () => {
   return (
@@ -38,11 +39,25 @@ export const Footer = () => {
           
           <div>
             <h4 className="font-semibold text-foreground mb-4">Contacto</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>hello@cueflow.com</li>
-              <li>+1 (555) 123-4567</li>
-              <li>Discord Community</li>
-              <li>Instagram</li>
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              <li>
+                <a href="https://wa.me/5215512345678" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-foreground transition-colors">
+                  <Phone className="w-4 h-4" />
+                  <span>WhatsApp</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://x.com/DjWackoCDMX" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-foreground transition-colors">
+                  <Twitter className="w-4 h-4" />
+                  <span>Twitter / X</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://discord.com/api/webhooks/1400542750515920937/p5H9wZuvig66s9H-l3UXmLdvnkJNh34hxJohsBJFfiEjD_7CfEHE7bTfeAFR4rBBp7nJ" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-foreground transition-colors">
+                  <MessageSquare className="w-4 h-4" />
+                  <span>Discord</span>
+                </a>
+              </li>
             </ul>
           </div>
         </div>

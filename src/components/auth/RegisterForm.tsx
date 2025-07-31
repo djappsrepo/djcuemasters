@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, User, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -15,6 +16,7 @@ export const RegisterForm = () => {
   const [role, setRole] = useState<'dj' | 'cliente'>('cliente');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const { signUp } = useAuth();
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -107,15 +109,25 @@ export const RegisterForm = () => {
               </div>
             </RadioGroup>
           </div>
-          <Button type="submit" className="w-full" variant="hero" disabled={loading}>
+          <div className="flex items-center space-x-2 mt-4">
+            <Checkbox 
+              id="terms"
+              checked={agreedToTerms}
+              onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+              disabled={loading}
+            />
+            <label
+              htmlFor="terms"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Acepto los <Link to="/terms" className="underline hover:text-primary">términos de servicio</Link> y la <Link to="/privacy" className="underline hover:text-primary">política de privacidad</Link>.
+            </label>
+          </div>
+          <Button type="submit" className="w-full" variant="hero" disabled={loading || !agreedToTerms}>
             {loading ? "Creando cuenta..." : "Crear Cuenta"}
           </Button>
         </form>
-        <div className="text-center mt-4">
-          <p className="text-xs text-muted-foreground">
-            Al registrarte, aceptas nuestros <Link to="/terms" className="underline hover:text-primary">términos de servicio</Link> y <Link to="/privacy" className="underline hover:text-primary">política de privacidad</Link>.
-          </p>
-        </div>
+        
       </CardContent>
     </Card>
   );

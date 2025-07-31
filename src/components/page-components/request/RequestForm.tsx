@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DollarSign, Loader2, Send } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Link } from "react-router-dom";
 import { DJProfile, DJEvent } from '@/types';
 
 interface FormData {
@@ -22,9 +24,11 @@ interface RequestFormProps {
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
   onSubmit: (e: React.FormEvent) => void;
   isSubmitting: boolean;
+  agreedToTerms: boolean;
+  setAgreedToTerms: (value: boolean) => void;
 }
 
-export const RequestForm = ({ djProfile, djEvents, formData, setFormData, onSubmit, isSubmitting }: RequestFormProps) => {
+export const RequestForm = ({ djProfile, djEvents, formData, setFormData, onSubmit, isSubmitting, agreedToTerms, setAgreedToTerms }: RequestFormProps) => {
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -78,7 +82,22 @@ export const RequestForm = ({ djProfile, djEvents, formData, setFormData, onSubm
         <Textarea id="message" value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} placeholder="¿Alguna dedicatoria o comentario especial?" rows={3} disabled={isSubmitting} />
       </div>
 
-      <Button type="submit" variant="hero" className="w-full" disabled={isSubmitting}>
+      <div className="flex items-center space-x-2 mt-4">
+        <Checkbox 
+          id="request-terms"
+          checked={agreedToTerms}
+          onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+          disabled={isSubmitting}
+        />
+        <label
+          htmlFor="request-terms"
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          He leído y acepto los <Link to="/terms" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary">términos de servicio</Link>.
+        </label>
+      </div>
+
+      <Button type="submit" variant="hero" className="w-full" disabled={isSubmitting || !agreedToTerms}>
         {isSubmitting ? (
           <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Iniciando pago...</>
         ) : (

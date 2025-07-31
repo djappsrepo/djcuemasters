@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
@@ -5,11 +6,25 @@ import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/page-components/home/HeroSection";
 import { HowItWorksSection } from "@/components/page-components/home/HowItWorksSection";
 import { BenefitsSection } from "@/components/page-components/home/BenefitsSection";
-import { CtaSection } from "@/components/page-components/home/CtaSection";
+import { PricingSection } from "@/components/page-components/home/PricingSection";
+import { WelcomeModal } from '@/components/layout/WelcomeModal';
 
 const LandingPage = () => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const hasVisited = localStorage.getItem('hasVisitedCueFlow');
+    if (!hasVisited) {
+      setIsModalOpen(true);
+    }
+  }, []);
+
+  const handleCloseModal = () => {
+    localStorage.setItem('hasVisitedCueFlow', 'true');
+    setIsModalOpen(false);
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -23,6 +38,16 @@ const LandingPage = () => {
 
   const handleAuthClick = () => {
     navigate('/auth');
+  };
+
+  const handleSubscribeClick = (plan: string) => {
+    console.log(`Plan seleccionado: ${plan}`);
+    if (user) {
+      // TODO: Redirigir a la página de pago de Stripe con el plan seleccionado
+      navigate('/dashboard/billing'); 
+    } else {
+      navigate('/auth');
+    }
   };
 
   return (
@@ -45,9 +70,10 @@ const LandingPage = () => {
 
       <BenefitsSection />
 
-      <CtaSection onAuthClick={handleAuthClick} />
+      <PricingSection onSubscribeClick={handleSubscribeClick} />
 
       <Footer />
+      <WelcomeModal isOpen={isModalOpen} onClose={handleCloseModal} />
     </div>
   );
 };

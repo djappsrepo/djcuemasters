@@ -18,6 +18,7 @@ const RequestPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [currentRequestId, setCurrentRequestId] = useState<string | null>(null);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [formData, setFormData] = useState({
     song_title: "",
     artist_name: "",
@@ -193,6 +194,8 @@ const RequestPage = () => {
                     setFormData={setFormData}
                     onSubmit={handleSubmit}
                     isSubmitting={submitting}
+                    agreedToTerms={agreedToTerms}
+                    setAgreedToTerms={setAgreedToTerms}
                   />
                 )}
               </div>
