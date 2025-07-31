@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">CueMasters DJ App</string>
+    <string name="title_activity_main">CueMasters DJ App</string>
+    <string name="package_name">com.djwacko.cuemasters</string>
+    <string name="custom_url_scheme">com.djwacko.cuemasters</string>
+</resources>
