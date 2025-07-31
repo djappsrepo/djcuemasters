@@ -41,7 +41,7 @@ export const Footer = () => {
             <h4 className="font-semibold text-foreground mb-4">Contacto</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li>
-                <a href="https://wa.me/5215512345678" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-foreground transition-colors">
+                <a href="#" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-foreground transition-colors">
                   <Phone className="w-4 h-4" />
                   <span>WhatsApp</span>
                 </a>
@@ -53,7 +53,7 @@ export const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="https://discord.com/api/webhooks/1400542750515920937/p5H9wZuvig66s9H-l3UXmLdvnkJNh34hxJohsBJFfiEjD_7CfEHE7bTfeAFR4rBBp7nJ" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-foreground transition-colors">
+                <a href="#" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-foreground transition-colors">
                   <MessageSquare className="w-4 h-4" />
                   <span>Discord</span>
                 </a>

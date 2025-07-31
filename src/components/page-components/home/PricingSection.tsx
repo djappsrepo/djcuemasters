@@ -6,29 +6,29 @@ import { Check } from 'lucide-react';
 const pricingPlans = [
   {
     name: 'Mensual',
-    price: '$19.99',
-    period: '/mes',
+    price: '$99',
+    period: 'MXN /mes',
     features: ['Panel de DJ Profesional', 'Solicitudes en tiempo real', 'Página de perfil público', 'Soporte estándar'],
     isPopular: false,
   },
   {
     name: 'Trimestral',
-    price: '$49.99',
-    period: '/trimestre',
+    price: '$249',
+    period: 'MXN /trimestre',
     features: ['Todo lo del plan Mensual', 'Estadísticas de eventos', 'Ahorra un 15%'],
     isPopular: false,
   },
   {
     name: 'Semestral',
-    price: '$89.99',
-    period: '/semestre',
+    price: '$449',
+    period: 'MXN /semestre',
     features: ['Todo lo del plan Trimestral', 'Soporte prioritario 24/7', 'Ahorra un 25%'],
     isPopular: false,
   },
   {
     name: 'Anual',
-    price: '$149.99',
-    period: '/año',
+    price: '$799',
+    period: 'MXN /año',
     features: ['Todo lo del plan Semestral', 'Perfil destacado', 'Ahorra un 40%'],
     isPopular: true,
   },
@@ -94,7 +94,7 @@ export const PricingSection = ({ onSubscribeClick }: PricingSectionProps) => {
           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-8">
           {pricingPlans.map((plan) => (
             <motion.div key={plan.name} whileHover={{ y: -10, transition: { duration: 0.2 } }}>
-              <Card className={`flex flex-col h-full ${plan.isPopular ? 'border-purple-500 shadow-purple-500/20' : 'border-gray-700'} bg-gray-800/60 shadow-lg`}>
+              <Card className={`flex flex-col h-full border-purple-500/50 bg-gray-800/60 shadow-lg transition-all duration-300 ${plan.isPopular ? 'shadow-purple-500/40' : 'shadow-purple-500/10'}`}>
                 {plan.isPopular && (
                   <div className="bg-purple-600 text-center text-white text-sm font-bold py-1 rounded-t-lg">Más Popular</div>
                 )}
@@ -117,7 +117,7 @@ export const PricingSection = ({ onSubscribeClick }: PricingSectionProps) => {
                 </CardContent>
                 <CardFooter>
                   <Button 
-                    className={`w-full font-bold ${plan.isPopular ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-700 hover:bg-gray-600'} text-white`}
+                    className={`w-full font-bold ${plan.isPopular ? 'bg-purple-600 hover:bg-purple-700' : 'bg-purple-600/50 hover:bg-purple-600/80'} text-white transition-colors`}
                     onClick={() => onSubscribeClick(plan.name)}
                   >
                     Suscribirse
