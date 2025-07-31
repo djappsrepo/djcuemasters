@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Tables } from "@/integrations/supabase/types";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { Music } from "lucide-react";
 import { CheckoutForm } from "@/components/page-components/request/CheckoutForm";
 import { DjProfileCard } from "@/components/page-components/request/DjProfileCard";
@@ -72,11 +72,13 @@ const RequestPage = () => {
           tip_amount: profileData.minimum_tip.toString() 
         }));
       }
-    } catch (error: any) {
+    } catch (error) {
+        console.error("Error al cargar el perfil del DJ:", error);
+        const errorMessage = error instanceof Error ? error.message : "Ocurrió un error desconocido.";
         toast({
-            title: "Error al cargar datos",
-            description: error.message,
-            variant: "destructive",
+          title: "No se pudo cargar la información del DJ",
+          description: errorMessage,
+          variant: "destructive",
         });
     } finally {
       setLoading(false);
@@ -137,12 +139,14 @@ const RequestPage = () => {
 
       setClientSecret(data.clientSecret);
 
-    } catch (error: any) {
-      toast({
-        title: "Error al procesar la solicitud",
-        description: error.message,
-        variant: "destructive",
-      });
+    } catch (error) {
+        console.error("Error al crear la solicitud:", error);
+        const errorMessage = error instanceof Error ? error.message : "Ocurrió un error desconocido.";
+        toast({
+          title: "No se pudo procesar la solicitud",
+          description: errorMessage,
+          variant: "destructive",
+        });
     } finally {
       setSubmitting(false);
     }

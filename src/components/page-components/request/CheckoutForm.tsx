@@ -5,9 +5,10 @@ import { Loader2 } from "lucide-react";
 
 interface CheckoutFormProps {
   requestId: string;
+  clientSecret: string;
 }
 
-export function CheckoutForm({ requestId }: CheckoutFormProps) {
+export function CheckoutForm({ requestId, clientSecret }: CheckoutFormProps) {
   const stripe = useStripe();
   const elements = useElements();
 

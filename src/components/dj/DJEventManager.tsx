@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
+import type { Tables } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,28 +9,21 @@ import { useToast } from "@/hooks/use-toast";
 import { Calendar, MapPin, Users, Play, Pause, Trash2 } from "lucide-react";
 import DJEventForm from "./DJEventForm";
 
-interface Event {
-  id: string;
-  name: string;
-  description: string | null;
-  venue: string | null;
-  event_date: string | null;
-  is_active: boolean;
-  total_requests: number;
-  total_earnings: number;
-  created_at: string;
+interface DJEventManagerProps {
+  onEventActivated: (event: Tables<'dj_events'> | null) => void;
 }
 
-const DJEventManager = () => {
+const DJEventManager = ({ onEventActivated }: DJEventManagerProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<Tables<'dj_events'>[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeEvent, setActiveEvent] = useState<Tables<'dj_events'> | null>(null);
 
   const fetchEvents = useCallback(async () => {
     if (!user) return;
-
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('dj_events')
         .select('*')
@@ -37,47 +31,57 @@ const DJEventManager = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setEvents(data || []);
+      const eventsData = data || [];
+      setEvents(eventsData);
+      const currentlyActiveEvent = eventsData.find(e => e.is_active) || null;
+      setActiveEvent(currentlyActiveEvent);
+      onEventActivated(currentlyActiveEvent);
     } catch (error) {
-      toast({
-        title: "Error al cargar eventos",
-        description: error instanceof Error ? error.message : "Ocurrió un error desconocido",
-        variant: "destructive",
-      });
+      toast({ title: "Error al cargar eventos", description: (error as Error).message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
-  }, [user, toast]);
+  }, [user, toast, onEventActivated]);
 
   useEffect(() => {
-    if(user) {
-      fetchEvents();
+    fetchEvents();
+  }, [fetchEvents]);
+
+  const activateEvent = async (eventToActivate: Tables<'dj_events'>) => {
+    if (activeEvent) {
+      await deactivateCurrentEvent();
     }
-  }, [user, fetchEvents]);
+    const { data: updatedEvent, error: updateError } = await supabase
+      .from('dj_events')
+      .update({ is_active: true })
+      .eq('id', eventToActivate.id)
+      .select()
+      .single();
 
-  const toggleEventStatus = async (eventId: string, currentStatus: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('dj_events')
-        .update({ is_active: !currentStatus })
-        .eq('id', eventId);
+    if (updateError || !updatedEvent) {
+      toast({ title: "Error al activar evento", description: updateError?.message, variant: "destructive" });
+      return;
+    }
+    setActiveEvent(updatedEvent);
+    onEventActivated(updatedEvent);
+    toast({ title: "Evento activado", description: `El evento ${updatedEvent.name} ha sido activado.` });
+    fetchEvents();
+  };
 
-      if (error) throw error;
+  const deactivateCurrentEvent = async () => {
+    if (!activeEvent) return;
+    const { error } = await supabase
+      .from('dj_events')
+      .update({ is_active: false })
+      .eq('id', activeEvent.id);
 
-      toast({
-        title: currentStatus ? "Evento pausado" : "Evento activado",
-        description: currentStatus 
-          ? "El evento ya no recibe solicitudes" 
-          : "El evento ahora recibe solicitudes",
-      });
-
+    if (error) {
+      toast({ title: "Error al desactivar evento", description: error.message, variant: "destructive" });
+    } else {
+      setActiveEvent(null);
+      onEventActivated(null);
+      toast({ title: "Evento desactivado" });
       fetchEvents();
-    } catch (error) {
-      toast({
-        title: "Error al actualizar evento",
-        description: error instanceof Error ? error.message : "Ocurrió un error desconocido",
-        variant: "destructive",
-      });
     }
   };
 
@@ -188,7 +192,7 @@ const DJEventManager = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => toggleEventStatus(event.id, event.is_active)}
+                        onClick={() => event.is_active ? deactivateCurrentEvent() : activateEvent(event)}
                       >
                         {event.is_active ? (
                           <Pause className="w-3 h-3" />

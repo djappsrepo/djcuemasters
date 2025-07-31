@@ -1,16 +1,18 @@
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Music, LogOut, Settings, BarChart3, Users, DollarSign } from "lucide-react";
 import DJProfileSetup from "@/components/dj/DJProfileSetup";
 import DJStatsCards from "@/components/dj/DJStatsCards";
 import DJEventManager from "@/components/dj/DJEventManager";
-import DJRequestsQueue from "@/components/dj/DJRequestsQueue";
+import { DJRequestsQueue } from "@/components/dj/DJRequestsQueue";
 import heroImage from '@/assets/dj-hero.jpg';
 
 const Dashboard = () => {
+  const [activeEvent, setActiveEvent] = useState<Tables<"dj_events"> | null>(null);
   const { user, profile, djProfile, signOut, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -132,8 +134,8 @@ const Dashboard = () => {
                 <DJStatsCards />
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <DJEventManager />
-                  <DJRequestsQueue />
+                  <DJEventManager onEventActivated={setActiveEvent} />
+                  <DJRequestsQueue eventId={activeEvent?.id} isEventActive={!!activeEvent} />
                 </div>
               </>
             )}
