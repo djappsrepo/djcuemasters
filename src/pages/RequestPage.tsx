@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Music, Loader2 } from "lucide-react";
@@ -161,8 +162,8 @@ const RequestPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-12 h-12 animate-spin text-primary" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <LoadingSpinner size={80} />
       </div>
     );
   }
