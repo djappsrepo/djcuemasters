@@ -51,16 +51,19 @@ export const WelcomeModal = ({ isOpen, onClose }: WelcomeModalProps) => {
   const [direction, setDirection] = useState(1);
 
   const handleNext = () => {
-    setDirection(1);
     if (step < steps.length - 1) {
       setStep(step + 1);
     } else {
+      // Acción final: ir a la sección de planes y cerrar modal
+      const pricingSection = document.getElementById('pricing');
+      if (pricingSection) {
+        pricingSection.scrollIntoView({ behavior: 'smooth' });
+      }
       onClose();
     }
   };
 
   const handleBack = () => {
-    setDirection(-1);
     if (step > 0) {
       setStep(step - 1);
     }
@@ -111,16 +114,16 @@ export const WelcomeModal = ({ isOpen, onClose }: WelcomeModalProps) => {
               </AnimatePresence>
             </div>
 
-            <div className="bg-gray-800/50 px-8 py-4 border-t border-gray-700 flex items-center justify-between">
-              <div className="flex gap-1.5">
+            <div className="flex items-center justify-between p-4">
+              <div className="flex items-center gap-2">
                 {steps.map((_, i) => (
                   <div
                     key={i}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${i === step ? 'w-6 bg-purple-500' : 'w-3 bg-gray-600'}`}
+                    className={`h-1.5 rounded-full ${i === step ? 'w-6 bg-purple-600' : 'w-3 bg-gray-300'}`}
                   />
                 ))}
               </div>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
                 {step > 0 && (
                   <Button variant="outline" size="sm" onClick={handleBack}>
                     <ArrowLeft className="h-4 w-4 mr-1" />
@@ -128,7 +131,7 @@ export const WelcomeModal = ({ isOpen, onClose }: WelcomeModalProps) => {
                   </Button>
                 )}
                 <Button onClick={handleNext} size="sm" className="bg-purple-600 hover:bg-purple-700">
-                  {step === steps.length - 1 ? 'Finalizar' : 'Siguiente'}
+                  {step === steps.length - 1 ? 'Ver Planes' : 'Siguiente'}
                   <ArrowRight className="h-4 w-4 ml-1" />
                 </Button>
               </div>

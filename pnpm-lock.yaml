@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@capacitor/android':
+        specifier: ^7.4.2
+        version: 7.4.2(@capacitor/core@7.4.2)
       '@capacitor/cli':
         specifier: ^7.4.2
         version: 7.4.2
@@ -282,10 +285,18 @@ packages:
     resolution: {integrity: sha512-ruv7Ae4J5dUYULmeXw1gmb7rYRz57OWCPM57pHojnLq/3Z1CK2lNSLTCVjxVk1F/TZHwOZZrOWi0ur95BbLxNQ==}
     engines: {node: '>=6.9.0'}
 
+  '@capacitor/android@7.4.2':
+    resolution: {integrity: sha512-FZ7M9NwFkljR7EP5eXiE32mAIfZNcYw2CzRMCG3rQu0u0ZaIoeOeq5/oK4YcDnGpNmu8jpngKJqZ+9OiSQSwDg==}
+    peerDependencies:
+      '@capacitor/core': ^7.4.0
+
   '@capacitor/cli@7.4.2':
     resolution: {integrity: sha512-ckcRbg/kBSnJsuCTCLzowBxvgDTI+dcIN7LK+Nt71fbaUG3judpF279ymJRrgRDJshFR5D5dfcvTFh5N1z8liA==}
     engines: {node: '>=20.0.0'}
     hasBin: true
+
+  '@capacitor/core@7.4.2':
+    resolution: {integrity: sha512-akCf9A1FUR8AWTtmgGjHEq6LmGsjA2U7igaJ9PxiCBfyxKqlDbuGHrlNdpvHEjV5tUPH3KYtkze6gtFcNKPU9A==}
 
   '@csstools/color-helpers@5.0.2':
     resolution: {integrity: sha512-JqWH1vsgdGcw2RR6VliXXdA0/59LttzlU8UlRT/iUUsEeWfYq8I+K0yhihEUTTHLRm1EXvpsCx3083EU15ecsA==}
@@ -3489,6 +3500,10 @@ snapshots:
       '@babel/helper-string-parser': 7.27.1
       '@babel/helper-validator-identifier': 7.27.1
 
+  '@capacitor/android@7.4.2(@capacitor/core@7.4.2)':
+    dependencies:
+      '@capacitor/core': 7.4.2
+
   '@capacitor/cli@7.4.2':
     dependencies:
       '@ionic/cli-framework-output': 2.2.8
@@ -3510,6 +3525,10 @@ snapshots:
       xml2js: 0.6.2
     transitivePeerDependencies:
       - supports-color
+
+  '@capacitor/core@7.4.2':
+    dependencies:
+      tslib: 2.8.1
 
   '@csstools/color-helpers@5.0.2': {}
 
