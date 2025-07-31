@@ -78,15 +78,20 @@ export function CheckoutForm({ requestId }: CheckoutFormProps) {
   };
 
   return (
-    <form id="payment-form" onSubmit={handleSubmit}>
-      <PaymentElement id="payment-element" />
-      <Button disabled={isLoading || !stripe || !elements} id="submit" className="w-full mt-4" variant="hero">
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-center">Completa tu Pago</h3>
+      <form id="payment-form" onSubmit={handleSubmit}>
+        <div className="my-4">
+          <PaymentElement id="payment-element" />
+        </div>
+        <Button disabled={isLoading || !stripe || !elements} id="submit" className="w-full" variant="hero">
         <span id="button-text">
           {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : "Pagar ahora"}
         </span>
-      </Button>
-      {/* Show any error or success messages */}
-      {message && <div id="payment-message" className="text-center mt-2 text-sm text-destructive">{message}</div>}
-    </form>
+        </Button>
+        {/* Show any error or success messages */}
+        {message && <div id="payment-message" className="text-center mt-2 text-sm text-destructive">{message}</div>}
+      </form>
+    </div>
   );
 }

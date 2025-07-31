@@ -7,26 +7,7 @@ import { Music, Loader2 } from "lucide-react";
 import { CheckoutForm } from "@/components/page-components/request/CheckoutForm";
 import { DjProfileCard } from "@/components/page-components/request/DjProfileCard";
 import { RequestForm } from "@/components/page-components/request/RequestForm";
-
-interface DJProfile {
-  id: string;
-  user_id: string;
-  stage_name: string;
-  bio: string | null;
-  minimum_tip: number;
-  active: boolean;
-  average_rating: number;
-  total_requests: number;
-}
-
-interface DJEvent {
-  id: string;
-  name: string;
-  description: string | null;
-  venue: string | null;
-  event_date: string | null;
-  is_active: boolean;
-}
+import { DJProfile, DJEvent } from "@/types";
 
 const RequestPage = () => {
   const { djId } = useParams();
@@ -145,6 +126,7 @@ const RequestPage = () => {
       if (functionError) throw functionError;
 
       setClientSecret(data.clientSecret);
+      setSubmitting(false); // Reset submitting state after success
 
     } catch (error: unknown) {
       let errorMessage = "Ocurrió un error desconocido.";

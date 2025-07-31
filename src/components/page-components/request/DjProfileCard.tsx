@@ -1,27 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, MapPin, Calendar } from "lucide-react";
-
-// Re-utilizamos las interfaces que ya definimos en RequestPage
-interface DJProfile {
-  id: string;
-  user_id: string;
-  stage_name: string;
-  bio: string | null;
-  minimum_tip: number;
-  active: boolean;
-  average_rating: number;
-  total_requests: number;
-}
-
-interface DJEvent {
-  id: string;
-  name: string;
-  description: string | null;
-  venue: string | null;
-  event_date: string | null;
-  is_active: boolean;
-}
+import { DJProfile, DJEvent } from "@/types";
 
 interface DjProfileCardProps {
   djProfile: DJProfile;

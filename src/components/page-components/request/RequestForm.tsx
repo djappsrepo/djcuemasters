@@ -3,16 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DollarSign, Loader2, Send } from "lucide-react";
-
-// Re-utilizamos las interfaces que ya definimos
-interface DJProfile {
-  minimum_tip: number;
-}
-
-interface DJEvent {
-  id: string;
-  name: string;
-}
+import { DJProfile, DJEvent } from '@/types';
 
 interface FormData {
   song_title: string;

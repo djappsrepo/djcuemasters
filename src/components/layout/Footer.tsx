@@ -1,4 +1,5 @@
 import djIcon from "@/assets/dj-icon.jpg";
+import { Link } from 'react-router-dom';
 
 export const Footer = () => {
   return (
@@ -47,7 +48,12 @@ export const Footer = () => {
         </div>
         
         <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 CueFlow. Todos los derechos reservados. Hecho con ❤️ para DJs.</p>
+          <p>&copy; {new Date().getFullYear()} CueMasters DJ. Todos los derechos reservados.</p>
+        <div className="mt-2">
+          <Link to="/terms" className="text-sm text-gray-400 hover:text-white mx-2">Términos de Servicio</Link>
+          <span className="text-gray-600">|</span>
+          <Link to="/privacy" className="text-sm text-gray-400 hover:text-white mx-2">Política de Privacidad</Link>
+        </div>
         </div>
       </div>
     </footer>
