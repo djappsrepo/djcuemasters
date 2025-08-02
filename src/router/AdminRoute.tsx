@@ -3,22 +3,23 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
 const AdminRoute = () => {
-  const { user, profile, loading } = useAuth();
+  const { user, userRole, loading } = useAuth();
 
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        <Loader2 className="animate-spin h-12 w-12" />
       </div>
     );
   }
 
-  if (!user || profile?.role !== 'admin') {
-    // Redirect them to the home page if they are not an admin
+  if (!user || userRole !== 'admin') {
+    // Redirect them to the home page, but save the current location they were
+    // trying to go to when they were redirected.
     return <Navigate to="/" replace />;
   }
 
-  return <Outlet />; // Render the child route (AdminDashboard)
+  return <Outlet />;
 };
 
 export default AdminRoute;

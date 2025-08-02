@@ -1,0 +1,10 @@
+# Ignore build output and node modules
+/dist
+/node_modules
+
+# Ignore platform-specific build folders
+/android
+/ios
+
+# Ignore generated files
+/supabase/.temp

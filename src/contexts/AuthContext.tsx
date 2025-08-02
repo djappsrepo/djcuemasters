@@ -2,7 +2,7 @@ import { useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthSession, User } from '@supabase/supabase-js';
 import { Tables } from '@/integrations/supabase/types';
-import { AuthContext } from './auth.context';
+import { AuthContext, UserRole } from './auth.context';
 
 // Define los tipos específicos para nuestros perfiles usando los tipos generados
 type Profile = Tables<'profiles'>;
@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [djProfile, setDjProfile] = useState<DJProfile | null>(null);
+  const [userRole, setUserRole] = useState<UserRole>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchProfiles = async (userId: string) => {
@@ -27,6 +28,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       .eq('id', userId)
       .single();
     setProfile(profileData || null);
+    setUserRole((profileData?.role as UserRole) || null);
 
     // Obtener perfil de DJ
     const { data: djProfileData } = await supabase
@@ -76,6 +78,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         } else {
             setProfile(null);
             setDjProfile(null);
+            setUserRole(null);
         }
       }
     );
@@ -106,7 +109,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          user_id: data.user.id,
+          id: data.user.id,
           email: data.user.email!,
           full_name: fullName,
           role: role,
@@ -143,6 +146,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     session,
     user,
     profile,
+    userRole,
     djProfile,
     loading,
     signOut,

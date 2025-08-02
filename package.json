@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "test": "vitest",
     "build:dev": "vite build --mode development",
-    "lint": "eslint .",
+    "lint": "eslint . --ignore-pattern android --ignore-pattern ios --ignore-pattern dist --ignore-pattern 'supabase/.temp' --ignore-pattern '*.cjs' --format json --output-file lint-report.json", 
     "preview": "vite preview"
   },
   "dependencies": {

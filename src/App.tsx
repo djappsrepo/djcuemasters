@@ -14,7 +14,7 @@ import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
-import AdminRoute from "./components/router/AdminRoute";
+import AdminRoute from "./router/AdminRoute";
 
 const queryClient = new QueryClient();
 
