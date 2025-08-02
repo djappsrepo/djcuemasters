@@ -1,10 +1,45 @@
-import loadingGif from '@/assets/cuemastersdj_logo_eq.gif';
+import { motion } from 'framer-motion';
+import animatedLogo from '@/assets/cuemastersdj_logo_eq_animated.svg';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.3, delayChildren: 0.2 },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100 } },
+};
+
+const logoVariants = {
+  hidden: { scale: 0.5, opacity: 0 },
+  visible: { scale: 1, opacity: 1, transition: { type: 'spring', damping: 15, stiffness: 100 } },
+};
 
 export const LoadingScreen = () => {
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gray-900">
-      <img src={loadingGif} alt="Cargando..." className="w-40 h-40" />
-      <p className="mt-4 text-lg text-gray-300 animate-pulse">Cargando experiencia...</p>
-    </div>
+    <motion.div
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-gray-900"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      exit={{ opacity: 0 }}
+    >
+      <motion.img
+        src={animatedLogo}
+        alt="Cargando..."
+        className="w-40 h-40"
+        variants={logoVariants}
+      />
+      <motion.p
+        className="mt-4 text-lg text-gray-300"
+        variants={itemVariants}
+      >
+        Cargando experiencia...
+      </motion.p>
+    </motion.div>
   );
 };
