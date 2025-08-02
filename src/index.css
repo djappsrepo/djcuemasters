@@ -119,11 +119,5 @@
 
   body {
     @apply bg-background text-foreground;
-    background-image: url('./assets/dj-hero.jpg');
-    background-size: cover;
-    background-attachment: fixed;
-    background-position: center;
-    background-color: #1a1a1a; /* Un color de fondo oscuro */
-    background-blend-mode: overlay; /* Mezcla la imagen con el color de fondo */
   }
 }

@@ -15,6 +15,7 @@ import PrivacyPage from "./pages/PrivacyPage";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminRoute from "./router/AdminRoute";
+import djHero from "./assets/dj-hero.jpg";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +26,15 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <div className="min-h-screen w-full bg-gradient-to-b from-gray-900 to-black text-white font-sans">
+          <div 
+            className="min-h-screen w-full text-white font-sans"
+            style={{
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url(${djHero})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundAttachment: 'fixed',
+            }}
+          >
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/auth" element={<AuthPage />} />
