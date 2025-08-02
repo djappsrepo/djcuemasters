@@ -13,6 +13,8 @@ import BillingPage from './pages/BillingPage';
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminRoute from "./components/router/AdminRoute";
 
 const queryClient = new QueryClient();
 
@@ -32,7 +34,12 @@ const App = () => (
               <Route path="/dashboard/billing" element={<BillingPage />} />
               <Route path="/request/:djId" element={<RequestPage />} />
               <Route path="/terms" element={<TermsPage />} />
-              <Route path="/privacy" element={<PrivacyPage />} />
+                            <Route path="/privacy" element={<PrivacyPage />} />
+
+              {/* Admin Routes */}
+              <Route element={<AdminRoute />}>
+                <Route path="/admin" element={<AdminDashboard />} />
+              </Route>
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

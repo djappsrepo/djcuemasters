@@ -53,3 +53,6 @@ npm run dev
 - **Componentes Modulares:** Se refactorizaron las secciones de la página de inicio (`Hero`, `HowItWorks`, etc.) en componentes independientes y animados.
 - **Tipos Centralizados:** Se creó un archivo `src/types/index.ts` para centralizar las interfaces (`DJProfile`, `DJEvent`) y eliminar la duplicidad.
 - **Auditoría y Limpieza:** Se eliminaron archivos redundantes y se corrigieron rutas de importación en todo el proyecto.
+
+## 📄 Changelog - v1.0.2 (31/07/2025)
+ - developer ' Ing. Juan carlos Mendez N. (dj wacko) '

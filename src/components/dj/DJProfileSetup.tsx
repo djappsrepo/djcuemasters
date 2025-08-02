@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { User, DollarSign, Loader2, Save } from "lucide-react";
-import type { Tables } from "@/integrations/supabase/types";
+import { User, DollarSign, Loader2, Save, Trash2, ShieldAlert, MapPin } from "lucide-react";
+import { DeleteAccountSection } from "./DeleteAccountSection";
+import type { Tables, Database } from "@/integrations/supabase/types";
 
-type DJProfileFormData = Pick<Tables<'dj_profiles'>, 'stage_name' | 'bio' | 'minimum_tip'>;
+type DJProfileFormData = Pick<Tables<'dj_profiles'>, 'stage_name' | 'bio' | 'minimum_tip' | 'location_address'>;
 
 const DJProfileSetup = () => {
   const { user, djProfile, refreshProfiles } = useAuth();
@@ -19,7 +20,8 @@ const DJProfileSetup = () => {
   const [formData, setFormData] = useState<DJProfileFormData>({
     stage_name: "",
     bio: "",
-    minimum_tip: 2.00
+    minimum_tip: 2.00,
+    location_address: ""
   });
 
   const isEditing = !!djProfile;
@@ -29,7 +31,8 @@ const DJProfileSetup = () => {
       setFormData({
         stage_name: djProfile.stage_name || "",
         bio: djProfile.bio || "",
-        minimum_tip: djProfile.minimum_tip || 2.00
+        minimum_tip: djProfile.minimum_tip || 2.00,
+        location_address: djProfile.location_address || ""
       });
     }
   }, [djProfile]);
@@ -55,11 +58,39 @@ const DJProfileSetup = () => {
     };
 
     // The 'upsert' operation requires the 'user_id' field.
-    const submissionData = { ...profileData, user_id: user.id };
+    // Definimos el tipo explícitamente para incluir las coordenadas opcionales
+        let submissionDataWithCoords: Database['public']['Tables']['dj_profiles']['Insert'] = {
+      ...profileData,
+      user_id: user.id,
+      id: user.id, // 'id' es necesario para la operación de upsert
+    };
+
+    // Geocode address if it's provided and different from the current profile
+    if (formData.location_address && formData.location_address !== djProfile?.location_address) {
+      try {
+        const { data: geoData, error: geoError } = await supabase.functions.invoke('geocode-address', {
+          body: { address: formData.location_address },
+        });
+
+        if (geoError) throw new Error(`Error de geocodificación: ${geoError.message}`);
+        if (geoData.error) throw new Error(`No se pudo geocodificar la dirección: ${geoData.error}`);
+
+        submissionDataWithCoords = {
+          ...submissionDataWithCoords,
+          latitude: geoData.latitude,
+          longitude: geoData.longitude,
+        };
+
+      } catch (geoError) {
+        setLoading(false);
+        toast({ title: "Error de Ubicación", description: geoError.message, variant: "destructive" });
+        return; // Stop submission if geocoding fails
+      }
+    }
 
     const { error } = await supabase
       .from('dj_profiles')
-      .upsert(submissionData, { onConflict: 'id' });
+      .upsert(submissionDataWithCoords, { onConflict: 'id' });
 
     setLoading(false);
 
@@ -110,6 +141,21 @@ const DJProfileSetup = () => {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="location_address">Ubicación Base</Label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                id="location_address"
+                value={formData.location_address || ''}
+                onChange={handleInputChange}
+                placeholder="Ej: Ciudad de México, México"
+                className="pl-10"
+              />
+            </div>
+            <p className="text-sm text-muted-foreground">Tu ciudad o área principal. Esto ayudará a los clientes a encontrarte.</p>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="minimum_tip">Propina Mínima Sugerida ($)</Label>
             <div className="relative">
               <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -137,6 +183,10 @@ const DJProfileSetup = () => {
           </div>
         </form>
       </CardContent>
+
+      {isEditing && (
+        <DeleteAccountSection />
+      )}
     </Card>
   );
 };
