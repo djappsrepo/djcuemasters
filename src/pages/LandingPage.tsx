@@ -64,6 +64,12 @@ const LandingPage = () => {
         user={user} 
         onDashboardClick={handleDashboardClick} 
         onAuthClick={handleAuthClick} 
+        onViewPlansClick={() => {
+          const pricingSection = document.getElementById('pricing');
+          if (pricingSection) {
+            pricingSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        }}
       />
 
       <HowItWorksSection />

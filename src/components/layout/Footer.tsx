@@ -31,7 +31,7 @@ export const Footer = () => {
             <h4 className="font-semibold text-foreground mb-4">Recursos</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>Guía de Uso</li>
-              <li>Demo en Vivo</li>
+
               <li>Soporte 24/7</li>
               <li>Blog</li>
             </ul>
@@ -41,21 +41,9 @@ export const Footer = () => {
             <h4 className="font-semibold text-foreground mb-4">Contacto</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li>
-                <a href="#" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-foreground transition-colors">
-                  <Phone className="w-4 h-4" />
-                  <span>WhatsApp</span>
-                </a>
-              </li>
-              <li>
-                <a href="https://x.com/DjWackoCDMX" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-foreground transition-colors">
-                  <Twitter className="w-4 h-4" />
-                  <span>Twitter / X</span>
-                </a>
-              </li>
-              <li>
-                <a href="#" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-foreground transition-colors">
+                <a href="mailto:djappsrepoupport@outlook.es" className="flex items-center gap-2 hover:text-foreground transition-colors">
                   <MessageSquare className="w-4 h-4" />
-                  <span>Discord</span>
+                  <span>djappsrepoupport@outlook.es</span>
                 </a>
               </li>
             </ul>

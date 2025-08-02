@@ -13,9 +13,10 @@ interface HeroSectionProps {
   user: User | null;
   onDashboardClick: () => void;
   onAuthClick: () => void;
+  onViewPlansClick: () => void;
 }
 
-export const HeroSection = ({ user, onDashboardClick, onAuthClick }: HeroSectionProps) => {
+export const HeroSection = ({ user, onDashboardClick, onAuthClick, onViewPlansClick }: HeroSectionProps) => {
   const apkUrl = 'https://github.com/djappsrepo/djcuemasters/releases/download/v1.0.0/app-release.apk';
 
   const containerVariants = {
@@ -56,15 +57,13 @@ export const HeroSection = ({ user, onDashboardClick, onAuthClick }: HeroSection
                 <BarChart3 className="mr-2 h-5 w-5" /> Ir al Dashboard
             </Button>
         ) : (
-            <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform" onClick={onAuthClick}>
-                <Link to="#">
-                    <LogIn className="mr-2 h-5 w-5" /> Empezar Ahora
-                </Link>
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform" onClick={onViewPlansClick}>
+                <LogIn className="mr-2 h-5 w-5" /> Ver Planes
             </Button>
         )}
         <Button asChild size="lg" variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-500/10 hover:text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
           <a href={apkUrl} target="_blank" rel="noopener noreferrer">
-            <Download className="mr-2 h-5 w-5" /> Descargar APK
+            <Download className="mr-2 h-5 w-5" /> Descargar la APK
           </a>
         </Button>
       </motion.div>
