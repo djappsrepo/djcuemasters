@@ -1,4 +1,5 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
+import { SplashScreen } from '@capacitor/splash-screen';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,6 +25,12 @@ const queryClient = new QueryClient();
 
 const AppContent = () => {
   const { loading } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (!loading) {
+      SplashScreen.hide();
+    }
+  }, [loading]);
 
   return (
     <>

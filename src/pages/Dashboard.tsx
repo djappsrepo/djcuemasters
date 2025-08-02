@@ -27,6 +27,7 @@ const Dashboard = () => {
     navigate('/');
   };
 
+  // 1. Handle Loading State
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -38,16 +39,18 @@ const Dashboard = () => {
     );
   }
 
+  // 2. Handle Authentication Fallback (after loading)
   if (!user || !profile) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-muted-foreground">Redirigiendo a autenticación...</p>
-        </div>
-      </div>
-    );
+    // This is a fallback; the useEffect should have already redirected.
+    return null;
   }
 
+  // 3. Handle DJ Profile Setup (after loading and auth check)
+  if (profile.role === 'dj' && !djProfile) {
+    return <DJProfileSetup />;
+  }
+
+  // 4. Render the main dashboard content
   return (
     <div 
       className="min-h-screen bg-background bg-cover bg-center relative"

@@ -184,9 +184,7 @@ const DJProfileSetup = () => {
         </form>
       </CardContent>
 
-      {isEditing && (
-        <DeleteAccountSection />
-      )}
+      {isEditing && <DeleteAccountSection />}
     </Card>
   );
 };

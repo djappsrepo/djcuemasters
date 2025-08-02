@@ -178,11 +178,6 @@ const DJEventManager = ({ onEventActivated }: DJEventManagerProps) => {
                         </div>
                       )}
                       
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-                        <Users className="w-3 h-3" />
-                        {event.total_requests} solicitudes • ${event.total_earnings.toFixed(2)} recaudado
-                      </div>
-                      
                       {event.description && (
                         <p className="text-sm text-muted-foreground">{event.description}</p>
                       )}

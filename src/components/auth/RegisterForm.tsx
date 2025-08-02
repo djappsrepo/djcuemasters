@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, User, Crown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export const RegisterForm = () => {
   const [email, setEmail] = useState("");
@@ -18,6 +18,7 @@ export const RegisterForm = () => {
   const [loading, setLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const { signUp } = useAuth();
+  const navigate = useNavigate();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,6 +130,9 @@ export const RegisterForm = () => {
           </div>
           <Button type="submit" className="w-full" variant="hero" disabled={loading || !agreedToTerms}>
             {loading ? "Creando cuenta..." : "Crear Cuenta"}
+          </Button>
+          <Button type="button" variant="outline" className="w-full" onClick={() => navigate(-1)} disabled={loading}>
+            Regresar
           </Button>
         </form>
         

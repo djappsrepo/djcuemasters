@@ -21,22 +21,42 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfiles = async (userId: string) => {
-    // Obtener perfil general
-    const { data: profileData } = await supabase
+    // Reset profiles before fetching
+    setProfile(null);
+    setDjProfile(null);
+    setUserRole(null);
+
+    // Fetch general profile
+    const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single();
-    setProfile(profileData || null);
-    setUserRole((profileData?.role as UserRole) || null);
 
-    // Obtener perfil de DJ
-    const { data: djProfileData } = await supabase
-      .from('dj_profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-    setDjProfile(djProfileData || null);
+    if (profileError) {
+      console.error('Error fetching user profile:', profileError.message);
+      return; // Exit if we can't get the main profile
+    }
+
+    if (profileData) {
+      setProfile(profileData as Profile);
+      setUserRole(profileData.role as UserRole);
+
+      // If the user is a DJ, also fetch their DJ-specific profile
+      if (profileData.role === 'dj') {
+        const { data: djProfileData, error: djProfileError } = await supabase
+          .from('dj_profiles')
+          .select('*')
+          .eq('user_id', profileData.id)
+          .single();
+
+        if (djProfileError && djProfileError.code !== 'PGRST116') { // PGRST116 = 'exact one row not found'
+          console.error('Error fetching DJ profile:', djProfileError.message);
+        } else if (djProfileData) {
+          setDjProfile(djProfileData);
+        }
+      }
+    }
   };
 
   const refreshProfiles = async () => {
@@ -109,7 +129,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const { error: profileError } = await supabase
         .from('profiles')
         .insert({
-          id: data.user.id,
+          user_id: data.user.id,
           email: data.user.email!,
           full_name: fullName,
           role: role,
