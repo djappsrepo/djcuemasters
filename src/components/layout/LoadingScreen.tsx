@@ -1,7 +1,7 @@
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import animatedLogo from '@/assets/cuemastersdj_logo_eq_animated.svg';
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -9,12 +9,12 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { y: 20, opacity: 0 },
   visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100 } },
 };
 
-const logoVariants = {
+const logoVariants: Variants = {
   hidden: { scale: 0.5, opacity: 0 },
   visible: { scale: 1, opacity: 1, transition: { type: 'spring', damping: 15, stiffness: 100 } },
 };
