@@ -12,6 +12,7 @@ import AuthPage from "./pages/AuthPage";
 import Dashboard from "./pages/Dashboard";
 import DiscoveryPage from "./pages/DiscoveryPage";
 import RequestPage from "./pages/RequestPage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import BillingPage from './pages/BillingPage';
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
@@ -52,6 +53,7 @@ const AppContent = () => {
             <Route path="/discover" element={<DiscoveryPage />} />
             <Route path="/dashboard/billing" element={<BillingPage />} />
             <Route path="/request/:djId" element={<RequestPage />} />
+            <Route path="/payment-success" element={<PaymentSuccessPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
 
