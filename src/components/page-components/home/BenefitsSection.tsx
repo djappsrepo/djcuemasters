@@ -50,7 +50,7 @@ const itemVariants = {
 
 export const BenefitsSection = () => {
   return (
-    <section className="py-20 px-4 bg-gray-900">
+    <section className="py-20 px-4">
       <div className="container mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4">Todo lo que Necesitas en un Solo Lugar</h2>
@@ -70,7 +70,7 @@ export const BenefitsSection = () => {
             const Icon = benefit.icon;
             return (
               <motion.div key={index} variants={itemVariants}>
-                <Card className="bg-gray-800/50 border-gray-700 h-full hover:border-purple-500 hover:bg-gray-800 transition-all duration-300 shadow-lg">
+                <Card className="bg-gray-800/50 border-purple-500/30 backdrop-blur-sm shadow-xl h-full transition-all duration-300 hover:border-purple-500/50 hover:bg-gray-800/70">
                   <CardHeader className="flex-row items-center gap-4">
                     <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/30">
                       <Icon className="w-6 h-6 text-purple-400" />
