@@ -88,12 +88,30 @@ npm install
 npm run dev
 ```
 
+## 🚀 Changelog - v1.1.0 (02/08/2025)
+
+Esta versión introduce una renovación completa de la identidad visual y la experiencia de usuario, junto con mejoras significativas en la estabilidad.
+
+- **✨ Rebranding y Nuevo Logo Animado:**
+  - Se actualizó toda la marca de la aplicación a **CueMasters**.
+  - Se reemplazó el ícono estático por un **logo SVG animado** que ahora se utiliza como favicon y en la cabecera, proporcionando una identidad visual moderna y dinámica.
+
+- **🎨 Mejoras de Interfaz de Usuario (UI/UX):**
+  - **Fondo Global Consistente:** Se implementó una imagen de fondo (`dj-hero.jpg`) en toda la aplicación con un overlay oscuro para mejorar la legibilidad.
+  - **Efecto "Glassmorphism":** Se unificó el estilo de las tarjetas en la página principal con un efecto de vidrio esmerilado (fondo semitransparente y `backdrop-blur`) para una apariencia cohesiva y moderna.
+  - **Pantalla de Carga Profesional:** Se añadió una nueva pantalla de carga animada que se muestra al iniciar la aplicación, mejorando la percepción de rendimiento y la experiencia del usuario.
+
+- **🐛 Corrección de Errores Críticos:**
+  - Se solucionaron errores de sintaxis en `App.tsx` que impedían el correcto renderizado de la aplicación.
+  - Se corrigieron problemas de despliegue relacionados con la configuración del componente principal.
+
+## 📄 Changelog - v1.0.2 (31/07/2025)
+
+- **Developer:** Ing. Juan Carlos Mendez N. (dj wacko)
+
 ## 📄 Changelog - v1.0.1 (31/07/2025)
 
 - **Refactorización de la Página de Inicio:** Se unificaron `LandingPage.tsx` y `Index.tsx` en una sola página modular y reutilizable.
 - **Componentes Modulares:** Se refactorizaron las secciones de la página de inicio (`Hero`, `HowItWorks`, etc.) en componentes independientes y animados.
 - **Tipos Centralizados:** Se creó un archivo `src/types/index.ts` para centralizar las interfaces (`DJProfile`, `DJEvent`) y eliminar la duplicidad.
 - **Auditoría y Limpieza:** Se eliminaron archivos redundantes y se corrigieron rutas de importación en todo el proyecto.
-
-## 📄 Changelog - v1.0.2 (31/07/2025)
- - developer ' Ing. Juan carlos Mendez N. (dj wacko) '
