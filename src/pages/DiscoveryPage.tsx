@@ -28,7 +28,7 @@ const DiscoveryPage = () => {
           <div className="flex items-center gap-3">
             <Music className="w-8 h-8 text-primary" />
             <div>
-              <h1 className="text-xl font-bold text-foreground">CueFlow</h1>
+              <h1 className="text-xl font-bold text-foreground">CueMasters</h1>
               <p className="text-xs text-muted-foreground">Descubre DJs</p>
             </div>
           </div>

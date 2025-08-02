@@ -9,8 +9,8 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <img src={djIcon} alt="CueFlow" className="w-8 h-8 rounded" />
-              <span className="text-lg font-bold text-foreground">CueFlow</span>
+              <img src={djIcon} alt="CueMasters" className="w-8 h-8 rounded" />
+              <span className="text-lg font-bold text-foreground">CueMasters</span>
             </div>
             <p className="text-muted-foreground text-sm">
               La plataforma de solicitudes musicales más avanzada para DJs profesionales.

@@ -11,7 +11,7 @@ interface WelcomeModalProps {
 const steps = [
   {
     icon: PartyPopper,
-    title: '¡Bienvenido a CueFlow!',
+    title: '¡Bienvenido a CueMasters!',
     description: 'La plataforma definitiva para revolucionar tus sets. Recibe solicitudes de canciones y monetiza tus eventos como nunca antes.',
   },
   {
@@ -27,7 +27,7 @@ const steps = [
   {
     icon: Rocket,
     title: '¡Todo Listo!',
-    description: 'Estás a un paso de vivir una nueva experiencia musical. Explora la plataforma y descubre todo lo que CueFlow tiene para ti.',
+    description: 'Estás a un paso de vivir una nueva experiencia musical. Explora la plataforma y descubre todo lo que CueMasters tiene para ti.',
   },
 ];
 

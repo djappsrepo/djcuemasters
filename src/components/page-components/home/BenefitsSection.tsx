@@ -55,7 +55,7 @@ export const BenefitsSection = () => {
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-foreground mb-4">Todo lo que Necesitas en un Solo Lugar</h2>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Desde la monetización hasta el análisis de datos, CueFlow te da el poder de gestionar tus eventos de forma profesional.
+            Desde la monetización hasta el análisis de datos, CueMasters te da el poder de gestionar tus eventos de forma profesional.
           </p>
         </div>
 

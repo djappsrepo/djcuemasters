@@ -15,14 +15,14 @@ const LandingPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    const hasVisited = localStorage.getItem('hasVisitedCueFlow');
+    const hasVisited = localStorage.getItem('hasVisitedCueMasters');
     if (!hasVisited) {
       setIsModalOpen(true);
     }
   }, []);
 
   const handleCloseModal = () => {
-    localStorage.setItem('hasVisitedCueFlow', 'true');
+    localStorage.setItem('hasVisitedCueMasters', 'true');
     setIsModalOpen(false);
   };
 

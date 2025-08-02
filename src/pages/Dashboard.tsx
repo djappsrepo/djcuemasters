@@ -61,7 +61,7 @@ const Dashboard = () => {
           <div className="flex items-center gap-3">
             <Music className="w-8 h-8 text-primary" />
             <div>
-              <h1 className="text-xl font-bold text-foreground">CueFlow Dashboard</h1>
+              <h1 className="text-xl font-bold text-foreground">CueMasters Dashboard</h1>
               <p className="text-xs text-muted-foreground">
                 {profile.role === 'dj' ? 'Panel de DJ' : 'Panel de Cliente'}
               </p>

@@ -35,7 +35,7 @@ export const RegisterForm = () => {
     <Card>
       <CardHeader>
         <CardTitle>Crear Cuenta</CardTitle>
-        <CardDescription>Regístrate para empezar a usar CueFlow</CardDescription>
+        <CardDescription>Regístrate para empezar a usar CueMasters</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSignUp} className="space-y-4">

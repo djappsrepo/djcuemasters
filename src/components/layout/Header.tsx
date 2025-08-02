@@ -27,7 +27,7 @@ export const Header = ({ user, profile, onSignOut, onDashboardClick, onAuthClick
         <div className="flex items-center gap-3">
           <img src={djIcon} alt="DJ Platform" className="w-10 h-10 rounded-lg" />
           <div>
-            <h1 className="text-xl font-bold text-foreground">CueFlow</h1>
+            <h1 className="text-xl font-bold text-foreground">CueMasters</h1>
             <p className="text-xs text-muted-foreground">DJ Request Platform</p>
           </div>
         </div>

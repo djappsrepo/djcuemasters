@@ -21,7 +21,7 @@ describe('Header Component', () => {
     );
 
     // Act
-    const brandElement = screen.getByText(/CueFlow/i);
+    const brandElement = screen.getByText(/CueMasters/i);
 
     // Assert
     expect(brandElement).toBeInTheDocument();

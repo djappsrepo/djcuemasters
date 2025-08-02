@@ -29,7 +29,7 @@ export const LoginForm = () => {
     <Card>
       <CardHeader>
         <CardTitle>Iniciar Sesión</CardTitle>
-        <CardDescription>Ingresa a tu cuenta de CueFlow</CardDescription>
+        <CardDescription>Ingresa a tu cuenta de CueMasters</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSignIn} className="space-y-4">
