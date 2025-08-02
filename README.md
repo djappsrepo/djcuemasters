@@ -1,8 +1,49 @@
 # CueMasters DJ
 
-![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)
+CueMastersDJ es una plataforma web moderna diseñada para conectar a DJs con clientes. Los DJs pueden crear perfiles, gestionar eventos y recibir solicitudes, mientras que los clientes pueden descubrir y contratar talento local basado en la geolocalización.
 
-Plataforma de solicitudes musicales diseñada para revolucionar la interacción entre DJs y su audiencia. Permite a los asistentes a un evento solicitar canciones y ofrecer propinas, todo en tiempo real a través de una interfaz web moderna y fluida.
+## Stack Tecnológico
+
+Este proyecto está construido con un stack moderno y escalable:
+
+- **Frontend:** React, Vite, TypeScript
+- **Backend & Base de Datos:** Supabase (PostgreSQL, Auth, Edge Functions)
+- **Estilos:** TailwindCSS y Shadcn/UI
+- **Componentes UI:** Radix UI
+- **Calidad de Código:** ESLint, Prettier
+
+---
+
+## Calidad de Código y Auditoría
+
+Se ha implementado un sistema robusto de auditoría de código utilizando **ESLint** para garantizar un código limpio, consistente y libre de errores.
+
+### Proceso de Auditoría
+
+El proceso de `linting` está configurado para analizar todos los archivos TypeScript y JavaScript del proyecto, ignorando directorios de builds y dependencias para mayor eficiencia.
+
+**Para ejecutar la auditoría, utiliza el siguiente comando:**
+
+```bash
+npm run lint
+```
+
+Este comando generará un reporte detallado en el archivo `lint-report.json`, permitiendo un análisis exhaustivo de cualquier error o advertencia sin las limitaciones de la salida del terminal.
+
+### Refactorización y Buenas Prácticas
+
+Recientemente, se completó una auditoría completa que resultó en la refactorización de varios componentes de la UI. La principal mejora fue la **separación de responsabilidades**, moviendo la lógica de negocio (hooks) y las variantes de estilo (CVA) fuera de los archivos de componentes. Esto no solo soluciona advertencias de `linting` relacionadas con el "Fast Refresh" de Vite, sino que también promueve un código más limpio, modular y fácil de mantener.
+
+---
+
+## Scripts Disponibles
+
+En el archivo `package.json`, encontrarás varios scripts útiles:
+
+- `npm run dev`: Inicia el servidor de desarrollo local.
+- `npm run build`: Compila la aplicación para producción.
+- `npm run lint`: Ejecuta la auditoría de código con ESLint.
+- `npm run preview`: Previsualiza la build de producción localmente.
 
 ## ✨ Características Principales
 
