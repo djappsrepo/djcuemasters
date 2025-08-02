@@ -9,7 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AuthContext } from '@/contexts/auth.context';
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
-import Dashboard from "./pages/Dashboard";
+import { Dashboard } from "./pages/Dashboard";
 import DiscoveryPage from "./pages/DiscoveryPage";
 import RequestPage from "./pages/RequestPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
