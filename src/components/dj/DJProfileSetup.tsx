@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { User, DollarSign, Loader2, Save, MapPin } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { DJQRCodeSection } from "./DJQRCodeSection";
 import { DeleteAccountSection } from "./DeleteAccountSection";
 
 const DJProfileSetup = () => {
@@ -15,6 +17,7 @@ const DJProfileSetup = () => {
     handleInputChange, 
     handleSubmit 
   } = useDJProfileSetup();
+  const { user } = useAuth();
 
   return (
     <Card className="max-w-2xl mx-auto">
@@ -95,6 +98,12 @@ const DJProfileSetup = () => {
           </div>
         </form>
       </CardContent>
+
+      {isEditing && user && (
+        <div className="p-6 pt-0">
+          <DJQRCodeSection userId={user.id} />
+        </div>
+      )}
 
       {isEditing && <DeleteAccountSection />}
     </Card>
