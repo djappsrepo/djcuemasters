@@ -1,13 +1,10 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from '@/integrations/supabase/client';
-import { Tables } from '@/integrations/supabase/types';
+import { useDJEventForm } from '@/hooks/useDJEventForm';
+import type { Tables } from '@/integrations/supabase/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft, Calendar, MapPin } from 'lucide-react';
 
 type DJEvent = Tables<'dj_events'>;
@@ -19,65 +16,13 @@ interface DJEventFormProps {
 }
 
 export const DJEventForm = ({ eventToEdit, onSuccess, onCancel }: DJEventFormProps) => {
-  const { djProfile } = useAuth();
-  const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    venue: '',
-    event_date: ''
-  });
-
-  const isEditing = !!eventToEdit;
-
-  useEffect(() => {
-    if (isEditing) {
-      setFormData({
-        name: eventToEdit.name || '',
-        description: eventToEdit.description || '',
-        venue: eventToEdit.venue || '',
-        event_date: eventToEdit.event_date ? new Date(eventToEdit.event_date).toISOString().substring(0, 16) : ''
-      });
-    }
-  }, [eventToEdit, isEditing]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setFormData(prev => ({ ...prev, [id]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!djProfile?.id) {
-      toast({ title: 'Error de autenticación', description: 'No se encontró tu perfil de DJ.', variant: 'destructive' });
-      return;
-    }
-
-    setLoading(true);
-
-    const eventData = {
-      dj_id: djProfile.id,
-      name: formData.name.trim(),
-      description: formData.description.trim() || null,
-      venue: formData.venue.trim() || null,
-      event_date: formData.event_date ? new Date(formData.event_date).toISOString() : null,
-      is_active: eventToEdit?.is_active ?? true,
-    };
-
-    const { error } = isEditing
-      ? await supabase.from('dj_events').update(eventData).eq('id', eventToEdit.id)
-      : await supabase.from('dj_events').insert(eventData);
-
-    setLoading(false);
-
-    if (error) {
-      toast({ title: `Error al ${isEditing ? 'actualizar' : 'crear'} el evento`, description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: `¡Evento ${isEditing ? 'actualizado' : 'creado'}!`, description: `El evento ha sido ${isEditing ? 'actualizado' : 'creado'} correctamente.` });
-      onSuccess();
-    }
-  };
+  const {
+    loading,
+    formData,
+    isEditing,
+    handleInputChange,
+    handleSubmit,
+  } = useDJEventForm({ eventToEdit, onSuccess });
 
   return (
     <Card className="max-w-2xl mx-auto">

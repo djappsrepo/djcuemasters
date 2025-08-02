@@ -1,6 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
-import type { Tables } from "@/integrations/supabase/types";
-import { useSupabaseQuery } from "@/hooks/use-supabase-query";
+import { useDJStats } from "@/hooks/useDJStats";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -20,45 +19,9 @@ const StatCardSkeleton = () => (
 
 const DJStatsCards = () => {
   const { user, djProfile } = useAuth();
+  const { stats, isLoading, error } = useDJStats(user?.id);
 
-  const getTodayISO = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return today.toISOString();
-  };
-
-    type TodayRequest = Pick<Tables<'music_requests'>, 'tip_amount'>;
-
-  const { data: todayRequestsData, isLoading: isLoadingRequests, error: requestsError } = useSupabaseQuery<TodayRequest[]>(
-    ['today_requests', user?.id],
-    (supabase) =>
-      supabase
-        .from('music_requests')
-        .select('tip_amount')
-        .eq('dj_id', user!.id)
-        .gte('created_at', getTodayISO()),
-    { enabled: !!user }
-  );
-
-    type ActiveEvent = Pick<Tables<'dj_events'>, 'id'>;
-
-  const { data: activeEventsData, isLoading: isLoadingEvents, error: eventsError } = useSupabaseQuery<ActiveEvent[]>(
-    ['active_events', user?.id],
-    (supabase) =>
-      supabase
-        .from('dj_events')
-        .select('id')
-        .eq('dj_id', user!.id)
-        .eq('is_active', true),
-    { enabled: !!user }
-  );
-
-  const isLoading = isLoadingRequests || isLoadingEvents;
-  const error = requestsError || eventsError;
-
-  const todayRequestsCount = todayRequestsData?.length || 0;
-  const todayEarnings = todayRequestsData?.reduce((sum, req) => sum + (req.tip_amount || 0), 0) || 0;
-  const activeEventsCount = activeEventsData?.length || 0;
+  const { todayRequestsCount, todayEarnings, activeEventsCount } = stats;
 
   if (isLoading) {
     return (
@@ -87,9 +50,9 @@ const DJStatsCards = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-foreground">{todayRequestsCount}</div>
+          <div className="text-2xl font-bold text-foreground">{stats.todayRequestsCount}</div>
           <p className="text-xs text-muted-foreground">
-            {todayRequestsCount === 0 ? 'Sin solicitudes aún' : 'Solicitudes recibidas'}
+            {stats.todayRequestsCount === 0 ? 'Sin solicitudes aún' : 'Solicitudes recibidas'}
           </p>
         </CardContent>
       </Card>
@@ -102,10 +65,10 @@ const DJStatsCards = () => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            ${todayEarnings.toFixed(2)}
+            ${stats.todayEarnings.toFixed(2)}
           </div>
           <p className="text-xs text-muted-foreground">
-            {todayEarnings === 0 ? 'Sin propinas aún' : 'En propinas recibidas'}
+            {stats.todayEarnings === 0 ? 'Sin propinas aún' : 'En propinas recibidas'}
           </p>
         </CardContent>
       </Card>
@@ -117,9 +80,9 @@ const DJStatsCards = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-foreground">{activeEventsCount}</div>
+          <div className="text-2xl font-bold text-foreground">{stats.activeEventsCount}</div>
           <p className="text-xs text-muted-foreground">
-            {activeEventsCount === 0 ? 'No hay eventos activos' : 'Eventos en curso'}
+            {stats.activeEventsCount === 0 ? 'No hay eventos activos' : 'Eventos en curso'}
           </p>
         </CardContent>
       </Card>

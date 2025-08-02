@@ -64,7 +64,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       await fetchProfiles(user.id);
     }
   };
-  
 
   useEffect(() => {
     const fetchSessionAndProfile = async () => {
@@ -108,8 +107,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
   }, []);
 
-    const signOut = async () => {
+  const signOut = async () => {
     await supabase.auth.signOut();
+    // Clear local state immediately on sign out for a cleaner UX
+    setSession(null);
+    setUser(null);
+    setProfile(null);
+    setDjProfile(null);
+    setUserRole(null);
   };
 
   const signUp = async (email: string, password: string, fullName: string, role: 'dj' | 'cliente') => {
@@ -141,11 +146,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         throw profileError;
       }
       
-      // Forzar la actualización del perfil después de la creación
-      await fetchProfiles(data.user.id);
+      // The onAuthStateChange listener will handle fetching the profile.
     }
-    
-        setLoading(false);
+
+    setLoading(false);
   };
 
   const signIn = async (email: string, password: string) => {

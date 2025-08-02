@@ -1,115 +1,24 @@
-import { useEffect, useState, useCallback } from "react";
-import { useAuth } from "@/hooks/useAuth";
 import type { Tables } from "@/integrations/supabase/types";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Users, Play, Pause, Trash2 } from "lucide-react";
+import { Calendar, MapPin, Play, Pause, Trash2 } from "lucide-react";
 import DJEventForm from "./DJEventForm";
+import { useDJEvents } from "@/hooks/useDJEvents";
 
 interface DJEventManagerProps {
   onEventActivated: (event: Tables<'dj_events'> | null) => void;
 }
 
 const DJEventManager = ({ onEventActivated }: DJEventManagerProps) => {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [events, setEvents] = useState<Tables<'dj_events'>[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeEvent, setActiveEvent] = useState<Tables<'dj_events'> | null>(null);
-
-  const fetchEvents = useCallback(async () => {
-    if (!user) return;
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('dj_events')
-        .select('*')
-        .eq('dj_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      const eventsData = data || [];
-      setEvents(eventsData);
-      const currentlyActiveEvent = eventsData.find(e => e.is_active) || null;
-      setActiveEvent(currentlyActiveEvent);
-      onEventActivated(currentlyActiveEvent);
-    } catch (error) {
-      toast({ title: "Error al cargar eventos", description: (error as Error).message, variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  }, [user, toast, onEventActivated]);
-
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
-
-  const activateEvent = async (eventToActivate: Tables<'dj_events'>) => {
-    if (activeEvent) {
-      await deactivateCurrentEvent();
-    }
-    const { data: updatedEvent, error: updateError } = await supabase
-      .from('dj_events')
-      .update({ is_active: true })
-      .eq('id', eventToActivate.id)
-      .select()
-      .single();
-
-    if (updateError || !updatedEvent) {
-      toast({ title: "Error al activar evento", description: updateError?.message, variant: "destructive" });
-      return;
-    }
-    setActiveEvent(updatedEvent);
-    onEventActivated(updatedEvent);
-    toast({ title: "Evento activado", description: `El evento ${updatedEvent.name} ha sido activado.` });
-    fetchEvents();
-  };
-
-  const deactivateCurrentEvent = async () => {
-    if (!activeEvent) return;
-    const { error } = await supabase
-      .from('dj_events')
-      .update({ is_active: false })
-      .eq('id', activeEvent.id);
-
-    if (error) {
-      toast({ title: "Error al desactivar evento", description: error.message, variant: "destructive" });
-    } else {
-      setActiveEvent(null);
-      onEventActivated(null);
-      toast({ title: "Evento desactivado" });
-      fetchEvents();
-    }
-  };
-
-  const deleteEvent = async (eventId: string) => {
-    if (!confirm("¿Estás seguro de que quieres eliminar este evento?")) return;
-
-    try {
-      const { error } = await supabase
-        .from('dj_events')
-        .delete()
-        .eq('id', eventId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Evento eliminado",
-        description: "El evento ha sido eliminado correctamente.",
-      });
-
-      fetchEvents();
-    } catch (error) {
-      toast({
-        title: "Error al eliminar evento",
-        description: error instanceof Error ? error.message : "Ocurrió un error desconocido",
-        variant: "destructive",
-      });
-    }
-  };
+  const { 
+    events, 
+    loading, 
+    activateEvent, 
+    deactivateCurrentEvent, 
+    deleteEvent, 
+    fetchEvents 
+  } = useDJEvents(onEventActivated);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -197,7 +106,7 @@ const DJEventManager = ({ onEventActivated }: DJEventManagerProps) => {
                       </Button>
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="destructive"
                         onClick={() => deleteEvent(event.id)}
                       >
                         <Trash2 className="w-3 h-3" />

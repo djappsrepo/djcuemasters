@@ -1,8 +1,5 @@
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Tables } from '@/integrations/supabase/types';
-import { useSupabaseQuery } from '@/hooks/use-supabase-query';
-import { useToast } from '@/hooks/use-toast';
+import { useDJRequests } from '@/hooks/useDJRequests';
+import type { Tables, Enums } from '@/integrations/supabase/types';
 import {
   Card,
   CardContent,
@@ -16,17 +13,17 @@ import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { Check, XCircle, Music, User, Mail } from 'lucide-react';
 
 interface DJRequestsQueueProps {
-  eventId: string;
+  eventId: string | undefined;
   isEventActive: boolean;
 }
 
 type MusicRequest = Tables<'music_requests'>;
+type PaymentStatus = Enums<'payment_status'>;
 
-// Helper para obtener el color del badge según el estado del pago
-const getPaymentStatusVariant = (status: MusicRequest['payment_status']): 'success' | 'default' | 'destructive' | 'secondary' => {
+const getPaymentStatusVariant = (status: PaymentStatus): 'default' | 'destructive' | 'secondary' => {
   switch (status) {
     case 'completed':
-      return 'success';
+      return 'secondary';
     case 'pending':
       return 'default';
     case 'failed':
@@ -37,52 +34,22 @@ const getPaymentStatusVariant = (status: MusicRequest['payment_status']): 'succe
 };
 
 export const DJRequestsQueue = ({ eventId, isEventActive }: DJRequestsQueueProps) => {
-  const { toast } = useToast();
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const { requests, isLoading, error, updateRequestStatus, updatingId } = useDJRequests(eventId);
 
-  // Usamos el hook para obtener las solicitudes del evento actual
-  const {
-    data: requests,
-    isLoading,
-    error,
-    refetch,
-  } = useSupabaseQuery<MusicRequest[]>(['music_requests', eventId], 
-    (supabase) =>
-      supabase
-        .from('music_requests')
-        .select('*')
-        .eq('event_id', eventId)
-        .order('created_at', { ascending: true }),
-    { enabled: !!eventId }
-  );
-
-  // Asumimos que tienes una columna 'status' en tu tabla 'requests'
-  // para marcar si una canción fue 'played' o 'rejected'.
-  const handleUpdateRequestStatus = async (
-    requestId: string,
-    newStatus: 'played' | 'rejected' | 'pending'
-  ) => {
-    setUpdatingId(requestId);
-    const { error } = await supabase
-      .from('music_requests')
-      .update({ status: newStatus })
-      .eq('id', requestId);
-
-    if (error) {
-      toast({
-        title: 'Error',
-        description: 'No se pudo actualizar la solicitud.',
-        variant: 'destructive',
-      });
-    } else {
-      toast({
-        title: 'Éxito',
-        description: `La solicitud ha sido marcada como ${newStatus}.`,
-      });
-      refetch(); // Recargamos los datos para reflejar el cambio
-    }
-    setUpdatingId(null);
-  };
+  if (!isEventActive && (!requests || requests.length === 0)) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Cola de Solicitudes</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-center text-muted-foreground py-4">
+            Activa un evento para ver las solicitudes de canciones.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -115,7 +82,7 @@ export const DJRequestsQueue = ({ eventId, isEventActive }: DJRequestsQueueProps
                     {request.client_email && <p className="flex items-center"><Mail className="w-4 h-4 mr-2" />{request.client_email}</p>}
                   </div>
                 </div>
-                <Badge variant={getPaymentStatusVariant(request.payment_status) as 'secondary' | 'default' | 'destructive' | null | undefined}>
+                <Badge variant={getPaymentStatusVariant(request.payment_status)}>
                   {request.payment_status}
                 </Badge>
               </div>
@@ -126,14 +93,14 @@ export const DJRequestsQueue = ({ eventId, isEventActive }: DJRequestsQueueProps
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleUpdateRequestStatus(request.id, 'rejected')}
+                    onClick={() => updateRequestStatus(request.id, 'rejected')}
                     disabled={updatingId === request.id}
                   >
                     <XCircle className="w-4 h-4 mr-1" /> Rechazar
                   </Button>
                   <Button
                     size="sm"
-                    onClick={() => handleUpdateRequestStatus(request.id, 'played')}
+                    onClick={() => updateRequestStatus(request.id, 'played')}
                     disabled={updatingId === request.id}
                   >
                     <Check className="w-4 h-4 mr-1" /> Marcar como Sonada
