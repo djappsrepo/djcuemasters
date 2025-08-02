@@ -21,12 +21,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [loading, setLoading] = useState(true);
 
   const fetchProfiles = async (userId: string) => {
-    // Reset profiles before fetching
-    setProfile(null);
-    setDjProfile(null);
-    setUserRole(null);
-
-    // Fetch general profile
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('*')
@@ -35,81 +29,90 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     if (profileError) {
       console.error('Error fetching user profile:', profileError.message);
-      return; // Exit if we can't get the main profile
+      setProfile(null);
+      setDjProfile(null);
+      setUserRole(null);
+      return;
     }
 
-    if (profileData) {
-      setProfile(profileData as Profile);
-      setUserRole(profileData.role as UserRole);
+    setProfile(profileData as Profile);
+    setUserRole(profileData.role as UserRole);
 
-      // If the user is a DJ, also fetch their DJ-specific profile
-      if (profileData.role === 'dj') {
-        const { data: djProfileData, error: djProfileError } = await supabase
-          .from('dj_profiles')
-          .select('*')
-          .eq('user_id', profileData.id)
-          .single();
+    if (profileData.role === 'dj') {
+      const { data: djProfileData, error: djProfileError } = await supabase
+        .from('dj_profiles')
+        .select('*')
+        .eq('user_id', profileData.id)
+        .single();
 
-        if (djProfileError && djProfileError.code !== 'PGRST116') { // PGRST116 = 'exact one row not found'
-          console.error('Error fetching DJ profile:', djProfileError.message);
-        } else if (djProfileData) {
-          setDjProfile(djProfileData);
-        }
+      if (djProfileError && djProfileError.code !== 'PGRST116') {
+        console.error('Error fetching DJ profile:', djProfileError.message);
+        setDjProfile(null);
+      } else {
+        setDjProfile(djProfileData || null);
       }
-    }
-  };
-
-  const refreshProfiles = async () => {
-    if (user) {
-      await fetchProfiles(user.id);
+    } else {
+      setDjProfile(null);
     }
   };
 
   useEffect(() => {
-    const fetchSessionAndProfile = async () => {
-      setLoading(true);
-      const { data: { session }, error } = await supabase.auth.getSession();
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
 
-      if (error) {
-        console.error("Error al obtener la sesión:", error);
-        setLoading(false);
-        return;
-      }
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        await fetchProfiles(session.user.id);
-      }
-      setLoading(false);
-    };
-
-    fetchSessionAndProfile();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+        if (session?.user) {
+          await fetchProfiles(session.user.id);
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
-        
-        if (session?.user) {
-            await fetchProfiles(session.user.id);
-        } else {
-            setProfile(null);
-            setDjProfile(null);
-            setUserRole(null);
-        }
+      } catch (e) {
+        console.error("Error initializing session:", e);
+        setSession(null);
+        setUser(null);
+        setProfile(null);
+        setDjProfile(null);
+        setUserRole(null);
+      } finally {
+        setLoading(false);
       }
-    );
+    };
+
+    initializeAuth();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setLoading(true);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      setSession(session);
+
+      if (currentUser) {
+        await fetchProfiles(currentUser.id);
+      } else {
+        setProfile(null);
+        setDjProfile(null);
+        setUserRole(null);
+      }
+      setLoading(false);
+    });
 
     return () => {
       authListener.subscription.unsubscribe();
     };
   }, []);
 
+  const refreshProfiles = async () => {
+    if (user) {
+      setLoading(true);
+      await fetchProfiles(user.id);
+      setLoading(false);
+    }
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
-    // Clear local state immediately on sign out for a cleaner UX
     setSession(null);
     setUser(null);
     setProfile(null);
@@ -118,52 +121,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const signUp = async (email: string, password: string, fullName: string, role: 'dj' | 'cliente') => {
-    setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    const { data, error } = await supabase.auth.signUp({ email, password });
 
-    if (error) {
-      console.error("Error signing up:", error);
-      setLoading(false);
-      throw error;
-    }
+    if (error) throw error;
+    if (!data.user) throw new Error("Sign up successful, but no user data returned.");
 
-    if (data.user) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          user_id: data.user.id,
-          email: data.user.email!,
-          full_name: fullName,
-          role: role,
-        });
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert({ user_id: data.user.id, email: data.user.email!, full_name: fullName, role: role });
 
-      if (profileError) {
-        console.error("Error creating profile:", profileError);
-        setLoading(false);
-        throw profileError;
-      }
-      
-      // The onAuthStateChange listener will handle fetching the profile.
-    }
-
-    setLoading(false);
+    if (profileError) throw profileError;
   };
 
   const signIn = async (email: string, password: string) => {
-    setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) {
-      console.error("Error signing in:", error);
-      setLoading(false);
-      throw error;
-    }
-
-    // El onAuthStateChange se encargará de actualizar el estado
-    setLoading(false);
+    if (error) throw error;
   };
 
   const value = {
@@ -179,7 +151,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     signIn,
   };
 
-  // No renderizar la aplicación hasta que se haya cargado el estado de autenticación
   return (
     <AuthContext.Provider value={value}>
       {children}

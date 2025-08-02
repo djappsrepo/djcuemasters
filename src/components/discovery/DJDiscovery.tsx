@@ -11,6 +11,7 @@ interface DJWithEvents {
   user_id: string;
   stage_name: string;
   bio: string | null;
+  avatar_url: string | null;
   minimum_tip: number;
   average_rating: number | null;
   total_requests: number;
@@ -32,25 +33,30 @@ const DJDiscovery = () => {
 
   const fetchActiveDJs = async () => {
     try {
-      // Obtener DJs activos con eventos activos
+      // 1. Get active DJ profiles
       const { data: djsData, error: djsError } = await supabase
         .from('dj_profiles')
-        .select(`
-          id,
-          user_id,
-          stage_name,
-          bio,
-          minimum_tip,
-          average_rating,
-          total_requests
-        `)
+        .select('id, user_id, stage_name, bio, minimum_tip, average_rating, total_requests')
         .eq('active', true);
 
       if (djsError) throw djsError;
+      if (!djsData) return;
 
-      // Para cada DJ, obtener sus eventos activos
-      const djsWithEvents = await Promise.all(
-        (djsData || []).map(async (dj) => {
+      const userIds = djsData.map(dj => dj.user_id);
+
+      // 2. Get avatars for those DJs
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, avatar_url')
+        .in('user_id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      const avatarMap = new Map(profilesData.map(p => [p.user_id, p.avatar_url]));
+
+      // 3. For each DJ, get their active events and merge avatar
+      const djsWithDetails = await Promise.all(
+        djsData.map(async (dj) => {
           const { data: eventsData } = await supabase
             .from('dj_events')
             .select('id, name, venue, event_date')
@@ -60,13 +66,14 @@ const DJDiscovery = () => {
 
           return {
             ...dj,
+            avatar_url: avatarMap.get(dj.user_id) || null,
             events: eventsData || []
           };
         })
       );
 
-      // Filtrar solo DJs que tienen eventos activos
-      const djsWithActiveEvents = djsWithEvents.filter(dj => dj.events.length > 0);
+      // Filter only DJs that have active events
+      const djsWithActiveEvents = djsWithDetails.filter(dj => dj.events.length > 0);
       
       setActiveDJs(djsWithActiveEvents);
     } catch (error) {
@@ -135,9 +142,11 @@ const DJDiscovery = () => {
             <Card key={dj.id} className="border-primary/20 hover:border-primary/40 transition-colors">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                    <User className="w-6 h-6 text-primary" />
-                  </div>
+                  <img 
+                    src={dj.avatar_url || '/placeholder.svg'}
+                    alt={`${dj.stage_name} avatar`}
+                    className="w-12 h-12 rounded-full object-cover bg-muted"
+                  />
                   <div className="flex-1">
                     <CardTitle className="text-lg">{dj.stage_name}</CardTitle>
                     <div className="flex items-center gap-2 mt-1">

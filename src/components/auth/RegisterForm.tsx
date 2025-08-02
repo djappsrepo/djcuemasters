@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,8 +6,37 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, User, Crown } from "lucide-react";
+import { AuthError } from "@supabase/supabase-js";
+import { Eye, EyeOff, User, Crown, CheckCircle2, XCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+
+interface PasswordStrengthIndicatorProps {
+  checks: {
+    length: boolean;
+    uppercase: boolean;
+    number: boolean;
+    special: boolean;
+  };
+}
+
+const PasswordStrengthIndicator = ({ checks }: PasswordStrengthIndicatorProps) => (
+  <ul className="space-y-1 mt-2">
+    <li className={`flex items-center text-xs ${checks.length ? 'text-green-500' : 'text-muted-foreground'}`}>
+      {checks.length ? <CheckCircle2 className="h-4 w-4 mr-2" /> : <XCircle className="h-4 w-4 mr-2 text-red-500" />} Mínimo 8 caracteres
+    </li>
+    <li className={`flex items-center text-xs ${checks.uppercase ? 'text-green-500' : 'text-muted-foreground'}`}>
+      {checks.uppercase ? <CheckCircle2 className="h-4 w-4 mr-2" /> : <XCircle className="h-4 w-4 mr-2 text-red-500" />} Una letra mayúscula
+    </li>
+    <li className={`flex items-center text-xs ${checks.number ? 'text-green-500' : 'text-muted-foreground'}`}>
+      {checks.number ? <CheckCircle2 className="h-4 w-4 mr-2" /> : <XCircle className="h-4 w-4 mr-2 text-red-500" />} Un número
+    </li>
+    <li className={`flex items-center text-xs ${checks.special ? 'text-green-500' : 'text-muted-foreground'}`}>
+      {checks.special ? <CheckCircle2 className="h-4 w-4 mr-2" /> : <XCircle className="h-4 w-4 mr-2 text-red-500" />} Un carácter especial
+    </li>
+  </ul>
+);
 
 export const RegisterForm = () => {
   const [email, setEmail] = useState("");
@@ -17,19 +46,61 @@ export const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [passwordValidation, setPasswordValidation] = useState({
+    length: false,
+    uppercase: false,
+    number: false,
+    special: false,
+  });
+
   const { signUp } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const length = password.length >= 8;
+    const uppercase = /[A-Z]/.test(password);
+    const number = /[0-9]/.test(password);
+    const special = /[^A-Za-z0-9]/.test(password);
+    setPasswordValidation({ length, uppercase, number, special });
+  }, [password]);
+
+  const isPasswordValid = Object.values(passwordValidation).every(Boolean);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPasswordValid) {
+      toast({
+        title: "Contraseña insegura",
+        description: "Por favor, cumple todos los requisitos de la contraseña.",
+        variant: "destructive",
+      });
+      return;
+    }
     setLoading(true);
     try {
       await signUp(email, password, fullName, role);
+      toast({
+        title: "¡Registro Exitoso!",
+        description: "Se ha enviado un correo para verificar tu cuenta. Por favor, revisa tu bandeja de entrada.",
+        variant: "default",
+      });
+      navigate('/auth/login');
     } catch (error) {
-      console.error("Failed to sign up", error);
-      // Aquí podrías mostrar un toast de error al usuario
+      let errorMessage = "No se pudo completar el registro. Inténtalo de nuevo.";
+      if (error instanceof AuthError) {
+        errorMessage = error.message;
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      toast({
+        title: "Error en el registro",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -40,28 +111,14 @@ export const RegisterForm = () => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSignUp} className="space-y-4">
+          {/* Full Name and Email Inputs remain the same */}
           <div className="space-y-2">
             <Label>Nombre Completo</Label>
-            <Input
-              id="signup-fullname"
-              placeholder="Juan Pérez"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-              disabled={loading}
-            />
+            <Input id="signup-fullname" placeholder="Juan Pérez" value={fullName} onChange={(e) => setFullName(e.target.value)} required disabled={loading} />
           </div>
           <div className="space-y-2">
             <Label>Email</Label>
-            <Input
-              id="signup-email"
-              type="email"
-              placeholder="tu@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={loading}
-            />
+            <Input id="signup-email" type="email" placeholder="tu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} />
           </div>
           <div className="space-y-2">
             <Label>Contraseña</Label>
@@ -73,41 +130,28 @@ export const RegisterForm = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={6}
                 disabled={loading}
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                onClick={() => setShowPassword(!showPassword)}
-                disabled={loading}
-              >
+              <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)} disabled={loading}>
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">Mínimo 6 caracteres</p>
+            <PasswordStrengthIndicator checks={passwordValidation} />
           </div>
+          {/* Role selection remains the same */}
           <div className="space-y-3">
             <Label>Tipo de Cuenta</Label>
-            <RadioGroup defaultValue="cliente" className="grid grid-cols-2 gap-4">
+            <RadioGroup value={role} onValueChange={(value) => setRole(value as 'dj' | 'cliente')} className="grid grid-cols-2 gap-4">
               <div>
                 <RadioGroupItem value="cliente" id="cliente" className="peer sr-only" />
-                <Label
-                  htmlFor="cliente"
-                  className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                >
+                <Label htmlFor="cliente" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
                   <User className="mb-3 h-6 w-6" />
                   Cliente
                 </Label>
               </div>
               <div>
                 <RadioGroupItem value="dj" id="dj" className="peer sr-only" />
-                <Label
-                  htmlFor="dj"
-                  className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-                >
+                <Label htmlFor="dj" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
                   <Crown className="mb-3 h-6 w-6" />
                   DJ
                 </Label>
@@ -115,27 +159,18 @@ export const RegisterForm = () => {
             </RadioGroup>
           </div>
           <div className="flex items-center space-x-2 mt-4">
-            <Checkbox 
-              id="terms"
-              checked={agreedToTerms}
-              onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
-              disabled={loading}
-            />
-            <label
-              htmlFor="terms"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
+            <Checkbox id="terms" checked={agreedToTerms} onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)} disabled={loading} />
+            <label htmlFor="terms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               Acepto los <Link to="/terms" className="underline hover:text-primary">términos de servicio</Link> y la <Link to="/privacy" className="underline hover:text-primary">política de privacidad</Link>.
             </label>
           </div>
-          <Button type="submit" className="w-full" variant="hero" disabled={loading || !agreedToTerms}>
-            {loading ? "Creando cuenta..." : "Crear Cuenta"}
+          <Button type="submit" className="w-full" variant="hero" disabled={loading || !agreedToTerms || !isPasswordValid}>
+            {loading ? <LoadingSpinner size={24} /> : "Crear Cuenta"}
           </Button>
           <Button type="button" variant="outline" className="w-full" onClick={() => navigate(-1)} disabled={loading}>
             Regresar
           </Button>
         </form>
-        
       </CardContent>
     </Card>
   );

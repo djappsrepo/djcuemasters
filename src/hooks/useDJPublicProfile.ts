@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { Tables } from '@/integrations/supabase/types';
 
-type DJProfile = Tables<'dj_profiles'>;
+type DJProfile = Tables<'dj_profiles'> & { avatar_url: string | null };
 type DJEvent = Tables<'dj_events'>;
 
 export const useDJPublicProfile = (djId: string | undefined) => {
@@ -24,7 +24,8 @@ export const useDJPublicProfile = (djId: string | undefined) => {
     setError(null);
 
     try {
-      const { data: profileData, error: profileError } = await supabase
+      // 1. Fetch DJ Profile
+      const { data: djProfileData, error: profileError } = await supabase
         .from('dj_profiles')
         .select('*')
         .eq('user_id', djId)
@@ -32,12 +33,26 @@ export const useDJPublicProfile = (djId: string | undefined) => {
         .single();
 
       if (profileError) throw new Error('Perfil de DJ no encontrado o inactivo.');
-      setDjProfile(profileData);
 
+      // 2. Fetch Avatar from profiles table
+      const { data: avatarData } = await supabase
+        .from('profiles')
+        .select('avatar_url')
+        .eq('user_id', djProfileData.user_id)
+        .single();
+
+      // 3. Combine data
+      const fullProfile = {
+        ...djProfileData,
+        avatar_url: avatarData?.avatar_url || null,
+      };
+      setDjProfile(fullProfile);
+
+      // 4. Fetch Events
       const { data: eventsData, error: eventsError } = await supabase
         .from('dj_events')
         .select('*')
-        .eq('dj_id', profileData.id)
+        .eq('dj_id', fullProfile.id)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 

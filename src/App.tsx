@@ -25,10 +25,17 @@ import { LoadingScreen } from "@/components/layout/LoadingScreen";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
+  const authContext = useContext(AuthContext);
 
   useEffect(() => {
-    SplashScreen.hide();
-  }, []);
+    if (!authContext?.loading) {
+      SplashScreen.hide();
+    }
+  }, [authContext?.loading]);
+
+  if (authContext?.loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <>
@@ -44,7 +51,7 @@ const AppContent = () => {
         >
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/auth" element={<AuthPage />} />
+            <Route path="/auth/*" element={<AuthPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/discover" element={<DiscoveryPage />} />
             <Route path="/dashboard/billing" element={<BillingPage />} />

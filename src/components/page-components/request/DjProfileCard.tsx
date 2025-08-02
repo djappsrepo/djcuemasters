@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { User, MapPin, Calendar } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
-type DJProfile = Tables<'dj_profiles'>;
+type DJProfile = Tables<'dj_profiles'> & { avatar_url?: string | null };
 type Event = Tables<'dj_events'>;
 
 interface DjProfileCardProps {
@@ -16,7 +16,11 @@ export const DjProfileCard = ({ djProfile, activeEvent }: DjProfileCardProps) =>
     <Card className="w-full max-w-md bg-card/70 backdrop-blur-sm border-white/20">
       <CardHeader>
         <div className="flex items-center gap-4">
-          <User className="w-10 h-10 text-primary" />
+          <img 
+            src={djProfile.avatar_url || '/placeholder.svg'}
+            alt={`${djProfile.stage_name} avatar`}
+            className="w-10 h-10 rounded-full object-cover bg-muted"
+          />
           <div>
             <CardTitle>{djProfile.stage_name}</CardTitle>
             <CardDescription>DJ Profile</CardDescription>
