@@ -5,7 +5,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { DollarSign, Loader2, Send } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Link } from "react-router-dom";
-import { DJProfile, DJEvent } from '@/types';
+import { Tables } from "@/integrations/supabase/types";
+
+type DJProfile = Tables<'dj_profiles'>;
+type DJEvent = Tables<'dj_events'>;
 
 interface FormData {
   song_title: string;

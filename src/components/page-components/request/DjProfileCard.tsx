@@ -1,60 +1,56 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, MapPin, Calendar } from "lucide-react";
-import { DJProfile, DJEvent } from "@/types";
+import { Tables } from "@/integrations/supabase/types";
+
+type DJProfile = Tables<'dj_profiles'>;
+type Event = Tables<'dj_events'>;
 
 interface DjProfileCardProps {
   djProfile: DJProfile;
-  activeEvent: DJEvent | null;
+  activeEvent: Event | null;
 }
-
-const formatDate = (dateString: string | null) => {
-  if (!dateString) return "Fecha no disponible";
-  try {
-    return new Date(dateString).toLocaleDateString("es-MX", {
-      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-  } catch (error) {
-    return "Fecha inválida";
-  }
-};
 
 export const DjProfileCard = ({ djProfile, activeEvent }: DjProfileCardProps) => {
   return (
-    <Card>
-      <CardHeader className="text-center">
-        <div className="flex justify-center mb-4">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-primary to-accent flex items-center justify-center">
-            <User className="w-12 h-12 text-primary-foreground" />
+    <Card className="w-full max-w-md bg-card/70 backdrop-blur-sm border-white/20">
+      <CardHeader>
+        <div className="flex items-center gap-4">
+          <User className="w-10 h-10 text-primary" />
+          <div>
+            <CardTitle>{djProfile.stage_name}</CardTitle>
+            <CardDescription>DJ Profile</CardDescription>
           </div>
         </div>
-        <CardTitle className="text-2xl">{djProfile.stage_name}</CardTitle>
-        <CardDescription>{djProfile.bio || "Este DJ aún no ha agregado una biografía."}</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent>
+        {djProfile.bio && <p className="text-sm text-muted-foreground mb-4">{djProfile.bio}</p>}
+        
         {activeEvent && (
-          <div className="p-3 bg-secondary rounded-lg">
-            <h3 className="font-semibold text-center mb-2">Evento Activo</h3>
-            <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-primary" />
-              <span>{activeEvent.name}</span>
+          <div className="p-3 bg-secondary/50 rounded-lg mb-4">
+            <h4 className="font-semibold text-center mb-2">Active Event</h4>
+            <div className="space-y-1 text-sm">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                <span>{activeEvent.name}</span>
+              </div>
+              {activeEvent.venue && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  <span>{activeEvent.venue}</span>
+                </div>
+              )}
             </div>
-            {activeEvent.venue && (
-              <div className="flex items-center gap-2 mt-1">
-                <MapPin className="w-4 h-4 text-primary" />
-                <span>{activeEvent.venue}</span>
-              </div>
-            )}
-            {activeEvent.event_date && (
-              <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-                <span>{formatDate(activeEvent.event_date)}</span>
-              </div>
-            )}
           </div>
         )}
+
         <div className="flex justify-between items-center text-sm">
-          <Badge variant="secondary">Solicitudes: {djProfile.total_requests}</Badge>
-          <Badge variant="secondary">Rating: {djProfile.average_rating.toFixed(1)} ★</Badge>
+          <Badge variant="outline">Requests: {djProfile.total_requests}</Badge>
+          {djProfile.average_rating !== null && (
+            <Badge variant="outline">
+              Rating: {djProfile.average_rating.toFixed(1)} ★
+            </Badge>
+          )}
         </div>
       </CardContent>
     </Card>

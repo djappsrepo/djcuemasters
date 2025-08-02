@@ -25,18 +25,14 @@ import { LoadingScreen } from "@/components/layout/LoadingScreen";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const { loading } = useContext(AuthContext);
 
   useEffect(() => {
-    if (!loading) {
-      SplashScreen.hide();
-    }
-  }, [loading]);
+    SplashScreen.hide();
+  }, []);
 
   return (
     <>
-      {loading && <LoadingScreen />}
-      <div className={`transition-opacity duration-700 ${loading ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`transition-opacity duration-700 opacity-100`}>
         <div 
           className="min-h-screen w-full text-white font-sans"
           style={{

@@ -9,7 +9,7 @@ interface User {
 }
 
 interface Profile {
-  full_name?: string;
+  full_name: string | null | undefined;
 }
 
 interface HeaderProps {

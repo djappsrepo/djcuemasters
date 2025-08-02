@@ -12,7 +12,7 @@ interface DJWithEvents {
   stage_name: string;
   bio: string | null;
   minimum_tip: number;
-  average_rating: number;
+  average_rating: number | null;
   total_requests: number;
   events: Array<{
     id: string;
