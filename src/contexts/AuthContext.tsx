@@ -158,7 +158,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // No renderizar la aplicación hasta que se haya cargado el estado de autenticación
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
