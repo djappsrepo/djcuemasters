@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useStripe } from "@stripe/react-stripe-js";
 import type { Tables, Database } from "@/integrations/supabase/types";
 
-type DJProfileFormData = Pick<Tables<'dj_profiles'>, 'stage_name' | 'bio' | 'minimum_tip' | 'location_address'>;
+export type DJProfileFormData = Pick<Tables<'dj_profiles'>, 'stage_name' | 'bio' | 'minimum_tip' | 'location_address'>;
 
 export const useDJProfileSetup = () => {
   const { user, djProfile, refreshProfiles } = useAuth();
@@ -128,5 +128,5 @@ export const useDJProfileSetup = () => {
     }
   };
 
-  return { loading, formData, isEditing, handleInputChange, handleSubmit, isDonating, handleSupportProject };
+  return { user, loading, formData, isEditing, handleInputChange, handleSubmit, isDonating, handleSupportProject };
 };
