@@ -152,7 +152,7 @@ export const RegisterForm = () => {
           </div>
 
           <div className="flex items-center space-x-2 mt-4">
-            <Checkbox id="terms" checked={agreedToTerms} onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)} disabled={loading} />
+            <Checkbox id="terms" checked={agreedToTerms} onCheckedChange={(checked) => setAgreedToTerms(checked === true)} disabled={loading} />
             <label htmlFor="terms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               Acepto los <Link to="/terms" className="underline hover:text-primary">términos de servicio</Link> y la <Link to="/privacy" className="underline hover:text-primary">política de privacidad</Link>.
             </label>
