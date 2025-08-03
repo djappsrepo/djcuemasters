@@ -42,10 +42,10 @@ export const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<'dj' | 'cliente'>('cliente');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<'dj' | 'cliente' | null>(null);
   const [passwordValidation, setPasswordValidation] = useState({
     length: false,
     uppercase: false,
@@ -67,23 +67,21 @@ export const RegisterForm = () => {
 
   const isPasswordValid = Object.values(passwordValidation).every(Boolean);
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isPasswordValid) {
+  const handleSignUp = async (roleToRegister: 'dj' | 'cliente') => {
+    if (!isPasswordValid || !agreedToTerms || !fullName || !email) {
       toast({
-        title: "Contraseña insegura",
-        description: "Por favor, cumple todos los requisitos de la contraseña.",
+        title: "Formulario incompleto",
+        description: "Por favor, completa todos los campos y acepta los términos.",
         variant: "destructive",
       });
       return;
     }
     setLoading(true);
     try {
-      console.log('Submitting with role:', role);
-      await signUp(email, password, fullName, role);
+      await signUp(email, password, fullName, roleToRegister);
       toast({
         title: "¡Registro Exitoso!",
-        description: "Se ha enviado un correo para verificar tu cuenta. Por favor, revisa tu bandeja de entrada.",
+        description: "Se ha enviado un correo para verificar tu cuenta.",
         variant: "default",
       });
       navigate('/auth/login');
@@ -111,8 +109,7 @@ export const RegisterForm = () => {
         <CardDescription>Regístrate para empezar a usar CueMasters</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSignUp} className="space-y-4">
-          {/* Full Name and Email Inputs remain the same */}
+        <div className="space-y-4">
           <div className="space-y-2">
             <Label>Nombre Completo</Label>
             <Input id="signup-fullname" placeholder="Juan Pérez" value={fullName} onChange={(e) => setFullName(e.target.value)} required disabled={loading} />
@@ -134,38 +131,56 @@ export const RegisterForm = () => {
                 disabled={loading}
               />
               <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)} disabled={loading}>
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />} 
               </Button>
             </div>
             <PasswordStrengthIndicator checks={passwordValidation} />
           </div>
-          {/* Role selection remains the same */}
+
           <div className="space-y-3">
-            <Label>Tipo de Cuenta</Label>
+            <Label>1. Elige tu tipo de cuenta</Label>
             <div className="grid grid-cols-2 gap-4">
-              <Button type="button" variant={role === 'cliente' ? 'default' : 'outline'} onClick={() => setRole('cliente')} className="flex flex-col h-auto py-4">
+              <Button type="button" variant={selectedRole === 'cliente' ? 'default' : 'outline'} onClick={() => setSelectedRole('cliente')} className="flex flex-col h-auto py-4">
                 <User className="mb-3 h-6 w-6" />
                 Cliente
               </Button>
-              <Button type="button" variant={role === 'dj' ? 'default' : 'outline'} onClick={() => setRole('dj')} className="flex flex-col h-auto py-4">
+              <Button type="button" variant={selectedRole === 'dj' ? 'default' : 'outline'} onClick={() => setSelectedRole('dj')} className="flex flex-col h-auto py-4">
                 <Crown className="mb-3 h-6 w-6" />
                 DJ
               </Button>
             </div>
           </div>
+
           <div className="flex items-center space-x-2 mt-4">
             <Checkbox id="terms" checked={agreedToTerms} onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)} disabled={loading} />
             <label htmlFor="terms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               Acepto los <Link to="/terms" className="underline hover:text-primary">términos de servicio</Link> y la <Link to="/privacy" className="underline hover:text-primary">política de privacidad</Link>.
             </label>
           </div>
-          <Button type="submit" className="w-full" variant="hero" disabled={loading || !agreedToTerms || !isPasswordValid}>
-            {loading ? <LoadingSpinner size={24} /> : "Crear Cuenta"}
-          </Button>
+
+          <div className="space-y-3 pt-4">
+             <Label>2. Completa tu registro</Label>
+            <Button 
+              onClick={() => handleSignUp('cliente')}
+              className="w-full"
+              disabled={loading || !agreedToTerms || !isPasswordValid || selectedRole !== 'cliente'}
+            >
+              {loading && selectedRole === 'cliente' ? <LoadingSpinner size={24} /> : "Crear Cuenta de Cliente"}
+            </Button>
+            <Button 
+              onClick={() => handleSignUp('dj')}
+              className="w-full"
+              variant="default"
+              disabled={loading || !agreedToTerms || !isPasswordValid || selectedRole !== 'dj'}
+            >
+              {loading && selectedRole === 'dj' ? <LoadingSpinner size={24} /> : "Crear Cuenta de DJ"}
+            </Button>
+          </div>
+
           <Button type="button" variant="outline" className="w-full" onClick={() => navigate(-1)} disabled={loading}>
             Regresar
           </Button>
-        </form>
+        </div>
       </CardContent>
     </Card>
   );
