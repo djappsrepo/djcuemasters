@@ -44,8 +44,8 @@ const RequestPage = () => {
 
   const activeEvent = djEvents.find(event => event.id === formData.event_id) || (djEvents.length > 0 ? djEvents[0] : null);
 
-  return (
-    <div className="min-h-screen bg-background">
+    return (
+    <div className="min-h-screen">
       <div className="container mx-auto p-4 md:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1">
@@ -53,7 +53,7 @@ const RequestPage = () => {
           </div>
 
           <div className="lg:col-span-2">
-            <Card>
+                        <Card className="bg-card/70 backdrop-blur-sm border-white/20">
               <CardHeader>
                 <div className="flex items-center gap-3">
                   <Music className="w-6 h-6 text-primary" />

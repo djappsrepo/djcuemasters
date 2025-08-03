@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import StatCards from '@/components/admin/StatCards';
 import UserTable from '@/components/admin/UserTable';
 import type { UserWithProfile } from '@/components/admin/UserTable'; // Importa el tipo
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 
 const AdminDashboard = () => {
   const { user: adminUser } = useAuth();
@@ -42,8 +43,8 @@ const AdminDashboard = () => {
 
       setStats({ totalUsers: userCount || 0, totalDjs: djCount || 0 });
 
-      const djStageNames = new Map(djProfilesData.map(dj => [dj.user_id, dj.stage_name]));
-      const combinedUsers = profilesData.map(profile => ({
+            const djStageNames = new Map((djProfilesData || []).map(dj => [dj.user_id, dj.stage_name]));
+      const combinedUsers = (profilesData || []).map(profile => ({
         ...profile,
         dj_stage_name: djStageNames.get(profile.id)
       }));
@@ -103,24 +104,27 @@ const AdminDashboard = () => {
     fetchData();
   }, [fetchData]);
 
-  return (
+    return (
     <div className="container mx-auto py-8">
-      <div className="flex items-center space-x-3 mb-6">
-        <ShieldCheck className="h-8 w-8 text-primary" />
-        <h1 className="text-3xl font-bold">Panel de Administración</h1>
-      </div>
-
-      <div className="space-y-8">
-        <StatCards stats={stats} loading={loading} />
-        <UserTable 
-          users={users} 
-          loading={loading}
-          actionLoading={actionLoading}
-          adminUserId={adminUser?.id}
-          onRoleChange={handleRoleChange}
-          onDeleteUser={handleDeleteUser}
-        />
-      </div>
+            <Card className="bg-card/70 backdrop-blur-sm border-white/20">
+        <CardHeader>
+          <div className="flex items-center space-x-3">
+            <ShieldCheck className="h-8 w-8 text-primary" />
+            <h1 className="text-3xl font-bold">Panel de Administración</h1>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-8">
+          <StatCards stats={stats} loading={loading} />
+          <UserTable 
+            users={users} 
+            loading={loading}
+            actionLoading={actionLoading}
+            adminUserId={adminUser?.id}
+            onRoleChange={handleRoleChange}
+            onDeleteUser={handleDeleteUser}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };
