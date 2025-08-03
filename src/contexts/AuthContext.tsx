@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', userId)
+      .eq('user_id', userId)
       .single();
 
     if (profileError) {
@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setProfile(null);
       setDjProfile(null);
       setUserRole(null);
+      setLoading(false); // Asegurarse de que la carga termine incluso en error
       return;
     }
 
