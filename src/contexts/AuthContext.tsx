@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setProfile(null);
       setDjProfile(null);
       setUserRole(null);
-      setLoading(false); // Asegurarse de que la carga termine incluso en error
+      // setLoading is now handled by the caller
       return;
     }
 
@@ -58,19 +58,23 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) throw error;
+    setLoading(true);
 
-        if (session?.user) {
-          await fetchProfiles(session.user.id);
-        }
-        
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      try {
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
         setSession(session);
-        setUser(session?.user ?? null);
-      } catch (e) {
-        console.error("Error initializing session:", e);
+
+        if (currentUser) {
+          await fetchProfiles(currentUser.id);
+        } else {
+          setProfile(null);
+          setDjProfile(null);
+          setUserRole(null);
+        }
+      } catch (error) {
+        console.error("Error in onAuthStateChange:", error);
         setSession(null);
         setUser(null);
         setProfile(null);
@@ -79,26 +83,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } finally {
         setLoading(false);
       }
-    };
-
-    initializeAuth();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setLoading(true);
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      setSession(session);
-
-      if (currentUser) {
-        await fetchProfiles(currentUser.id);
-      } else {
-        setProfile(null);
-        setDjProfile(null);
-        setUserRole(null);
-      }
-      setLoading(false);
     });
 
+    // Cleanup subscription on unmount
     return () => {
       authListener.subscription.unsubscribe();
     };

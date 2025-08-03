@@ -79,6 +79,7 @@ export const RegisterForm = () => {
     }
     setLoading(true);
     try {
+      console.log('Submitting with role:', role);
       await signUp(email, password, fullName, role);
       toast({
         title: "¡Registro Exitoso!",
@@ -141,22 +142,16 @@ export const RegisterForm = () => {
           {/* Role selection remains the same */}
           <div className="space-y-3">
             <Label>Tipo de Cuenta</Label>
-            <RadioGroup value={role} onValueChange={(value) => setRole(value as 'dj' | 'cliente')} className="grid grid-cols-2 gap-4">
-              <div>
-                <RadioGroupItem value="cliente" id="cliente" className="peer sr-only" />
-                <Label htmlFor="cliente" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                  <User className="mb-3 h-6 w-6" />
-                  Cliente
-                </Label>
-              </div>
-              <div>
-                <RadioGroupItem value="dj" id="dj" className="peer sr-only" />
-                <Label htmlFor="dj" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
-                  <Crown className="mb-3 h-6 w-6" />
-                  DJ
-                </Label>
-              </div>
-            </RadioGroup>
+            <div className="grid grid-cols-2 gap-4">
+              <Button type="button" variant={role === 'cliente' ? 'default' : 'outline'} onClick={() => setRole('cliente')} className="flex flex-col h-auto py-4">
+                <User className="mb-3 h-6 w-6" />
+                Cliente
+              </Button>
+              <Button type="button" variant={role === 'dj' ? 'default' : 'outline'} onClick={() => setRole('dj')} className="flex flex-col h-auto py-4">
+                <Crown className="mb-3 h-6 w-6" />
+                DJ
+              </Button>
+            </div>
           </div>
           <div className="flex items-center space-x-2 mt-4">
             <Checkbox id="terms" checked={agreedToTerms} onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)} disabled={loading} />

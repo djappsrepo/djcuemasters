@@ -2,10 +2,7 @@ import { useContext, useEffect } from 'react';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { Routes, Route } from "react-router-dom";
 import { AuthContext } from '@/contexts/auth.context';
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
@@ -22,9 +19,7 @@ import AdminRoute from "./router/AdminRoute";
 import djHero from "./assets/dj-hero.jpg";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
 
-const queryClient = new QueryClient();
-
-const AppContent = () => {
+const App = () => {
   const authContext = useContext(AuthContext);
 
   useEffect(() => {
@@ -39,6 +34,8 @@ const AppContent = () => {
 
   return (
     <>
+      <Toaster />
+      <Sonner />
       <div className={`transition-opacity duration-700 opacity-100`}>
         <div 
           className="min-h-screen w-full text-white font-sans"
@@ -70,22 +67,6 @@ const AppContent = () => {
         </div>
       </div>
     </>
-  );
-}
-
-const App = () => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AuthProvider>
-            <AppContent />
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
   );
 };
 

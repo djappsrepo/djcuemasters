@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useStripe } from "@stripe/react-stripe-js";
 import type { Tables, Database } from "@/integrations/supabase/types";
 
 type DJProfileFormData = Pick<Tables<'dj_profiles'>, 'stage_name' | 'bio' | 'minimum_tip' | 'location_address'>;
@@ -9,7 +10,9 @@ type DJProfileFormData = Pick<Tables<'dj_profiles'>, 'stage_name' | 'bio' | 'min
 export const useDJProfileSetup = () => {
   const { user, djProfile, refreshProfiles } = useAuth();
   const { toast } = useToast();
+  const stripe = useStripe();
   const [loading, setLoading] = useState(false);
+  const [isDonating, setIsDonating] = useState(false);
   const [formData, setFormData] = useState<DJProfileFormData>({
     stage_name: "",
     bio: "",
@@ -91,5 +94,39 @@ export const useDJProfileSetup = () => {
     }
   };
 
-  return { loading, formData, isEditing, handleInputChange, handleSubmit };
+  const handleSupportProject = async () => {
+    if (!stripe || !user?.email) {
+      toast({ title: "Error de inicialización", description: "No se pudo conectar con Stripe. Por favor, recarga la página.", variant: "destructive" });
+      return;
+    }
+
+    setIsDonating(true);
+    const donationAmount = 5; // $5 USD
+
+    try {
+      const { data, error: invokeError } = await supabase.functions.invoke('create-donation-checkout', {
+        body: { 
+          amount: donationAmount,
+          djEmail: user.email 
+        },
+      });
+
+      if (invokeError) throw new Error(`Error al invocar la función: ${invokeError.message}`);
+      
+      const { sessionId } = data;
+      if (!sessionId) throw new Error('No se recibió el ID de la sesión de Stripe.');
+
+      toast({ title: "Redirigiendo...", description: "Te estamos llevando a la página de pago segura." });
+      const { error: stripeError } = await stripe.redirectToCheckout({ sessionId });
+
+      if (stripeError) throw new Error(`Error de Stripe: ${stripeError.message}`);
+
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Ocurrió un error desconocido.';
+      toast({ title: "Error en el Pago", description: message, variant: "destructive" });
+      setIsDonating(false);
+    }
+  };
+
+  return { loading, formData, isEditing, handleInputChange, handleSubmit, isDonating, handleSupportProject };
 };
