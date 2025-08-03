@@ -3,6 +3,7 @@ import type { Tables } from '@/integrations/supabase/types';
 import DJProfileSetup from '@/components/dj/DJProfileSetup';
 import DJStatsCards from '@/components/dj/DJStatsCards';
 import DJEventManager from '@/components/dj/DJEventManager';
+import { Badge } from '@/components/ui/badge';
 import { DJRequestsQueue } from '@/components/dj/DJRequestsQueue';
 
 // Define los tipos para los perfiles que se pasarán como props
@@ -20,8 +21,9 @@ export const DjView = ({ profile, djProfile }: DjViewProps) => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
-          ¡Bienvenido, {djProfile?.stage_name || profile.full_name}!
+        <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-3">
+          <span>¡Bienvenido, {djProfile?.stage_name || profile.full_name}!</span>
+          <Badge variant="default">DJ</Badge>
         </h2>
         <p className="text-muted-foreground">
           Gestiona tus eventos y solicitudes musicales desde aquí

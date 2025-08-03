@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Profile = Tables<'profiles'>;
@@ -15,8 +16,9 @@ export const ClientView = ({ profile }: ClientViewProps) => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-2">
-          ¡Hola, {profile.full_name}!
+        <h2 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-3">
+          <span>¡Hola, {profile.full_name}!</span>
+          <Badge variant="secondary">Cliente</Badge>
         </h2>
         <p className="text-muted-foreground">
           Encuentra DJs y solicita tus canciones favoritas
