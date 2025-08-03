@@ -1,9 +1,13 @@
-import { useDJStatsCards } from "@/hooks/use-dj-stats-cards";
+import { useDJStatsCards } from "@/hooks/dj/use-dj-stats-cards";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCardSkeleton, ErrorDisplay } from "./DJStatsCards.parts";
 
 const DJStatsCards = () => {
   const { stats, isLoading, error, djProfile } = useDJStatsCards();
+
+  if (error) {
+    return <ErrorDisplay error={error} />;
+  }
 
   if (isLoading) {
     return (
@@ -13,9 +17,7 @@ const DJStatsCards = () => {
     );
   }
 
-  if (error) {
-    return <ErrorDisplay error={error} />;
-  }
+  
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

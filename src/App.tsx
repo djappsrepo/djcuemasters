@@ -1,9 +1,9 @@
 import { useContext, useEffect } from 'react';
 import { SplashScreen } from '@capacitor/splash-screen';
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+
 import { Routes, Route } from "react-router-dom";
 import { AuthContext } from '@/contexts/auth.context';
+import { MainLayout } from "@/components/layout/MainLayout";
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
 import { Dashboard } from "./pages/Dashboard";
@@ -34,8 +34,6 @@ const App = () => {
 
   return (
     <>
-      <Toaster />
-      <Sonner />
       <div className={`transition-opacity duration-700 opacity-100`}>
         <div 
           className="min-h-screen w-full text-white font-sans"
@@ -47,15 +45,18 @@ const App = () => {
           }}
         >
           <Routes>
-            <Route path="/" element={<LandingPage />} />
+            <Route element={<MainLayout />}>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+            </Route>
+
             <Route path="/auth/*" element={<AuthPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/discover" element={<DiscoveryPage />} />
             <Route path="/dashboard/billing" element={<BillingPage />} />
             <Route path="/request/:djId" element={<RequestPage />} />
             <Route path="/payment-success" element={<PaymentSuccessPage />} />
-            <Route path="/terms" element={<TermsPage />} />
-            <Route path="/privacy" element={<PrivacyPage />} />
 
             {/* Admin Routes */}
             <Route element={<AdminRoute />}>

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { usePaymentSuccess } from '@/hooks/usePaymentSuccess';
+import { usePaymentSuccess } from '@/hooks/payment/use-payment-success';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';

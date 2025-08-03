@@ -1,107 +1,12 @@
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Music, User, MapPin, Calendar, DollarSign, ExternalLink } from "lucide-react";
-
-interface DJWithEvents {
-  id: string;
-  user_id: string;
-  stage_name: string;
-  bio: string | null;
-  avatar_url: string | null;
-  minimum_tip: number;
-  average_rating: number | null;
-  total_requests: number;
-  events: Array<{
-    id: string;
-    name: string;
-    venue: string | null;
-    event_date: string | null;
-  }>;
-}
+import { Music, MapPin, Calendar, DollarSign, ExternalLink } from "lucide-react";
+import { useDJDiscovery } from "@/hooks/discovery/use-dj-discovery";
 
 const DJDiscovery = () => {
-  const [activeDJs, setActiveDJs] = useState<DJWithEvents[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchActiveDJs();
-  }, []);
-
-  const fetchActiveDJs = async () => {
-    try {
-      // 1. Get active DJ profiles
-      const { data: djsData, error: djsError } = await supabase
-        .from('dj_profiles')
-        .select('id, user_id, stage_name, bio, minimum_tip, average_rating, total_requests')
-        .eq('active', true);
-
-      if (djsError) throw djsError;
-      if (!djsData) return;
-
-      const userIds = djsData.map(dj => dj.user_id);
-
-      // 2. Get avatars for those DJs
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('user_id, avatar_url')
-        .in('user_id', userIds);
-
-      if (profilesError) throw profilesError;
-
-      const avatarMap = new Map(profilesData.map(p => [p.user_id, p.avatar_url]));
-
-      // 3. For each DJ, get their active events and merge avatar
-      const djsWithDetails = await Promise.all(
-        djsData.map(async (dj) => {
-          const { data: eventsData } = await supabase
-            .from('dj_events')
-            .select('id, name, venue, event_date')
-            .eq('dj_id', dj.user_id)
-            .eq('is_active', true)
-            .order('created_at', { ascending: false });
-
-          return {
-            ...dj,
-            avatar_url: avatarMap.get(dj.user_id) || null,
-            events: eventsData || []
-          };
-        })
-      );
-
-      // Filter only DJs that have active events
-      const djsWithActiveEvents = djsWithDetails.filter(dj => dj.events.length > 0);
-      
-      setActiveDJs(djsWithActiveEvents);
-    } catch (error) {
-      console.error('Error fetching active DJs:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const isToday = date.toDateString() === now.toDateString();
-    
-    if (isToday) {
-      return `Hoy ${date.toLocaleTimeString('es-ES', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
-      })}`;
-    }
-    
-    return date.toLocaleDateString('es-ES', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  const { activeDJs, loading, formatDate } = useDJDiscovery();
 
   if (loading) {
     return (

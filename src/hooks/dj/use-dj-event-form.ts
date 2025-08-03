@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from '@/hooks/auth/use-auth';
 import { supabase } from '@/integrations/supabase/client';
-import { Tables } from '@/integrations/supabase/types';
-import { useToast } from '@/hooks/use-toast';
+import type { Tables } from '@/types';
+import { useToast } from '@/hooks/ui/use-toast';
 
 type DJEvent = Tables<'dj_events'>;
 

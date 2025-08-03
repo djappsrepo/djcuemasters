@@ -1,8 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/auth/use-auth';
+import { useToast } from '@/hooks/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import type { Tables } from '@/integrations/supabase/types';
+import type { Tables } from '@/types';
 
 export const useDJEvents = (onEventActivated: (event: Tables<'dj_events'> | null) => void) => {
   const { user } = useAuth();

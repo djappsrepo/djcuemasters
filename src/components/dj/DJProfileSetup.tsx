@@ -1,4 +1,4 @@
-import { useDJProfileSetup } from "@/hooks/useDJProfileSetup";
+import { useDJProfileSetup } from "@/hooks/dj/use-dj-profile-setup";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   FoundersCampaignAlert, 

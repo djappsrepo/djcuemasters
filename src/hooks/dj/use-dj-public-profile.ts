@@ -1,12 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import type { Tables } from '@/integrations/supabase/types';
+import { useToast } from '@/hooks/ui/use-toast';
+import type { Tables } from '@/types';
 
 type DJProfile = Tables<'dj_profiles'> & { avatar_url: string | null };
 type DJEvent = Tables<'dj_events'>;
 
-export const useDJPublicProfile = (djId: string | undefined) => {
+interface UseDJPublicProfileReturn {
+  djProfile: DJProfile | null;
+  djEvents: DJEvent[];
+  loading: boolean;
+  error: string | null;
+}
+
+export const useDJPublicProfile = (djId: string | undefined): UseDJPublicProfileReturn => {
   const { toast } = useToast();
   const [djProfile, setDjProfile] = useState<DJProfile | null>(null);
   const [djEvents, setDjEvents] = useState<DJEvent[]>([]);

@@ -1,4 +1,5 @@
-import { useDJRequestsQueue } from '@/hooks/use-dj-requests-queue';
+import { useDJRequestsQueue } from '@/hooks/dj/use-dj-requests-queue';
+import { Tables } from '@/types';
 import {
   Card,
   CardContent,
@@ -51,7 +52,7 @@ export const DJRequestsQueue = ({ eventId, isEventActive }: DJRequestsQueueProps
       </CardHeader>
       <CardContent className="space-y-4">
         {requests && requests.length > 0 ? (
-          requests.map((request) => (
+          requests.map((request: Tables<'music_requests'>, index: number) => (
             <RequestCard 
               key={request.id}
               request={request}

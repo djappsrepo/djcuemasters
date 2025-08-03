@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { PageLoader } from '@/components/ui/PageLoader';
+import { useAuth } from '@/hooks/auth/use-auth';
+import { PageLoader } from "@/components/ui/page-loader";
 import { DashboardError } from './DashboardError';
 import { DashboardContent } from './DashboardContent';
 

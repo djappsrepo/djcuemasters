@@ -1,4 +1,4 @@
-import { useDeleteAccount } from "@/hooks/useDeleteAccount";
+import { useDeleteAccount } from "@/hooks/auth/use-delete-account";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

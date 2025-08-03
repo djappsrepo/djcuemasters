@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useRegisterForm } from "@/hooks/auth/use-register-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,8 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AuthError } from "@supabase/supabase-js";
 import { Eye, EyeOff, User, Crown, CheckCircle2, XCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import LoadingSpinner from "@/components/ui/loading-spinner";
 
 interface PasswordStrengthIndicatorProps {
   checks: {
@@ -39,68 +37,19 @@ const PasswordStrengthIndicator = ({ checks }: PasswordStrengthIndicatorProps) =
 );
 
 export const RegisterForm = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<'dj' | 'cliente' | null>(null);
-  const [passwordValidation, setPasswordValidation] = useState({
-    length: false,
-    uppercase: false,
-    number: false,
-    special: false,
-  });
-
-  const { signUp } = useAuth();
+  const {
+    formData,
+    showPassword,
+    setShowPassword,
+    loading,
+    passwordValidation,
+    isPasswordValid,
+    handleSignUp,
+    handleInputChange,
+    handleRoleChange,
+    handleTermsChange,
+  } = useRegisterForm();
   const navigate = useNavigate();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const length = password.length >= 8;
-    const uppercase = /[A-Z]/.test(password);
-    const number = /[0-9]/.test(password);
-    const special = /[^A-Za-z0-9]/.test(password);
-    setPasswordValidation({ length, uppercase, number, special });
-  }, [password]);
-
-  const isPasswordValid = Object.values(passwordValidation).every(Boolean);
-
-  const handleSignUp = async (roleToRegister: 'dj' | 'cliente') => {
-    if (!isPasswordValid || !agreedToTerms || !fullName || !email) {
-      toast({
-        title: "Formulario incompleto",
-        description: "Por favor, completa todos los campos y acepta los términos.",
-        variant: "destructive",
-      });
-      return;
-    }
-    setLoading(true);
-    try {
-      await signUp(email, password, fullName, roleToRegister);
-      toast({
-        title: "¡Registro Exitoso!",
-        description: "Se ha enviado un correo para verificar tu cuenta.",
-        variant: "default",
-      });
-      navigate('/auth/login');
-    } catch (error) {
-      let errorMessage = "No se pudo completar el registro. Inténtalo de nuevo.";
-      if (error instanceof AuthError) {
-        errorMessage = error.message;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      toast({
-        title: "Error en el registro",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <Card>
@@ -112,21 +61,21 @@ export const RegisterForm = () => {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Nombre Completo</Label>
-            <Input id="signup-fullname" placeholder="Juan Pérez" value={fullName} onChange={(e) => setFullName(e.target.value)} required disabled={loading} />
+            <Input id="fullName" placeholder="Juan Pérez" value={formData.fullName} onChange={handleInputChange} required disabled={loading} />
           </div>
           <div className="space-y-2">
             <Label>Email</Label>
-            <Input id="signup-email" type="email" placeholder="tu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required disabled={loading} />
+            <Input id="email" type="email" placeholder="tu@email.com" value={formData.email} onChange={handleInputChange} required disabled={loading} />
           </div>
           <div className="space-y-2">
             <Label>Contraseña</Label>
             <div className="relative">
               <Input
-                id="signup-password"
+                id="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={handleInputChange}
                 required
                 disabled={loading}
               />
@@ -140,11 +89,11 @@ export const RegisterForm = () => {
           <div className="space-y-3">
             <Label>1. Elige tu tipo de cuenta</Label>
             <div className="grid grid-cols-2 gap-4">
-              <Button type="button" variant={selectedRole === 'cliente' ? 'default' : 'outline'} onClick={() => setSelectedRole('cliente')} className="flex flex-col h-auto py-4">
+              <Button type="button" variant={formData.selectedRole === 'cliente' ? 'default' : 'outline'} onClick={() => handleRoleChange('cliente')} className="flex flex-col h-auto py-4">
                 <User className="mb-3 h-6 w-6" />
                 Cliente
               </Button>
-              <Button type="button" variant={selectedRole === 'dj' ? 'default' : 'outline'} onClick={() => setSelectedRole('dj')} className="flex flex-col h-auto py-4">
+              <Button type="button" variant={formData.selectedRole === 'dj' ? 'default' : 'outline'} onClick={() => handleRoleChange('dj')} className="flex flex-col h-auto py-4">
                 <Crown className="mb-3 h-6 w-6" />
                 DJ
               </Button>
@@ -152,7 +101,7 @@ export const RegisterForm = () => {
           </div>
 
           <div className="flex items-center space-x-2 mt-4">
-            <Checkbox id="terms" checked={agreedToTerms} onCheckedChange={(checked) => setAgreedToTerms(checked === true)} disabled={loading} />
+            <Checkbox id="terms" checked={formData.agreedToTerms} onCheckedChange={(checked) => handleTermsChange(checked === true)} disabled={loading} />
             <label htmlFor="terms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
               Acepto los <Link to="/terms" className="underline hover:text-primary">términos de servicio</Link> y la <Link to="/privacy" className="underline hover:text-primary">política de privacidad</Link>.
             </label>
@@ -163,17 +112,17 @@ export const RegisterForm = () => {
             <Button 
               onClick={() => handleSignUp('cliente')}
               className="w-full"
-              disabled={loading || !agreedToTerms || !isPasswordValid || selectedRole !== 'cliente'}
+              disabled={loading || !formData.agreedToTerms || !isPasswordValid || formData.selectedRole !== 'cliente'}
             >
-              {loading && selectedRole === 'cliente' ? <LoadingSpinner size={24} /> : "Crear Cuenta de Cliente"}
+              {loading && formData.selectedRole === 'cliente' ? <LoadingSpinner size={24} /> : "Crear Cuenta de Cliente"}
             </Button>
             <Button 
               onClick={() => handleSignUp('dj')}
               className="w-full"
               variant="default"
-              disabled={loading || !agreedToTerms || !isPasswordValid || selectedRole !== 'dj'}
+              disabled={loading || !formData.agreedToTerms || !isPasswordValid || formData.selectedRole !== 'dj'}
             >
-              {loading && selectedRole === 'dj' ? <LoadingSpinner size={24} /> : "Crear Cuenta de DJ"}
+              {loading && formData.selectedRole === 'dj' ? <LoadingSpinner size={24} /> : "Crear Cuenta de DJ"}
             </Button>
           </div>
 

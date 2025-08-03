@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
-import { useRequestForm } from './useRequestForm';
+import { useRequestForm } from './use-request-form';
 import type { Tables } from '@/integrations/supabase/types';
 
 // Mock de dependencias externas

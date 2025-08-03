@@ -1,5 +1,5 @@
 import type { Tables } from "@/integrations/supabase/types";
-import { useDJEvents } from "@/hooks/useDJEvents";
+import { useDJEvents } from "@/hooks/dj/use-dj-events";
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);

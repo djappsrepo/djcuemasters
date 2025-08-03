@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { DJQRCodeSection } from "./DJQRCodeSection";
 import { DeleteAccountSection } from "./DeleteAccountSection";
-import type { DJProfileFormData } from '@/hooks/useDJProfileSetup';
+import type { DJProfileFormData } from '@/hooks/dj/use-dj-profile-setup';
 
 // --- Founders Campaign Alert ---
 interface FoundersCampaignAlertProps {

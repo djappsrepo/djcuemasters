@@ -2,8 +2,8 @@ import QRCode from 'react-qr-code';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Download } from 'lucide-react';
-import { useDJQRCodeSection } from '@/hooks/use-dj-qr-code';
-import { usePlatform } from '@/hooks/use-platform';
+import { useDJQRCodeSection } from '@/hooks/dj/use-dj-qr-code';
+import { usePlatform } from '@/hooks/ui/use-platform';
 
 interface DJQRCodeSectionProps {
   userId: string;

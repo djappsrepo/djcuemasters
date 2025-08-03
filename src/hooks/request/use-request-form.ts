@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import type { Tables } from '@/integrations/supabase/types';
+import { useToast } from '@/hooks/ui/use-toast';
+import type { Tables } from '@/types';
 
 type DJProfile = Tables<'dj_profiles'>;
 type DJEvent = Tables<'dj_events'>;
@@ -42,6 +42,11 @@ export const useRequestForm = ({ djProfile, djEvents }: UseRequestFormProps) => 
       }));
     }
   }, [djProfile, djEvents]);
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,12 +113,12 @@ export const useRequestForm = ({ djProfile, djEvents }: UseRequestFormProps) => 
 
   return {
     formData,
-    setFormData,
     submitting,
     clientSecret,
     currentRequestId,
     agreedToTerms,
     setAgreedToTerms,
-    handleSubmit
+    handleSubmit,
+    handleInputChange
   };
 };

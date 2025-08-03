@@ -1,5 +1,5 @@
-import { useDJRequests } from '@/hooks/useDJRequests';
-import type { Enums } from '@/integrations/supabase/types';
+import { useDJRequests } from '@/hooks/dj/use-dj-requests';
+import type { Enums } from '@/types';
 
 type PaymentStatus = Enums<'payment_status'>;
 

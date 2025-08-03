@@ -1,23 +1,18 @@
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LogIn, Download, PartyPopper, BarChart3 } from 'lucide-react';
+import type { Tables } from '@/integrations/supabase/types';
 
-// La interfaz de User se importará desde AuthContext o un archivo de tipos global si es necesario.
-// Por ahora, la definimos localmente para mantener la compatibilidad.
-interface User {
-  id: string;
-}
+const APK_DOWNLOAD_URL = 'https://github.com/djappsrepo/djcuemasters/releases/download/v1.0.0/app-release.apk';
 
 interface HeroSectionProps {
-  user: User | null;
+  user: Tables<'profiles'> | null;
   onDashboardClick: () => void;
   onAuthClick: () => void;
   onViewPlansClick: () => void;
 }
 
 export const HeroSection = ({ user, onDashboardClick, onAuthClick, onViewPlansClick }: HeroSectionProps) => {
-  const apkUrl = 'https://github.com/djappsrepo/djcuemasters/releases/download/v1.0.0/app-release.apk';
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -62,7 +57,7 @@ export const HeroSection = ({ user, onDashboardClick, onAuthClick, onViewPlansCl
             </Button>
         )}
         <Button asChild size="lg" variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-500/10 hover:text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
-          <a href={apkUrl} target="_blank" rel="noopener noreferrer">
+          <a href={APK_DOWNLOAD_URL} target="_blank" rel="noopener noreferrer">
             <Download className="mr-2 h-5 w-5" /> Descargar la APK
           </a>
         </Button>

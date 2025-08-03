@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import LoadingSpinner from "@/components/ui/loading-spinner";
 import { Check, XCircle, Music, User, Mail } from 'lucide-react';
 
 type MusicRequest = Tables<'music_requests'>;

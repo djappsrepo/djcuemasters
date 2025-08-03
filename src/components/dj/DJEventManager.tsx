@@ -1,7 +1,7 @@
 import type { Tables } from "@/integrations/supabase/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import DJEventForm from "./DJEventForm";
-import { useDJEventManager } from "@/hooks/use-dj-event-manager";
+import { useDJEventManager } from "@/hooks/dj/use-dj-event-manager";
 import { LoadingState, EmptyState, EventCard } from "./DJEventManager.parts";
 
 interface DJEventManagerProps {
@@ -38,7 +38,7 @@ const DJEventManager = ({ onEventActivated }: DJEventManagerProps) => {
           <EmptyState />
         ) : (
           <div className="space-y-4">
-            {events.map((event) => (
+            {events.map((event: Tables<'dj_events'>) => (
               <EventCard 
                 key={event.id}
                 event={event}

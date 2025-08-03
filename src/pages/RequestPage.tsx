@@ -1,8 +1,9 @@
 import { useParams } from "react-router-dom";
-import { useDJPublicProfile } from "@/hooks/useDJPublicProfile";
-import { useRequestForm } from "@/hooks/useRequestForm";
+import { useDJPublicProfile } from "@/hooks/dj/use-dj-public-profile";
+import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import type { Tables } from '@/types';
+import LoadingSpinner from "@/components/ui/loading-spinner";
 import { Music } from "lucide-react";
 import { CheckoutForm } from "@/components/page-components/request/CheckoutForm";
 import { DjProfileCard } from "@/components/page-components/request/DjProfileCard";
@@ -10,18 +11,15 @@ import { RequestForm } from "@/components/page-components/request/RequestForm";
 
 const RequestPage = () => {
   const { djId } = useParams<{ djId: string }>();
-  
   const { djProfile, djEvents, loading } = useDJPublicProfile(djId);
-  const {
-    formData,
-    setFormData,
-    submitting,
-    clientSecret,
-    currentRequestId,
-    agreedToTerms,
-    setAgreedToTerms,
-    handleSubmit
-  } = useRequestForm({ djProfile, djEvents });
+
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [currentRequestId, setCurrentRequestId] = useState<string | null>(null);
+
+  const handleSuccess = (secret: string, reqId: string) => {
+    setClientSecret(secret);
+    setCurrentRequestId(reqId);
+  };
 
   if (loading) {
     return (
@@ -42,7 +40,7 @@ const RequestPage = () => {
     );
   }
 
-  const activeEvent = djEvents.find(event => event.id === formData.event_id) || (djEvents.length > 0 ? djEvents[0] : null);
+  const activeEvent = djEvents.length > 0 ? djEvents[0] : null; // Simplified logic, can be enhanced later if needed
 
     return (
     <div className="min-h-screen">
@@ -70,12 +68,7 @@ const RequestPage = () => {
                   <RequestForm 
                     djProfile={djProfile}
                     djEvents={djEvents}
-                    formData={formData}
-                    setFormData={setFormData}
-                    onSubmit={handleSubmit}
-                    isSubmitting={submitting}
-                    agreedToTerms={agreedToTerms}
-                    setAgreedToTerms={setAgreedToTerms}
+                    onSubmitSuccess={handleSuccess}
                   />
                 )}
               </CardContent>

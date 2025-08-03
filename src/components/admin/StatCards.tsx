@@ -1,15 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Users, MicVocal } from 'lucide-react';
+import { useAdminStats } from '@/hooks/admin/use-admin-stats';
 
-interface StatCardsProps {
-  stats: {
-    totalUsers: number;
-    totalDjs: number;
-  };
-  loading: boolean;
-}
-
-const StatCards: React.FC<StatCardsProps> = ({ stats, loading }) => {
+const StatCards: React.FC = () => {
+  const { stats, loading } = useAdminStats();
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       <Card>

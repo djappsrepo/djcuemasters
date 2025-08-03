@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/auth/use-auth";
 import { useNavigate } from "react-router-dom";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+
 import { HeroSection } from "@/components/page-components/home/HeroSection";
 import { HowItWorksSection } from "@/components/page-components/home/HowItWorksSection";
 import { BenefitsSection } from "@/components/page-components/home/BenefitsSection";
@@ -10,7 +9,7 @@ import { PricingSection } from "@/components/page-components/home/PricingSection
 import { WelcomeModal } from '@/components/layout/WelcomeModal';
 
 const LandingPage = () => {
-  const { user, profile, signOut } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -26,19 +25,7 @@ const LandingPage = () => {
     setIsModalOpen(false);
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    // Opcional: Redirigir a la página de inicio después de cerrar sesión
-    navigate('/');
-  };
-
-  const handleDashboardClick = () => {
-    navigate('/dashboard');
-  };
-
-  const handleAuthClick = () => {
-    navigate('/auth');
-  };
+  
 
   const handleSubscribeClick = (plan: string) => {
     console.log(`Plan seleccionado: ${plan}`);
@@ -51,19 +38,11 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="w-full">
-      <Header 
-        user={user} 
-        profile={profile} 
-        onSignOut={handleSignOut} 
-        onDashboardClick={handleDashboardClick} 
-        onAuthClick={handleAuthClick} 
-      />
-
+    <>
       <HeroSection 
         user={user} 
-        onDashboardClick={handleDashboardClick} 
-        onAuthClick={handleAuthClick} 
+        onDashboardClick={() => navigate('/dashboard')} 
+        onAuthClick={() => navigate('/auth')} 
         onViewPlansClick={() => {
           const pricingSection = document.getElementById('pricing');
           if (pricingSection) {
@@ -78,9 +57,8 @@ const LandingPage = () => {
 
       <PricingSection onSubscribeClick={handleSubscribeClick} />
 
-      <Footer />
       <WelcomeModal isOpen={isModalOpen} onClose={handleCloseModal} />
-    </div>
+    </>
   );
 };
 

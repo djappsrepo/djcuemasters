@@ -20,8 +20,8 @@ export const Footer = () => {
           <div>
             <h4 className="font-semibold text-foreground mb-4">Para DJs</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Registro DJ</li>
-              <li>Panel de Control</li>
+              <li><Link to="/auth" className="hover:text-foreground transition-colors">Registro DJ</Link></li>
+              <li><Link to="/dashboard" className="hover:text-foreground transition-colors">Panel de Control</Link></li>
               <li>Monetización</li>
               <li>Analytics</li>
             </ul>
@@ -30,9 +30,9 @@ export const Footer = () => {
           <div>
             <h4 className="font-semibold text-foreground mb-4">Recursos</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Guía de Uso</li>
+              <li><Link to="/guide" className="hover:text-foreground transition-colors">Guía de Uso</Link></li>
 
-              <li>Soporte 24/7</li>
+              <li><Link to="/support" className="hover:text-foreground transition-colors">Soporte 24/7</Link></li>
               <li>Blog</li>
             </ul>
           </div>

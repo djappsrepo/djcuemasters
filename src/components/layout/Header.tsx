@@ -1,20 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import animatedLogo from "@/assets/cuemastersdj_logo_eq_animated.svg";
-
-// Definimos los tipos para las props que recibirá el componente
-interface User {
-  id: string;
-  email?: string;
-}
-
-interface Profile {
-  full_name: string | null | undefined;
-}
+import type { User } from "@supabase/supabase-js";
+import type { Tables } from "@/integrations/supabase/types";
 
 interface HeaderProps {
   user: User | null;
-  profile: Profile | null;
+  profile: Tables<'profiles'> | null;
   onSignOut: () => void;
   onDashboardClick: () => void;
   onAuthClick: () => void;

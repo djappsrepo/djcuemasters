@@ -1,5 +1,6 @@
 import { User as SupabaseUser, Session as SupabaseSession } from '@supabase/supabase-js';
-import type { Tables } from '@/integrations/supabase/types';
+import type { Tables, Enums } from '@/integrations/supabase/types';
+export type { Tables, Enums };
 
 /**
  * Este archivo contiene las definiciones de tipos y interfaces compartidas
