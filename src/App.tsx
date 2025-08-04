@@ -13,6 +13,7 @@ import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import BillingPage from './pages/BillingPage';
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
+import { FAQPage } from "./pages/FAQPage";
 import NotFound from "./pages/NotFound";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminRoute from "./router/AdminRoute";
@@ -49,6 +50,7 @@ const App = () => {
               <Route path="/" element={<LandingPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/faq" element={<FAQPage />} />
             </Route>
 
             <Route path="/auth/*" element={<AuthPage />} />
