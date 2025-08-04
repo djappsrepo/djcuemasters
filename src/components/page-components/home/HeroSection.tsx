@@ -56,11 +56,13 @@ export const HeroSection = ({ user, onDashboardClick, onAuthClick, onViewPlansCl
                 <LogIn className="mr-2 h-5 w-5" /> Ver Planes
             </Button>
         )}
-        <Button asChild size="lg" variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-500/10 hover:text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
-          <a href={APK_DOWNLOAD_URL} target="_blank" rel="noopener noreferrer">
-            <Download className="mr-2 h-5 w-5" /> Descargar la APK
-          </a>
-        </Button>
+        {import.meta.env.VITE_IS_NATIVE_APP !== 'true' && (
+          <Button asChild size="lg" variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-500/10 hover:text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
+            <a href={APK_DOWNLOAD_URL} target="_blank" rel="noopener noreferrer">
+              <Download className="mr-2 h-5 w-5" /> Descargar la APK
+            </a>
+          </Button>
+        )}
       </motion.div>
     </motion.section>
   );
