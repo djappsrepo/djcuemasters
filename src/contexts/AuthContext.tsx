@@ -1,12 +1,31 @@
-import { useState, useEffect, ReactNode, useContext } from 'react';
+import { useState, useEffect, ReactNode, useContext, createContext } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthSession, User } from '@supabase/supabase-js';
 import { Tables } from '@/integrations/supabase/types';
-import { AuthContext as AuthContextType, UserRole } from './auth.context';
+
+// Define UserRole type
+export type UserRole = 'admin' | 'dj' | 'cliente' | null;
+
+// Define the context interface
+interface AuthContextType {
+  session: AuthSession | null;
+  user: User | null;
+  profile: Profile | null;
+  userRole: UserRole;
+  djProfile: DJProfile | null;
+  loading: boolean;
+  signOut: () => Promise<void>;
+  refreshProfiles: () => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, role: 'dj' | 'cliente') => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+}
 
 // Define los tipos específicos para nuestros perfiles usando los tipos generados
 type Profile = Tables<'profiles'>;
 type DJProfile = Tables<'dj_profiles'>;
+
+// Create the context
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -166,19 +185,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   return (
-    <AuthContextType.Provider value={value}>
+    <AuthContext.Provider value={value}>
       {children}
-    </AuthContextType.Provider>
+    </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContextType);
+  const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
-
-// Re-export the context for direct access if needed
-export { AuthContextType as AuthContext };
