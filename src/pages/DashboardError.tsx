@@ -16,7 +16,7 @@ export const DashboardError = () => {
         <p className="text-muted-foreground mb-6">
           No pudimos obtener los datos de tu perfil. Por favor, cierra la sesión e intenta de nuevo.
         </p>
-        <Button variant="destructive" onClick={handleSignOut}>
+        <Button className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={handleSignOut}>
           <LogOut className="w-4 h-4 mr-2" />
           Cerrar Sesión
         </Button>
