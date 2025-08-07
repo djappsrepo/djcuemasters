@@ -49,9 +49,9 @@ export const DjProfileCard = ({ djProfile, activeEvent }: DjProfileCardProps) =>
         )}
 
         <div className="flex justify-between items-center text-sm">
-          <Badge variant="outline">Requests: {djProfile.total_requests}</Badge>
+          <Badge className="border border-input bg-background text-foreground">Requests: {djProfile.total_requests}</Badge>
           {djProfile.average_rating !== null && (
-            <Badge variant="outline">
+            <Badge className="border border-input bg-background text-foreground">
               Rating: {djProfile.average_rating.toFixed(1)} ★
             </Badge>
           )}

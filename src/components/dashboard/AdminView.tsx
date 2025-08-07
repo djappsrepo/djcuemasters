@@ -17,15 +17,15 @@ export const AdminView = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-auto p-4 flex-col">
+            <Button className="h-auto p-4 flex-col border border-input bg-background hover:bg-accent hover:text-accent-foreground">
               <Users className="w-6 h-6 mb-2" />
               <span>Gestionar DJs</span>
             </Button>
-            <Button variant="outline" className="h-auto p-4 flex-col">
+            <Button className="h-auto p-4 flex-col border border-input bg-background hover:bg-accent hover:text-accent-foreground">
               <BarChart3 className="w-6 h-6 mb-2" />
               <span>Analytics Global</span>
             </Button>
-            <Button variant="outline" className="h-auto p-4 flex-col">
+            <Button className="h-auto p-4 flex-col border border-input bg-background hover:bg-accent hover:text-accent-foreground">
               <DollarSign className="w-6 h-6 mb-2" />
               <span>Gestión Stripe</span>
             </Button>
