@@ -2,7 +2,7 @@ import { useContext, useEffect } from 'react';
 import { SplashScreen } from '@capacitor/splash-screen';
 
 import { Routes, Route } from "react-router-dom";
-import { AuthContext } from '@/contexts/auth.context';
+import { AuthContext } from '@/contexts/AuthContext';
 import { MainLayout } from "@/components/layout/MainLayout";
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";

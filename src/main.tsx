@@ -6,7 +6,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
 import App from './App';
-import { AuthProvider } from './contexts/auth.provider';
+import { AuthProvider } from './contexts/AuthContext';
 import { Toaster } from './components/ui/toaster';
 import './index.css';
 

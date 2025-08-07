@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useAuth } from '@/hooks/auth/use-auth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/types';

@@ -1,5 +1,5 @@
 import { useState, ChangeEvent } from 'react';
-import { useAuth } from '@/hooks/auth/use-auth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/ui/use-toast';
 
 export const useLoginForm = () => {

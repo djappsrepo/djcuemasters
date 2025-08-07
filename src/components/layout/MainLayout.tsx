@@ -1,4 +1,4 @@
-import { useAuth } from "@/hooks/auth/use-auth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Header } from "./Header";
 import { Footer } from "./Footer";

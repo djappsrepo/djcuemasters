@@ -1,5 +1,5 @@
 import { useState, useEffect, ChangeEvent } from 'react';
-import { useAuth } from '@/hooks/auth/use-auth';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { AuthError } from '@supabase/supabase-js';

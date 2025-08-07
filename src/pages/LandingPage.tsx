@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from "@/hooks/auth/use-auth";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
