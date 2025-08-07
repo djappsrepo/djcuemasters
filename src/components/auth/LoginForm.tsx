@@ -49,9 +49,7 @@ export const LoginForm = () => {
               />
               <Button
                 type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-muted-foreground hover:text-foreground"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={loading}
               >
@@ -63,7 +61,7 @@ export const LoginForm = () => {
               </Button>
             </div>
           </div>
-          <Button type="submit" className="w-full" variant="hero" disabled={loading}>
+          <Button type="submit" className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold" disabled={loading}>
             {loading ? "Ingresando..." : "Iniciar Sesión"}
           </Button>
         </form>

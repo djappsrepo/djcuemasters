@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, Suspense } from 'react';
 import { SplashScreen } from '@capacitor/splash-screen';
 
 import { Routes, Route } from "react-router-dom";
@@ -6,19 +6,24 @@ import { AuthContext } from '@/contexts/AuthContext';
 import { MainLayout } from "@/components/layout/MainLayout";
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
-import { Dashboard } from "./pages/Dashboard";
 import DiscoveryPage from "./pages/DiscoveryPage";
-import RequestPage from "./pages/RequestPage";
-import PaymentSuccessPage from "./pages/PaymentSuccessPage";
-import BillingPage from './pages/BillingPage';
-import TermsPage from "./pages/TermsPage";
-import PrivacyPage from "./pages/PrivacyPage";
-import { FAQPage } from "./pages/FAQPage";
 import NotFound from "./pages/NotFound";
-import AdminDashboard from "./pages/AdminDashboard";
 import AdminRoute from "./router/AdminRoute";
 import djHero from "./assets/dj-hero.jpg";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
+
+// Lazy loaded components
+import {
+  Dashboard,
+  AdminDashboard,
+  RequestPage,
+  BillingPage,
+  FAQPage,
+  TermsPage,
+  PrivacyPage,
+  PaymentSuccessPage,
+  PageLoadingFallback
+} from './router/LazyRoutes';
 
 const App = () => {
   const authContext = useContext(AuthContext);
@@ -48,21 +53,53 @@ const App = () => {
           <Routes>
             <Route element={<MainLayout />}>
               <Route path="/" element={<LandingPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/privacy" element={<PrivacyPage />} />
-              <Route path="/faq" element={<FAQPage />} />
+              <Route path="/terms" element={
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <TermsPage />
+                </Suspense>
+              } />
+              <Route path="/privacy" element={
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <PrivacyPage />
+                </Suspense>
+              } />
+              <Route path="/faq" element={
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <FAQPage />
+                </Suspense>
+              } />
             </Route>
 
             <Route path="/auth/*" element={<AuthPage />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={
+              <Suspense fallback={<PageLoadingFallback />}>
+                <Dashboard />
+              </Suspense>
+            } />
             <Route path="/discover" element={<DiscoveryPage />} />
-            <Route path="/dashboard/billing" element={<BillingPage />} />
-            <Route path="/request/:djId" element={<RequestPage />} />
-            <Route path="/payment-success" element={<PaymentSuccessPage />} />
+            <Route path="/dashboard/billing" element={
+              <Suspense fallback={<PageLoadingFallback />}>
+                <BillingPage />
+              </Suspense>
+            } />
+            <Route path="/request/:djId" element={
+              <Suspense fallback={<PageLoadingFallback />}>
+                <RequestPage />
+              </Suspense>
+            } />
+            <Route path="/payment-success" element={
+              <Suspense fallback={<PageLoadingFallback />}>
+                <PaymentSuccessPage />
+              </Suspense>
+            } />
 
             {/* Admin Routes */}
             <Route element={<AdminRoute />}>
-              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin" element={
+                <Suspense fallback={<PageLoadingFallback />}>
+                  <AdminDashboard />
+                </Suspense>
+              } />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

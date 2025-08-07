@@ -79,7 +79,7 @@ export const RegisterForm = () => {
                 required
                 disabled={loading}
               />
-              <Button type="button" variant="ghost" size="sm" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent" onClick={() => setShowPassword(!showPassword)} disabled={loading}>
+              <Button type="button" className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-muted-foreground hover:text-foreground" onClick={() => setShowPassword(!showPassword)} disabled={loading}>
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />} 
               </Button>
             </div>
@@ -89,11 +89,11 @@ export const RegisterForm = () => {
           <div className="space-y-3">
             <Label>1. Elige tu tipo de cuenta</Label>
             <div className="grid grid-cols-2 gap-4">
-              <Button type="button" variant={formData.selectedRole === 'cliente' ? 'default' : 'outline'} onClick={() => handleRoleChange('cliente')} className="flex flex-col h-auto py-4">
+              <Button type="button" onClick={() => handleRoleChange('cliente')} className={`flex flex-col h-auto py-4 ${formData.selectedRole === 'cliente' ? 'bg-primary text-primary-foreground' : 'border border-input bg-background hover:bg-accent hover:text-accent-foreground'}`}>
                 <User className="mb-3 h-6 w-6" />
                 Cliente
               </Button>
-              <Button type="button" variant={formData.selectedRole === 'dj' ? 'default' : 'outline'} onClick={() => handleRoleChange('dj')} className="flex flex-col h-auto py-4">
+              <Button type="button" onClick={() => handleRoleChange('dj')} className={`flex flex-col h-auto py-4 ${formData.selectedRole === 'dj' ? 'bg-primary text-primary-foreground' : 'border border-input bg-background hover:bg-accent hover:text-accent-foreground'}`}>
                 <Crown className="mb-3 h-6 w-6" />
                 DJ
               </Button>
@@ -118,15 +118,14 @@ export const RegisterForm = () => {
             </Button>
             <Button 
               onClick={() => handleSignUp('dj')}
-              className="w-full"
-              variant="default"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
               disabled={loading || !formData.agreedToTerms || !isPasswordValid || formData.selectedRole !== 'dj'}
             >
               {loading && formData.selectedRole === 'dj' ? <LoadingSpinner size={24} /> : "Crear Cuenta de DJ"}
             </Button>
           </div>
 
-          <Button type="button" variant="outline" className="w-full" onClick={() => navigate(-1)} disabled={loading}>
+          <Button type="button" className="w-full border border-input bg-background hover:bg-accent hover:text-accent-foreground" onClick={() => navigate(-1)} disabled={loading}>
             Regresar
           </Button>
         </div>

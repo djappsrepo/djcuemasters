@@ -1,3 +1,4 @@
+import React from 'react';
 import { useDJRequestsQueue } from '@/hooks/dj/use-dj-requests-queue';
 import { Tables } from '@/types';
 import {
@@ -20,7 +21,7 @@ interface DJRequestsQueueProps {
   isEventActive: boolean;
 }
 
-export const DJRequestsQueue = ({ eventId, isEventActive }: DJRequestsQueueProps) => {
+export const DJRequestsQueue = React.memo(({ eventId, isEventActive }: DJRequestsQueueProps) => {
   const { 
     requests, 
     isLoading, 
@@ -68,4 +69,6 @@ export const DJRequestsQueue = ({ eventId, isEventActive }: DJRequestsQueueProps
       </CardContent>
     </Card>
   );
-};
+});
+
+DJRequestsQueue.displayName = 'DJRequestsQueue';

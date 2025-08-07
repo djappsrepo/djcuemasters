@@ -3,12 +3,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import DJEventForm from "./DJEventForm";
 import { useDJEventManager } from "@/hooks/dj/use-dj-event-manager";
 import { LoadingState, EmptyState, EventCard } from "./DJEventManager.parts";
+import React from 'react';
 
 interface DJEventManagerProps {
   onEventActivated: (event: Tables<'dj_events'> | null) => void;
 }
 
-const DJEventManager = ({ onEventActivated }: DJEventManagerProps) => {
+const DJEventManager = React.memo(({ onEventActivated }: DJEventManagerProps) => {
   const { 
     events, 
     loading, 
@@ -53,6 +54,8 @@ const DJEventManager = ({ onEventActivated }: DJEventManagerProps) => {
       </CardContent>
     </Card>
   );
-};
+});
+
+DJEventManager.displayName = 'DJEventManager';
 
 export default DJEventManager;

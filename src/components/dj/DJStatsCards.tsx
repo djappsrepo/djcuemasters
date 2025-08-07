@@ -1,8 +1,9 @@
+import React from 'react';
 import { useDJStatsCards } from "@/hooks/dj/use-dj-stats-cards";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatCardSkeleton, ErrorDisplay } from "./DJStatsCards.parts";
 
-const DJStatsCards = () => {
+const DJStatsCards = React.memo(() => {
   const { stats, isLoading, error, djProfile } = useDJStatsCards();
 
   if (error) {
@@ -82,6 +83,8 @@ const DJStatsCards = () => {
       </Card>
     </div>
   );
-};
+});
+
+DJStatsCards.displayName = 'DJStatsCards';
 
 export default DJStatsCards;
