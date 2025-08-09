@@ -1,5 +1,5 @@
 import { ShieldCheck } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { useUserManagement } from '@/hooks/admin/use-user-management';
 import { useAdminStats } from '@/hooks/admin/use-admin-stats';
 import StatCards from '@/components/admin/StatCards';

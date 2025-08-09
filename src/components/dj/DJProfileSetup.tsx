@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { User, DollarSign, Loader2, Save, MapPin } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { DJQRCodeSection } from "./DJQRCodeSection";
 import { DeleteAccountSection } from "./DeleteAccountSection";
 

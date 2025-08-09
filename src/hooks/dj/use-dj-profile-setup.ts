@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useStripe } from "@stripe/react-stripe-js";

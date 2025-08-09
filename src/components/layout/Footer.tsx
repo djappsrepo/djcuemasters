@@ -1,53 +1,75 @@
-import djIcon from "@/assets/dj-icon.jpg";
+import { Link } from 'react-router-dom';
+import { Twitter, Instagram, Facebook, Youtube } from 'lucide-react';
+import { AnimatedLogo } from '@/components/ui/logo';
+
+const socialLinks = [
+  { icon: Twitter, href: '#', name: 'Twitter' },
+  { icon: Instagram, href: '#', name: 'Instagram' },
+  { icon: Facebook, href: '#', name: 'Facebook' },
+  { icon: Youtube, href: '#', name: 'YouTube' },
+];
+
+const footerLinks = {
+  'Producto': [
+    { name: 'Características', href: '#' },
+    { name: 'Precios', href: '#' },
+    { name: 'Demo en Vivo', href: '#' },
+    { name: 'Iniciar Sesión', href: '/login' },
+  ],
+  'Empresa': [
+    { name: 'Sobre Nosotros', href: '#' },
+    { name: 'Blog', href: '#' },
+    { name: 'Contacto', href: '#' },
+  ],
+  'Legal': [
+    { name: 'Términos de Servicio', href: '/terms' },
+    { name: 'Política de Privacidad', href: '/privacy' },
+  ],
+};
 
 export const Footer = () => {
   return (
-    <footer className="border-t border-border bg-card/30 py-12">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div>
-            <div className="flex items-center gap-3 mb-4">
-              <img src={djIcon} alt="CueFlow" className="w-8 h-8 rounded" />
-              <span className="text-lg font-bold text-foreground">CueFlow</span>
-            </div>
-            <p className="text-muted-foreground text-sm">
-              La plataforma de solicitudes musicales más avanzada para DJs profesionales.
+    <footer className="bg-black text-gray-400 border-t border-white/10">
+      <div className="container mx-auto px-6 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          <div className="md:col-span-2 lg:col-span-1">
+            <Link to="/" className="flex items-center gap-2 mb-4">
+              <AnimatedLogo className="w-10 h-10" />
+              <span className="text-2xl font-bold text-white">CueMasters</span>
+            </Link>
+            <p className="text-sm leading-relaxed max-w-xs">
+              Potenciando la conexión entre DJs y su audiencia a través de la música.
             </p>
           </div>
-          
-          <div>
-            <h4 className="font-semibold text-foreground mb-4">Para DJs</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Registro DJ</li>
-              <li>Panel de Control</li>
-              <li>Monetización</li>
-              <li>Analytics</li>
-            </ul>
-          </div>
-          
-          <div>
-            <h4 className="font-semibold text-foreground mb-4">Recursos</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Guía de Uso</li>
-              <li>Demo en Vivo</li>
-              <li>Soporte 24/7</li>
-              <li>Blog</li>
-            </ul>
-          </div>
-          
-          <div>
-            <h4 className="font-semibold text-foreground mb-4">Contacto</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>hello@cueflow.com</li>
-              <li>+1 (555) 123-4567</li>
-              <li>Discord Community</li>
-              <li>Instagram</li>
-            </ul>
-          </div>
+
+          {Object.entries(footerLinks).map(([title, links]) => (
+            <div key={title}>
+              <h4 className="font-bold text-white text-lg mb-4 tracking-wide">{title}</h4>
+              <ul className="space-y-3">
+                {links.map(link => (
+                  <li key={link.name}>
+                    <Link to={link.href} className="hover:text-white transition-colors duration-300">
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
-        
-        <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2024 CueFlow. Todos los derechos reservados. Hecho con ❤️ para DJs.</p>
+
+        <div className="mt-16 pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center">
+          <p className="text-sm text-center sm:text-left mb-4 sm:mb-0">
+            &copy; {new Date().getFullYear()} CueMasters. Todos los derechos reservados.
+          </p>
+          <div className="flex items-center space-x-4">
+            {socialLinks.map(social => (
+              <a key={social.name} href={social.href} className="text-gray-400 hover:text-white hover:scale-110 transition-all duration-300">
+                <social.icon className="w-6 h-6" />
+                <span className="sr-only">{social.name}</span>
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </footer>

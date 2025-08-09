@@ -15,10 +15,12 @@ const LandingPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    const hasVisited = localStorage.getItem('hasVisitedCueMasters');
-    if (!hasVisited) {
-      setIsModalOpen(true);
-    }
+    // const hasVisited = localStorage.getItem('hasVisitedCueMasters');
+    // if (!hasVisited) {
+    //   setIsModalOpen(true);
+    // }
+    // Forzar la visualización del modal para revisión:
+    setIsModalOpen(true);
   }, []);
 
   const handleCloseModal = () => {

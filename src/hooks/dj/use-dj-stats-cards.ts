@@ -1,4 +1,4 @@
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { useDJStats } from "@/hooks/dj/use-dj-stats";
 
 export const useDJStatsCards = () => {

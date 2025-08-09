@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Music, LogOut, Settings, BarChart3, Users, DollarSign } from "lucide-react";
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/auth/useAuth';
 import { PageLoader } from '@/components/ui/PageLoader';
 import { DashboardError } from './DashboardError';
 import { DashboardContent } from './DashboardContent';

@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FeatureCard } from "@/components/FeatureCard";
 import { MusicWave } from "@/components/MusicWave";
 import { PricingCard } from "@/components/PricingCard";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
