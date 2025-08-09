@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Twitter, Instagram, Facebook, Youtube } from 'lucide-react';
-import { AnimatedLogo } from '@/components/ui/logo';
+import CueMastersLogo from '@/assets/cuemastersdj_logo_eq_animated.svg';
 
 const socialLinks = [
   { icon: Twitter, href: '#', name: 'Twitter' },
@@ -34,7 +34,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div className="md:col-span-2 lg:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <AnimatedLogo className="w-10 h-10" />
+              <img src={CueMastersLogo} alt="CueMasters Logo" className="w-10 h-10" />
               <span className="text-2xl font-bold text-white">CueMasters</span>
             </Link>
             <p className="text-sm leading-relaxed max-w-xs">
