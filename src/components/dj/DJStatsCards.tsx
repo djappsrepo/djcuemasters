@@ -1,24 +1,64 @@
-import React from 'react';
-import { useDJStatsCards } from "@/hooks/dj/use-dj-stats-cards";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatCardSkeleton, ErrorDisplay } from "./DJStatsCards.parts";
 
-const DJStatsCards = React.memo(() => {
-  const { stats, isLoading, error, djProfile } = useDJStatsCards();
+interface Stats {
+  todayRequests: number;
+  todayEarnings: number;
+  activeEvents: number;
+  totalEarnings: number;
+  totalRequests: number;
+}
 
-  if (error) {
-    return <ErrorDisplay error={error} />;
-  }
+const DJStatsCards = () => {
+  const { user, djProfile } = useAuth();
+  const [stats, setStats] = useState<Stats>({
+    todayRequests: 0,
+    todayEarnings: 0,
+    activeEvents: 0,
+    totalEarnings: djProfile?.total_earnings || 0,
+    totalRequests: djProfile?.total_requests || 0
+  });
 
-  if (isLoading) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[...Array(4)].map((_, i) => <StatCardSkeleton key={i} />)}
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!user) return;
 
-  
+    const fetchStats = async () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      try {
+        // Solicitudes de hoy
+        const { data: todayRequests } = await supabase
+          .from('music_requests')
+          .select('tip_amount')
+          .eq('dj_id', user.id)
+          .gte('created_at', today.toISOString());
+
+        // Eventos activos
+        const { data: activeEvents } = await supabase
+          .from('dj_events')
+          .select('id')
+          .eq('dj_id', user.id)
+          .eq('is_active', true);
+
+        const todayEarnings = todayRequests?.reduce((sum, req) => sum + Number(req.tip_amount), 0) || 0;
+
+        setStats({
+          todayRequests: todayRequests?.length || 0,
+          todayEarnings,
+          activeEvents: activeEvents?.length || 0,
+          totalEarnings: djProfile?.total_earnings || 0,
+          totalRequests: djProfile?.total_requests || 0
+        });
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, [user, djProfile]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -29,9 +69,9 @@ const DJStatsCards = React.memo(() => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-foreground">{stats.todayRequestsCount}</div>
+          <div className="text-2xl font-bold text-foreground">{stats.todayRequests}</div>
           <p className="text-xs text-muted-foreground">
-            {stats.todayRequestsCount === 0 ? 'Sin solicitudes aún' : 'Solicitudes recibidas'}
+            {stats.todayRequests === 0 ? 'Sin solicitudes aún' : 'Solicitudes recibidas'}
           </p>
         </CardContent>
       </Card>
@@ -59,9 +99,9 @@ const DJStatsCards = React.memo(() => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-foreground">{stats.activeEventsCount}</div>
+          <div className="text-2xl font-bold text-foreground">{stats.activeEvents}</div>
           <p className="text-xs text-muted-foreground">
-            {stats.activeEventsCount === 0 ? 'No hay eventos activos' : 'Eventos en curso'}
+            {stats.activeEvents === 0 ? 'No hay eventos activos' : 'Eventos en curso'}
           </p>
         </CardContent>
       </Card>
@@ -74,17 +114,15 @@ const DJStatsCards = React.memo(() => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            ${(djProfile?.total_earnings || 0).toFixed(2)}
+            ${stats.totalEarnings.toFixed(2)}
           </div>
           <p className="text-xs text-muted-foreground">
-            {djProfile?.total_requests || 0} solicitudes
+            {stats.totalRequests} solicitudes
           </p>
         </CardContent>
       </Card>
     </div>
   );
-});
-
-DJStatsCards.displayName = 'DJStatsCards';
+};
 
 export default DJStatsCards;

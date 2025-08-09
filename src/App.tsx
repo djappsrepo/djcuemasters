@@ -1,31 +1,31 @@
-import { useContext, useEffect, Suspense } from 'react';
+import { useContext, useEffect } from 'react';
 import { SplashScreen } from '@capacitor/splash-screen';
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
 
-import { Routes, Route } from "react-router-dom";
-import { AuthContext } from '@/contexts/AuthContext';
-import { MainLayout } from "@/components/layout/MainLayout";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthContext } from '@/contexts/auth.context';
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
+import Dashboard from "./pages/Dashboard";
 import DiscoveryPage from "./pages/DiscoveryPage";
+import RequestPage from "./pages/RequestPage";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage";
+import BillingPage from './pages/BillingPage';
+import TermsPage from "./pages/TermsPage";
+import PrivacyPage from "./pages/PrivacyPage";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/AdminDashboard";
 import AdminRoute from "./router/AdminRoute";
 import djHero from "./assets/dj-hero.jpg";
 import { LoadingScreen } from "@/components/layout/LoadingScreen";
 
-// Lazy loaded components
-import {
-  Dashboard,
-  AdminDashboard,
-  RequestPage,
-  BillingPage,
-  FAQPage,
-  TermsPage,
-  PrivacyPage,
-  PaymentSuccessPage,
-  PageLoadingFallback
-} from './router/LazyRoutes';
+const queryClient = new QueryClient();
 
-const App = () => {
+const AppContent = () => {
   const authContext = useContext(AuthContext);
 
   useEffect(() => {
@@ -51,55 +51,19 @@ const App = () => {
           }}
         >
           <Routes>
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/terms" element={
-                <Suspense fallback={<PageLoadingFallback />}>
-                  <TermsPage />
-                </Suspense>
-              } />
-              <Route path="/privacy" element={
-                <Suspense fallback={<PageLoadingFallback />}>
-                  <PrivacyPage />
-                </Suspense>
-              } />
-              <Route path="/faq" element={
-                <Suspense fallback={<PageLoadingFallback />}>
-                  <FAQPage />
-                </Suspense>
-              } />
-            </Route>
-
+            <Route path="/" element={<LandingPage />} />
             <Route path="/auth/*" element={<AuthPage />} />
-            <Route path="/dashboard" element={
-              <Suspense fallback={<PageLoadingFallback />}>
-                <Dashboard />
-              </Suspense>
-            } />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/discover" element={<DiscoveryPage />} />
-            <Route path="/dashboard/billing" element={
-              <Suspense fallback={<PageLoadingFallback />}>
-                <BillingPage />
-              </Suspense>
-            } />
-            <Route path="/request/:djId" element={
-              <Suspense fallback={<PageLoadingFallback />}>
-                <RequestPage />
-              </Suspense>
-            } />
-            <Route path="/payment-success" element={
-              <Suspense fallback={<PageLoadingFallback />}>
-                <PaymentSuccessPage />
-              </Suspense>
-            } />
+            <Route path="/dashboard/billing" element={<BillingPage />} />
+            <Route path="/request/:djId" element={<RequestPage />} />
+            <Route path="/payment-success" element={<PaymentSuccessPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
 
             {/* Admin Routes */}
             <Route element={<AdminRoute />}>
-              <Route path="/admin" element={
-                <Suspense fallback={<PageLoadingFallback />}>
-                  <AdminDashboard />
-                </Suspense>
-              } />
+              <Route path="/admin" element={<AdminDashboard />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
@@ -107,6 +71,22 @@ const App = () => {
         </div>
       </div>
     </>
+  );
+}
+
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 };
 

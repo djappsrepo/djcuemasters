@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { supabase } from '@/integrations/supabase/client';
-import type { Tables } from '@/integrations/supabase/types';
-
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/page-components/home/HeroSection";
 import { HowItWorksSection } from "@/components/page-components/home/HowItWorksSection";
 import { BenefitsSection } from "@/components/page-components/home/BenefitsSection";
@@ -11,9 +10,8 @@ import { PricingSection } from "@/components/page-components/home/PricingSection
 import { WelcomeModal } from '@/components/layout/WelcomeModal';
 
 const LandingPage = () => {
-  const { user } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<Tables<'profiles'> | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -21,46 +19,51 @@ const LandingPage = () => {
     if (!hasVisited) {
       setIsModalOpen(true);
     }
-
-    const fetchProfile = async () => {
-      if (user) {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (error) {
-          console.error('Error fetching profile:', error.message);
-        } else {
-          setProfile(data);
-        }
-      }
-    };
-
-    fetchProfile();
-  }, [user]);
+  }, []);
 
   const handleCloseModal = () => {
     localStorage.setItem('hasVisitedCueMasters', 'true');
     setIsModalOpen(false);
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    // Opcional: Redirigir a la página de inicio después de cerrar sesión
+    navigate('/');
+  };
+
+  const handleDashboardClick = () => {
+    navigate('/dashboard');
+  };
+
+  const handleAuthClick = () => {
+    navigate('/auth');
+  };
+
   const handleSubscribeClick = (plan: string) => {
     console.log(`Plan seleccionado: ${plan}`);
     if (user) {
-      navigate('/dashboard/billing');
+      // TODO: Redirigir a la página de pago de Stripe con el plan seleccionado
+      navigate('/dashboard/billing'); 
     } else {
       navigate('/auth');
     }
   };
 
   return (
-    <>
-      <HeroSection
-        user={profile}
-        onDashboardClick={() => navigate('/dashboard')}
-        onAuthClick={() => navigate('/auth')}
+    <div className="w-full">
+      <Header 
+        user={user} 
+        profile={profile} 
+        onSignOut={handleSignOut} 
+        onDashboardClick={handleDashboardClick} 
+        onAuthClick={handleAuthClick} 
+      />
+
+      <HeroSection 
+        user={profile} 
+        onDashboardClick={handleDashboardClick} 
+        onAuthClick={handleAuthClick} 
         onViewPlansClick={() => {
           const pricingSection = document.getElementById('pricing');
           if (pricingSection) {
@@ -75,8 +78,9 @@ const LandingPage = () => {
 
       <PricingSection onSubscribeClick={handleSubscribeClick} />
 
+      <Footer />
       <WelcomeModal isOpen={isModalOpen} onClose={handleCloseModal} />
-    </>
+    </div>
   );
 };
 

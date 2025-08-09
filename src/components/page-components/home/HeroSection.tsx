@@ -1,69 +1,68 @@
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { LogIn, Download, PartyPopper, BarChart3 } from 'lucide-react';
-import type { Tables } from '@/integrations/supabase/types';
+import { Button } from "@/components/ui/button";
+import { MusicWave } from "@/components/MusicWave";
+import { BarChart3, Crown, Play } from "lucide-react";
+import djHero from "@/assets/dj-hero.jpg";
 
-const APK_DOWNLOAD_URL = 'https://github.com/djappsrepo/djcuemasters/releases/download/v1.0.0/app-release.apk';
+interface User {
+  id: string;
+}
 
 interface HeroSectionProps {
-  user: Tables<'profiles'> | null;
+  user: User | null;
   onDashboardClick: () => void;
   onAuthClick: () => void;
   onViewPlansClick: () => void;
 }
 
 export const HeroSection = ({ user, onDashboardClick, onAuthClick, onViewPlansClick }: HeroSectionProps) => {
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.2, delayChildren: 0.3 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5 } },
-  };
-
   return (
-    <motion.section
-      className="text-center py-20 px-4 sm:py-32 flex flex-col items-center"
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <motion.div variants={itemVariants} className="p-2 bg-blue-500/20 rounded-full mb-6">
-          <PartyPopper className="h-12 w-12 text-blue-400" />
-      </motion.div>
-      <motion.h1 
-        variants={itemVariants} 
-        className="text-5xl sm:text-7xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500"
-      >
-        CueMasters DJ
-      </motion.h1>
-      <motion.p variants={itemVariants} className="mt-6 text-lg sm:text-xl max-w-2xl text-gray-300">
-        La forma más fácil para que los DJs reciban solicitudes de canciones y para que los invitados las pidan. Anima tu evento, una canción a la vez.
-      </motion.p>
-      <motion.div variants={itemVariants} className="mt-10 flex flex-col sm:flex-row gap-4">
-        {user ? (
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform" onClick={onDashboardClick}>
-                <BarChart3 className="mr-2 h-5 w-5" /> Ir al Dashboard
-            </Button>
-        ) : (
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform" onClick={onViewPlansClick}>
-                <LogIn className="mr-2 h-5 w-5" /> Ver Planes
-            </Button>
-        )}
-        {import.meta.env.VITE_IS_NATIVE_APP !== 'true' && (
-          <Button asChild size="lg" variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-500/10 hover:text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
-            <a href={APK_DOWNLOAD_URL} target="_blank" rel="noopener noreferrer">
-              <Download className="mr-2 h-5 w-5" /> Descargar la APK
-            </a>
-          </Button>
-        )}
-      </motion.div>
-    </motion.section>
+    <section className="relative overflow-hidden">
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+        style={{ backgroundImage: `url(${djHero})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-hero opacity-80" />
+      
+      <div className="relative container mx-auto px-4 py-24 text-center">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-center mb-6">
+            <MusicWave />
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
+            La Plataforma de <br />
+            <span className="bg-gradient-primary bg-clip-text text-transparent">
+              Solicitudes Musicales
+            </span> <br />
+            para DJs Profesionales
+          </h1>
+          
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+            Conecta con tu audiencia, monetiza cada canción solicitada y organiza tu set 
+            con la plataforma más avanzada para DJs modernos.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            {user ? (
+              <Button variant="hero" size="xl" className="shadow-glow" onClick={onDashboardClick}>
+                Ir a mi Dashboard
+                <BarChart3 className="w-5 h-5 ml-2" />
+              </Button>
+            ) : (
+              <>
+                <Button variant="hero" size="xl" className="shadow-glow" onClick={onAuthClick}>
+                  <Crown className="w-5 h-5 mr-2" />
+                  Empezar como DJ
+                </Button>
+                <Button variant="outline" size="xl" onClick={onViewPlansClick}>
+                  <Play className="w-5 h-5 mr-2" />
+                  Ver Demo en Vivo
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 };

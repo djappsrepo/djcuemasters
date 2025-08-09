@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/ui/use-toast';
+import { useToast } from "@/hooks/use-toast";
 import type { Tables, Enums } from '@/types';
 
 type MusicRequest = Tables<'music_requests'>;

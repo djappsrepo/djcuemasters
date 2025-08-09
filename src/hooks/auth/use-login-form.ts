@@ -1,6 +1,6 @@
 import { useState, ChangeEvent } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/ui/use-toast';
+import { useToast } from "@/hooks/use-toast";
 
 export const useLoginForm = () => {
   const [formData, setFormData] = useState({

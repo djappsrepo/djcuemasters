@@ -1,12 +1,100 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Music, MapPin, Calendar, DollarSign, ExternalLink } from "lucide-react";
-import { useDJDiscovery } from "@/hooks/discovery/use-dj-discovery";
+import { Music, User, MapPin, Calendar, DollarSign, ExternalLink } from "lucide-react";
+
+interface DJWithEvents {
+  id: string;
+  user_id: string;
+  stage_name: string;
+  bio: string | null;
+  minimum_tip: number;
+  average_rating: number | null;
+  total_requests: number;
+  events: Array<{
+    id: string;
+    name: string;
+    venue: string | null;
+    event_date: string | null;
+  }>;
+}
 
 const DJDiscovery = () => {
-  const { activeDJs, loading, formatDate } = useDJDiscovery();
+  const [activeDJs, setActiveDJs] = useState<DJWithEvents[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchActiveDJs();
+  }, []);
+
+  const fetchActiveDJs = async () => {
+    try {
+      // Obtener DJs activos con eventos activos
+      const { data: djsData, error: djsError } = await supabase
+        .from('dj_profiles')
+        .select(`
+          id,
+          user_id,
+          stage_name,
+          bio,
+          minimum_tip,
+          average_rating,
+          total_requests
+        `)
+        .eq('active', true);
+
+      if (djsError) throw djsError;
+
+      // Para cada DJ, obtener sus eventos activos
+      const djsWithEvents = await Promise.all(
+        (djsData || []).map(async (dj) => {
+          const { data: eventsData } = await supabase
+            .from('dj_events')
+            .select('id, name, venue, event_date')
+            .eq('dj_id', dj.user_id)
+            .eq('is_active', true)
+            .order('created_at', { ascending: false });
+
+          return {
+            ...dj,
+            events: eventsData || []
+          };
+        })
+      );
+
+      // Filtrar solo DJs que tienen eventos activos
+      const djsWithActiveEvents = djsWithEvents.filter(dj => dj.events.length > 0);
+      
+      setActiveDJs(djsWithActiveEvents);
+    } catch (error) {
+      console.error('Error fetching active DJs:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    
+    if (isToday) {
+      return `Hoy ${date.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      })}`;
+    }
+    
+    return date.toLocaleDateString('es-ES', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   if (loading) {
     return (
@@ -47,11 +135,9 @@ const DJDiscovery = () => {
             <Card key={dj.id} className="border-primary/20 hover:border-primary/40 transition-colors">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <img 
-                    src={dj.avatar_url || '/placeholder.svg'}
-                    alt={`${dj.stage_name} avatar`}
-                    className="w-12 h-12 rounded-full object-cover bg-muted"
-                  />
+                  <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+                    <User className="w-6 h-6 text-primary" />
+                  </div>
                   <div className="flex-1">
                     <CardTitle className="text-lg">{dj.stage_name}</CardTitle>
                     <div className="flex items-center gap-2 mt-1">

@@ -20,15 +20,15 @@ const DiscoveryPage = () => {
     }
   };
 
-    return (
-    <div className="min-h-screen">
+  return (
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card/30 backdrop-blur-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Music className="w-8 h-8 text-primary" />
             <div>
-              <h1 className="text-xl font-bold text-foreground">CueMasters</h1>
+              <h1 className="text-xl font-bold text-foreground">CueFlow</h1>
               <p className="text-xs text-muted-foreground">Descubre DJs</p>
             </div>
           </div>
@@ -39,7 +39,7 @@ const DiscoveryPage = () => {
         </div>
       </header>
 
-            <main className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8">
         {/* Acceso rápido */}
         <Card className="max-w-md mx-auto mb-8 border-primary/20 bg-gradient-card">
           <CardHeader>
@@ -71,8 +71,8 @@ const DiscoveryPage = () => {
         </Card>
 
         {/* Descubrimiento de DJs */}
-                <DJDiscovery />
-      </main>
+        <DJDiscovery />
+      </div>
     </div>
   );
 };

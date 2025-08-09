@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/types';
-import { useToast } from '@/hooks/ui/use-toast';
+import { useToast } from "@/hooks/use-toast";
 
 type DJEvent = Tables<'dj_events'>;
 

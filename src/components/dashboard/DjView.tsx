@@ -4,7 +4,7 @@ import DJProfileSetup from '@/components/dj/DJProfileSetup';
 import DJStatsCards from '@/components/dj/DJStatsCards';
 import DJEventManager from '@/components/dj/DJEventManager';
 import { Badge } from '@/components/ui/badge';
-import { DJRequestsQueue } from '@/components/dj/DJRequestsQueue';
+import DJRequestsQueue from '@/components/dj/DJRequestsQueue';
 
 // Define los tipos para los perfiles que se pasarán como props
 type Profile = Tables<'profiles'>;
@@ -39,8 +39,8 @@ export const DjView = ({ profile, djProfile }: DjViewProps) => {
           <DJStatsCards />
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <DJEventManager onEventActivated={setActiveEvent} />
-            <DJRequestsQueue eventId={activeEvent?.id} isEventActive={!!activeEvent} />
+            <DJEventManager />
+            <DJRequestsQueue />
           </div>
         </>
       )}

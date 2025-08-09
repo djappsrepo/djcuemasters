@@ -1,92 +1,91 @@
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DollarSign, Zap, Shield, BarChart3, Crown, Heart } from "lucide-react";
-
-const benefits = [
-  {
-    icon: DollarSign,
-    title: "Monetización Directa",
-    description: "Convierte cada solicitud en ingresos adicionales con el sistema de propinas integrado.",
-  },
-  {
-    icon: Zap,
-    title: "Priorización Inteligente",
-    description: "Las solicitudes se ordenan automáticamente por monto de propina y tiempo.",
-  },
-  {
-    icon: Shield,
-    title: "Seguridad Total",
-    description: "Sistema de roles y permisos que protege tu panel y datos financieros.",
-  },
-  {
-    icon: BarChart3,
-    title: "Analytics Avanzado",
-    description: "Estadísticas detalladas de ingresos, canciones más solicitadas y engagement.",
-  },
-  {
-    icon: Crown,
-    title: "Control Total",
-    description: "Configura montos mínimos, horarios de funcionamiento y preferencias musicales.",
-  },
-  {
-    icon: Heart,
-    title: "Conexión Real",
-    description: "Fortalece la relación con tu audiencia a través de interacciones directas.",
-  },
-];
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.1 },
-  },
-};
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.5 } },
-};
+import { Card, CardContent } from "@/components/ui/card";
+import { Headphones, Star, DollarSign, BarChart3, Shield, Zap, Crown, Heart } from "lucide-react";
 
 export const BenefitsSection = () => {
   return (
-    <section className="py-20 px-4">
-      <div className="container mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold text-foreground mb-4">Todo lo que Necesitas en un Solo Lugar</h2>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Desde la monetización hasta el análisis de datos, CueMasters te da el poder de gestionar tus eventos de forma profesional.
-          </p>
+    <section className="py-20 bg-card/30">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+          {/* DJ Benefits */}
+          <div>
+            <div className="flex items-center gap-3 mb-8">
+              <Headphones className="w-8 h-8 text-primary" />
+              <h3 className="text-3xl font-bold text-foreground">Para el DJ</h3>
+            </div>
+            
+            <div className="space-y-6">
+              <Card className="border-primary/20 bg-background/50">
+                <CardContent className="p-6">
+                  <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-primary" />
+                    Ingresos Adicionales
+                  </h4>
+                  <p className="text-muted-foreground">Monetiza tu set con propinas por solicitudes, directamente a tu cuenta.</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-primary/20 bg-background/50">
+                <CardContent className="p-6">
+                  <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-primary" />
+                    Control Profesional
+                  </h4>
+                  <p className="text-muted-foreground">Panel de control avanzado para gestionar solicitudes, historial y estadísticas.</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-primary/20 bg-background/50">
+                <CardContent className="p-6">
+                  <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <Shield className="w-5 h-5 text-primary" />
+                    Herramienta Exclusiva
+                  </h4>
+                  <p className="text-muted-foreground">Acceso limitado solo a DJs registrados y verificados.</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+          
+          {/* Client Benefits */}
+          <div>
+            <div className="flex items-center gap-3 mb-8">
+              <Star className="w-8 h-8 text-accent" />
+              <h3 className="text-3xl font-bold text-foreground">Para la Audiencia</h3>
+            </div>
+            
+            <div className="space-y-6">
+              <Card className="border-accent/20 bg-background/50">
+                <CardContent className="p-6">
+                  <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-accent" />
+                    Interacción Simple
+                  </h4>
+                  <p className="text-muted-foreground">Solicita tu canción favorita en segundos desde tu móvil.</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-accent/20 bg-background/50">
+                <CardContent className="p-6">
+                  <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <Crown className="w-5 h-5 text-accent" />
+                    Prioridad VIP
+                  </h4>
+                  <p className="text-muted-foreground">Destaca tu solicitud con una propina y escúchala más rápido.</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-accent/20 bg-background/50">
+                <CardContent className="p-6">
+                  <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                    <Heart className="w-5 h-5 text-accent" />
+                    Conexión Directa
+                  </h4>
+                  <p className="text-muted-foreground">Conecta directamente con el DJ y forma parte del show.</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
-
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-        >
-          {benefits.map((benefit, index) => {
-            const Icon = benefit.icon;
-            return (
-              <motion.div key={index} variants={itemVariants}>
-                <Card className="bg-gray-800/50 border-purple-500/30 backdrop-blur-sm shadow-xl h-full transition-all duration-300 hover:border-purple-500/50 hover:bg-gray-800/70">
-                  <CardHeader className="flex-row items-center gap-4">
-                    <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/30">
-                      <Icon className="w-6 h-6 text-purple-400" />
-                    </div>
-                    <CardTitle className="text-lg font-semibold text-gray-100">{benefit.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-400 text-sm">
-                      {benefit.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </motion.div>
       </div>
     </section>
   );
