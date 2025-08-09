@@ -1,6 +1,7 @@
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
 import { type TooltipProps } from "recharts"
+import { type Payload } from "recharts/types/component/DefaultTooltipContent"
 
 import { cn } from "@/lib/utils"
 
@@ -103,7 +104,7 @@ const ChartTooltip = RechartsPrimitive.Tooltip
 
 interface ChartTooltipContentProps extends React.ComponentProps<"div"> {
   active?: boolean
-  payload?: any[]
+  payload?: Payload<number, string>[]
   label?: string | number
 }
 
@@ -128,7 +129,7 @@ const ChartTooltipContent = React.forwardRef<
     >
       <div className="font-medium">{label}</div>
       <div className="grid gap-1.5">
-        {payload.map((item: any, index: number) => {
+                {payload.map((item, index) => {
           const key = `${item.name || item.dataKey || "value"}`
           const itemConfig = getPayloadConfigFromPayload(config, item, key)
           const indicatorColor = item.payload.fill || item.color
@@ -175,7 +176,7 @@ ChartTooltipContent.displayName = "ChartTooltip"
 const ChartLegend = RechartsPrimitive.Legend
 
 interface ChartLegendContentProps extends React.ComponentProps<"div"> {
-  payload?: any[]
+  payload?: Payload<number, string>[]
 }
 
 const ChartLegendContent = React.forwardRef<
@@ -197,7 +198,7 @@ const ChartLegendContent = React.forwardRef<
       )}
       {...props}
     >
-      {payload.map((item: any) => {
+            {payload.map((item) => {
         const key = `${item.dataKey || "value"}`
         const itemConfig = getPayloadConfigFromPayload(config, item, key)
 

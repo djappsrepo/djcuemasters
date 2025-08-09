@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,7 +27,7 @@ const DJRequestsQueue = () => {
   const [requests, setRequests] = useState<MusicRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchRequests = async () => {
+    const fetchRequests = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -39,16 +39,16 @@ const DJRequestsQueue = () => {
 
       if (error) throw error;
       setRequests(data || []);
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error al cargar solicitudes",
-        description: error.message,
+                description: error instanceof Error ? error.message : "Ocurrió un error inesperado",
         variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, toast]);
 
   useEffect(() => {
     fetchRequests();
@@ -73,11 +73,11 @@ const DJRequestsQueue = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, fetchRequests]);
 
-  const updateRequestStatus = async (requestId: string, status: string) => {
+    const updateRequestStatus = async (requestId: string, status: 'playing' | 'played' | 'rejected') => {
     try {
-      const updateData: any = { status };
+                  const updateData: { status: 'playing' | 'played' | 'rejected', played_at?: string } = { status };
       if (status === 'played') {
         updateData.played_at = new Date().toISOString();
       }
@@ -101,10 +101,10 @@ const DJRequestsQueue = () => {
       });
 
       fetchRequests();
-    } catch (error: any) {
+        } catch (error: unknown) {
       toast({
         title: "Error al actualizar solicitud",
-        description: error.message,
+                description: error instanceof Error ? error.message : "Ocurrió un error inesperado",
         variant: "destructive",
       });
     }
@@ -113,7 +113,7 @@ const DJRequestsQueue = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'default';
-      case 'accepted': return 'secondary';
+            case 'playing': return 'secondary';
       case 'played': return 'outline';
       case 'rejected': return 'destructive';
       default: return 'default';
@@ -123,7 +123,7 @@ const DJRequestsQueue = () => {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'pending': return 'Pendiente';
-      case 'accepted': return 'Aceptada';
+            case 'playing': return 'En curso';
       case 'played': return 'Reproducida';
       case 'rejected': return 'Rechazada';
       default: return status;
@@ -139,7 +139,7 @@ const DJRequestsQueue = () => {
   };
 
   const pendingRequests = requests.filter(req => req.status === 'pending');
-  const acceptedRequests = requests.filter(req => req.status === 'accepted');
+    const playingRequests = requests.filter(req => req.status === 'playing');
   const playedRequests = requests.filter(req => req.status === 'played');
 
   if (loading) {
@@ -212,7 +212,7 @@ const DJRequestsQueue = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => updateRequestStatus(request.id, 'accepted')}
+                                                    onClick={() => updateRequestStatus(request.id, 'playing')}
                         >
                           <Check className="w-3 h-3" />
                         </Button>
@@ -233,14 +233,14 @@ const DJRequestsQueue = () => {
         )}
 
         {/* Solicitudes Aceptadas */}
-        {acceptedRequests.length > 0 && (
+                {playingRequests.length > 0 && (
           <div>
             <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <Check className="w-4 h-4" />
-              Aceptadas ({acceptedRequests.length})
+                            En curso ({playingRequests.length})
             </h3>
             <div className="space-y-3">
-              {acceptedRequests.map((request) => (
+                            {playingRequests.map((request) => (
                 <Card key={request.id} className="border-muted">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">

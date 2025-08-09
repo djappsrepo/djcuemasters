@@ -52,10 +52,10 @@ const DJEventForm = ({ onEventCreated }: DJEventFormProps) => {
       setFormData({ name: "", description: "", venue: "", event_date: "" });
       setOpen(false);
       onEventCreated();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error al crear evento",
-        description: error.message,
+        description: error instanceof Error ? error.message : "Ocurrió un error inesperado",
         variant: "destructive",
       });
     } finally {
