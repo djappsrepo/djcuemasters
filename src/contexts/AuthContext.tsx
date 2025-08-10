@@ -36,26 +36,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const fetchFullProfile = useCallback(async (currentUser: User) => {
     setLoading(true);
     try {
+      // 1. Fetch base profile
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, full_name, role')
         .eq('id', currentUser.id)
         .single();
 
       if (profileError) throw profileError;
-
-      setProfile(profileData);
+      setProfile(profileData as Profile);
       setUserRole(profileData.role as UserRole);
 
+      // 2. If user is a DJ, fetch DJ-specific profile
       if (profileData.role === 'dj') {
         const { data: djData, error: djError } = await supabase
           .from('dj_profiles')
-          .select('*')
+          .select('user_id, stage_name, bio') // Corrected: removed non-existent columns
           .eq('user_id', currentUser.id)
           .single();
-        // Ignora el error si el perfil de DJ no se encuentra, es un caso de uso válido
+
+        // A non-existent DJ profile is not a fatal error, just means it needs to be created.
         if (djError && djError.code !== 'PGRST116') throw djError;
-        setDjProfile(djData || null);
+        setDjProfile(djData as DJProfile || null);
       } else {
         setDjProfile(null);
       }
