@@ -146,7 +146,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const { error: profileError } = await supabase
       .from('profiles')
-      .insert({ user_id: data.user.id, email: data.user.email!, full_name: fullName, role: role });
+      .insert({ id: data.user.id, email: data.user.email!, full_name: fullName, role: role });
 
     if (profileError) throw profileError;
   };
