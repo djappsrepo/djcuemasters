@@ -22,6 +22,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const fetchFullProfile = useCallback(async (user: User) => {
+    setLoading(true);
     try {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
@@ -54,6 +55,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (error) {
       console.error('Error fetching full profile, signing out:', error);
       await signOut();
+    } finally {
+      setLoading(false);
     }
   }, [signOut]);
 
