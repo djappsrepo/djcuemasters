@@ -1,5 +1,5 @@
 import { motion, Variants } from 'framer-motion';
-import animatedLogo from '@/assets/cuemastersdj_logo_eq_animated.svg';
+const animatedLogo = '/cuemastersdj_logo_eq_animated.svg';
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
