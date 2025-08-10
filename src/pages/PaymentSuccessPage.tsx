@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { usePaymentSuccess } from '@/hooks/usePaymentSuccess';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

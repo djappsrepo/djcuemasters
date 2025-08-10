@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
 // Importa los nuevos componentes
@@ -42,8 +42,8 @@ const AdminDashboard = () => {
 
       setStats({ totalUsers: userCount || 0, totalDjs: djCount || 0 });
 
-      const djStageNames = new Map(djProfilesData.map(dj => [dj.user_id, dj.stage_name]));
-      const combinedUsers = profilesData.map(profile => ({
+      const djStageNames = new Map((djProfilesData || []).map(dj => [dj.user_id, dj.stage_name]));
+      const combinedUsers = (profilesData || []).map(profile => ({
         ...profile,
         dj_stage_name: djStageNames.get(profile.id)
       }));
@@ -64,8 +64,8 @@ const AdminDashboard = () => {
     setActionLoading(targetUser.id);
     try {
       const { error } = await supabase.rpc('set_user_role', {
-        user_email: targetUser.email,
-        new_role: newRole
+        user_id: targetUser.id,
+        role: newRole
       });
 
       if (error) throw error;

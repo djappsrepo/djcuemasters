@@ -1,10 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { ClientView } from '@/components/dashboard/ClientView';
+import { User } from '@supabase/supabase-js';
 import { DjView } from '@/components/dashboard/DjView';
 import AdminDashboard from './AdminDashboard';
 import DJProfileSetup from '@/components/dj/DJProfileSetup';
-import { Profile, DJProfile, User } from '@/types';
+import { Database } from '@/integrations/supabase/types';
+
+type Profile = Database['public']['Tables']['profiles']['Row'];
+type DJProfile = Database['public']['Tables']['dj_profiles']['Row'];
 
 interface DashboardContentProps {
   user: User;

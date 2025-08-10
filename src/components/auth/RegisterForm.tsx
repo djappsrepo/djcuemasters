@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,8 +41,9 @@ const PasswordStrengthIndicator = ({ checks }: PasswordStrengthIndicatorProps) =
 export const RegisterForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<'dj' | 'cliente'>('cliente');
+  const [role, setRole] = useState<'dj' | 'client'>('client');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -67,35 +68,40 @@ export const RegisterForm = () => {
 
   const isPasswordValid = Object.values(passwordValidation).every(Boolean);
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!isPasswordValid) {
+    if (password !== confirmPassword) {
       toast({
-        title: "Contraseña insegura",
-        description: "Por favor, cumple todos los requisitos de la contraseña.",
+        title: "Error de Validación",
+        description: "Las contraseñas no coinciden.",
         variant: "destructive",
       });
       return;
     }
+
     setLoading(true);
     try {
-      await signUp(email, password, fullName, role);
-      toast({
-        title: "¡Registro Exitoso!",
-        description: "Se ha enviado un correo para verificar tu cuenta. Por favor, revisa tu bandeja de entrada.",
-        variant: "default",
-      });
-      navigate('/auth/login');
-    } catch (error) {
-      let errorMessage = "No se pudo completar el registro. Inténtalo de nuevo.";
-      if (error instanceof AuthError) {
-        errorMessage = error.message;
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
+      const { error } = await signUp(email, password, fullName, role);
+
+      if (error) {
+        toast({
+          title: "Error en el registro",
+          description: error.message || "No se pudo completar el registro. Inténtalo de nuevo.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "¡Registro Exitoso!",
+          description: "Se ha enviado un correo para verificar tu cuenta. Por favor, revisa tu bandeja de entrada.",
+          variant: "default",
+        });
+        navigate('/auth/login');
       }
+    } catch (err) {
+      const error = err as Error;
       toast({
-        title: "Error en el registro",
-        description: errorMessage,
+        title: "Error Inesperado",
+        description: error.message || "Ocurrió un error inesperado. Por favor, contacta a soporte.",
         variant: "destructive",
       });
     } finally {
@@ -110,7 +116,7 @@ export const RegisterForm = () => {
         <CardDescription>Regístrate para empezar a usar CueMasters</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSignUp} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Full Name and Email Inputs remain the same */}
           <div className="space-y-2">
             <Label>Nombre Completo</Label>
@@ -138,13 +144,24 @@ export const RegisterForm = () => {
             </div>
             <PasswordStrengthIndicator checks={passwordValidation} />
           </div>
+
+          <div className="space-y-2">
+            <Label>Confirmar Contraseña</Label>
+            <Input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              placeholder="••••••••"
+            />
+          </div>
           {/* Role selection remains the same */}
           <div className="space-y-3">
             <Label>Tipo de Cuenta</Label>
-            <RadioGroup value={role} onValueChange={(value) => setRole(value as 'dj' | 'cliente')} className="grid grid-cols-2 gap-4">
+            <RadioGroup value={role} onValueChange={(value) => setRole(value as 'dj' | 'client')} className="grid grid-cols-2 gap-4">
               <div>
-                <RadioGroupItem value="cliente" id="cliente" className="peer sr-only" />
-                <Label htmlFor="cliente" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
+                <RadioGroupItem value="client" id="client" className="peer sr-only" />
+                <Label htmlFor="client" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary">
                   <User className="mb-3 h-6 w-6" />
                   Cliente
                 </Label>

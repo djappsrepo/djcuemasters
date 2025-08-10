@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../../integrations/supabase/client';
 import { Database } from '@/integrations/supabase/types';
+import { DonationButton } from '@/components/donations/DonationButton'; 
 
 type Ranking = Database['public']['Views']['dj_rankings']['Row'];
 
@@ -54,14 +55,19 @@ export const RankingBanner = () => {
       <ul className="space-y-3">
         {rankings.map((dj, index) => (
           <li key={dj.dj_id} className="flex items-center justify-between bg-gray-800 p-3 rounded-md">
-            <span className="font-bold text-lg">{index + 1}. {dj.dj_name}</span>
-            <div className="text-right">
-              <span className="text-green-400 font-semibold">${dj.total_donations?.toLocaleString() ?? '0'} MXN</span>
-              <p className="text-sm text-yellow-400">🎉 {dj.premio}</p>
+            <div className="flex items-center space-x-4">
+              <span className="font-bold text-lg">{index + 1}. {dj.dj_name}</span>
+              <div className="text-right">
+                <span className="text-green-400 font-semibold">${dj.total_donations?.toLocaleString() ?? '0'} MXN</span>
+                <p className="text-sm text-yellow-400">🎉 {dj.premio}</p>
+              </div>
             </div>
+            {/* === AÑADE EL BOTÓN AQUÍ === */}
+            {dj.dj_id && <DonationButton djId={dj.dj_id} djName={dj.dj_name || 'DJ'} />}
           </li>
         ))}
       </ul>
+
     </div>
   );
 };

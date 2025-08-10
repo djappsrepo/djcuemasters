@@ -1,3 +1,4 @@
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import animatedLogo from "@/assets/cuemastersdj_logo_eq_animated.svg";

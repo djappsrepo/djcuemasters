@@ -22,7 +22,7 @@ type PaymentStatus = Enums<'payment_status'>;
 
 const getPaymentStatusVariant = (status: PaymentStatus): 'default' | 'destructive' | 'secondary' => {
   switch (status) {
-    case 'completed':
+    case 'succeeded':
       return 'secondary';
     case 'pending':
       return 'default';
