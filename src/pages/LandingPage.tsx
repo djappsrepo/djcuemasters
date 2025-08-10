@@ -7,11 +7,13 @@ import { HeroSection } from "@/components/page-components/home/HeroSection";
 import { HowItWorksSection } from "@/components/page-components/home/HowItWorksSection";
 import { RankingBanner } from '@/components/page-components/home/RankingBanner';
 import { BenefitsSection } from "@/components/page-components/home/BenefitsSection";
+import { BetaIncentiveSection } from '@/components/page-components/home/BetaIncentiveSection';
 import { PricingSection } from "@/components/page-components/home/PricingSection";
 import { WelcomeModal } from '@/components/layout/WelcomeModal';
 
 const LandingPage = () => {
-  const { user, profile, signOut } = useAuth();
+  
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -26,12 +28,6 @@ const LandingPage = () => {
   const handleCloseModal = () => {
     localStorage.setItem('hasVisitedCueMasters', 'true');
     setIsModalOpen(false);
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
-    // Opcional: Redirigir a la página de inicio después de cerrar sesión
-    navigate('/');
   };
 
   const handleDashboardClick = () => {
@@ -55,11 +51,8 @@ const LandingPage = () => {
   return (
     <div className="w-full">
       <Header 
-        user={user} 
-        profile={profile} 
-        onSignOut={handleSignOut} 
-        onDashboardClick={handleDashboardClick} 
-        onAuthClick={handleAuthClick} 
+        onDashboardClick={handleDashboardClick}
+        onAuthClick={handleAuthClick}
       />
 
       <HeroSection 
@@ -76,13 +69,15 @@ const LandingPage = () => {
 
       <HowItWorksSection />
 
+      <BetaIncentiveSection />
+
       <div className="container mx-auto px-4 md:px-6 py-12">
         <RankingBanner />
       </div>
 
       <BenefitsSection />
 
-      <PricingSection onSubscribeClick={handleSubscribeClick} />
+      {/* <PricingSection onSubscribeClick={handleSubscribeClick} /> */}
 
       <Footer />
       <WelcomeModal isOpen={isModalOpen} onClose={handleCloseModal} />

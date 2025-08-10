@@ -1,26 +1,32 @@
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-export const DashboardError = () => {
+const DashboardError = () => {
   const { signOut } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSignOut = async () => {
-    await signOut();
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/auth/login');
+    } catch (error) {
+      console.error('Error during sign out:', error);
+      // Opcional: Mostrar un toast de error si el logout falla
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="text-center p-8 bg-card rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-destructive mb-4">Error al Cargar Perfil</h2>
-        <p className="text-muted-foreground mb-6">
-          No pudimos obtener los datos de tu perfil. Por favor, cierra la sesión e intenta de nuevo.
-        </p>
-        <Button variant="destructive" onClick={handleSignOut}>
-          <LogOut className="w-4 h-4 mr-2" />
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-white p-4">
+      <div className="text-center bg-red-900/20 border border-red-500 rounded-lg p-8 max-w-md">
+        <h1 className="text-3xl font-bold text-red-500 mb-4">Error al Cargar Perfil</h1>
+        <p className="text-lg mb-6">No pudimos obtener los datos de tu perfil. Por favor, cierra la sesión e intenta de nuevo.</p>
+        <Button onClick={handleLogout} variant="destructive" size="lg">
           Cerrar Sesión
         </Button>
       </div>
     </div>
   );
 };
+
+export default DashboardError;

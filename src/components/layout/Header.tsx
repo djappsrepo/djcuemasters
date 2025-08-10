@@ -1,4 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import animatedLogo from "@/assets/cuemastersdj_logo_eq_animated.svg";
@@ -21,7 +22,19 @@ interface HeaderProps {
   onAuthClick: () => void;
 }
 
-export const Header = ({ user, profile, onSignOut, onDashboardClick, onAuthClick }: HeaderProps) => {
+export const Header = ({ onDashboardClick, onAuthClick }: Omit<HeaderProps, 'onSignOut' | 'user' | 'profile'>) => {
+  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/auth/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
     <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -42,7 +55,7 @@ export const Header = ({ user, profile, onSignOut, onDashboardClick, onAuthClick
               <Button variant="outline" size="sm" onClick={onDashboardClick}>
                 Dashboard
               </Button>
-              <Button variant="ghost" size="sm" onClick={onSignOut}>
+              <Button variant="ghost" onClick={handleSignOut}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Salir
               </Button>

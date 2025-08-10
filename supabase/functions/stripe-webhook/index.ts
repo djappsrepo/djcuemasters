@@ -1,23 +1,36 @@
+// Supabase Edge Function for Stripe Webhooks
+
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import Stripe from 'https://esm.sh/stripe@11.1.0';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.0.0';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.8';
 
-// Get the Stripe webhook signing secret from environment variables.
-const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SIGNING_SECRET');
+// WARNING: The linter will complain about 'Deno' and URL imports.
+// This is normal for Supabase Edge Functions. The code will run correctly when deployed.
+
+// These variables are automatically provided by the Supabase runtime.
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+// These are the secrets you must set in your project dashboard.
+const stripeApiKey = Deno.env.get('STRIPE_API_KEY')!;
+const webhookSecret = Deno.env.get('STRIPE_WEBHOOK_SIGNING_SECRET')!;
+
+// Initialize Stripe
+const stripe = new Stripe(stripeApiKey, {
+  apiVersion: '2023-10-16',
+  httpClient: Stripe.createFetchHttpClient(),
+});
+
+const cryptoProvider = Stripe.createSubtleCryptoProvider();
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Initialize Stripe.
-const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY') as string, {
-  apiVersion: '2022-11-15',
-  httpClient: Stripe.createFetchHttpClient(),
-});
+console.log('Stripe Webhook Function Initialized');
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -25,66 +38,50 @@ serve(async (req) => {
   const signature = req.headers.get('Stripe-Signature');
   const body = await req.text();
 
-  let event: Stripe.Event;
+  let receivedEvent: Stripe.Event;
   try {
-    if (!signature || !stripeWebhookSecret) {
-      throw new Error('Missing Stripe signature or webhook secret.');
-    }
-    event = await stripe.webhooks.constructEventAsync(body, signature, stripeWebhookSecret);
+    receivedEvent = await stripe.webhooks.constructEventAsync(
+      body,
+      signature!,
+      webhookSecret,
+      undefined,
+      cryptoProvider
+    );
+    console.log(`✅ Stripe event verified: ${receivedEvent.id}`);
   } catch (err) {
-    console.error(`Error verifying webhook signature: ${err.message}`);
-    return new Response(JSON.stringify({ error: `Webhook signature verification failed: ${err.message}` }), {
-      status: 400,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error(`❌ Webhook signature verification failed: ${err.message}`);
+    return new Response(err.message, { status: 400 });
   }
 
-  // Handle the checkout.session.completed event
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object as Stripe.Checkout.Session;
-
-    const djId = session.metadata?.djId;
-    const amount = session.amount_total;
-    const stripePaymentId = session.payment_intent as string;
-    // IMPORTANT: For a real app, you'd get the logged-in user's ID.
-    // For this example, we'll use a placeholder or the customer ID from Stripe if it exists.
-    const donatorId = session.customer ? session.customer.toString() : 'anonymous_user';
-
-    if (!djId || !amount || !stripePaymentId) {
-      return new Response(JSON.stringify({ error: 'Missing required session data.' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
+  if (receivedEvent.type === 'payment_intent.succeeded') {
+    const paymentIntent = receivedEvent.data.object as Stripe.PaymentIntent;
     try {
-      // Create a Supabase client with the service role key
-      const supabaseAdmin = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-      );
+      const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey);
+
+      const { user_id } = paymentIntent.metadata;
+      if (!user_id) {
+        throw new Error('User ID not found in payment intent metadata.');
+      }
 
       const { error } = await supabaseAdmin.from('donations').insert({
-        dj_id: djId,
-        donador_id: donatorId, // Placeholder
-        monto: amount / 100, // Convert from cents to dollars/euros/etc.
-        stripe_payment_id: stripePaymentId,
+        user_id: user_id,
+        amount: paymentIntent.amount / 100,
+        currency: paymentIntent.currency,
+        stripe_payment_intent_id: paymentIntent.id,
+        status: 'succeeded',
       });
 
       if (error) {
-        throw new Error(`Supabase DB Error: ${error.message}`);
+        console.error('Error inserting donation into Supabase:', error);
+        throw error;
       }
 
-    } catch (dbError) {
-      console.error(dbError.message);
-      return new Response(JSON.stringify({ error: dbError.message }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      console.log(`Donation for user ${user_id} successfully recorded.`);
+    } catch (error) {
+      console.error('Error processing payment intent:', error.message);
+      return new Response(JSON.stringify({ error: error.message }), { status: 500 });
     }
   }
 
-  return new Response(JSON.stringify({ received: true }), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-  });
+  return new Response(JSON.stringify({ received: true }), { status: 200, headers: corsHeaders });
 });
