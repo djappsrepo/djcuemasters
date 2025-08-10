@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check } from 'lucide-react';
@@ -39,6 +40,15 @@ interface PricingSectionProps {
 }
 
 export const PricingSection = ({ onSubscribeClick }: PricingSectionProps) => {
+  const { pricingVisible, loading } = useAuth();
+  if (loading) {
+    return null; // O un esqueleto de carga si se prefiere
+  }
+
+  if (!pricingVisible) {
+    return null; // No renderizar nada si la sección de precios está desactivada
+  }
+
   return (
     <motion.section 
       className="py-20 px-4 bg-gray-900/50"

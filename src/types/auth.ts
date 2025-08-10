@@ -1,22 +1,25 @@
-import { AuthSession, User } from '@supabase/supabase-js';
+import { User, AuthResponse } from '@supabase/supabase-js';
 import { Tables } from '@/integrations/supabase/types';
 
 // Define los tipos específicos para nuestros perfiles usando los tipos generados
 export type Profile = Tables<'profiles'>;
 export type DJProfile = Tables<'dj_profiles'>;
 
-// Define la forma de nuestro contexto para una máxima seguridad de tipos
-export type UserRole = 'admin' | 'dj' | 'cliente' | null;
 
+// Define el tipo para el rol de usuario, que puede ser 'dj' o 'cliente'
+export type UserRole = 'dj' | 'cliente' | null;
+
+// Define la forma del contexto de autenticación
 export interface AuthContextType {
-  session: AuthSession | null;
   user: User | null;
   profile: Profile | null;
   djProfile: DJProfile | null;
-  loading: boolean;
   userRole: UserRole;
-  signOut: () => void;
+  loading: boolean;
+  pricingVisible: boolean;
+  signIn: (email: string, password: string) => Promise<AuthResponse>;
+  signUp: (email: string, password: string, fullName: string, role: 'dj' | 'cliente') => Promise<AuthResponse>;
+  signOut: () => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   refreshProfiles: () => Promise<void>;
-  signUp: (email: string, password: string, fullName: string, role: 'dj' | 'cliente') => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
 }

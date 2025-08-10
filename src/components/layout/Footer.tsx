@@ -1,4 +1,4 @@
-import djIcon from "@/assets/dj-icon.jpg";
+import djIcon from "@/assets/cuemastersdj_logo_eq_animated.svg";
 import { Link } from 'react-router-dom';
 import { MessageSquare } from 'lucide-react';
 

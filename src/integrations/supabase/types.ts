@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      "balance pay": {
+        Row: {
+          amount: number | null
+          attrs: Json | null
+          balance_type: string | null
+          currency: string | null
+        }
+        Insert: {
+          amount?: number | null
+          attrs?: Json | null
+          balance_type?: string | null
+          currency?: string | null
+        }
+        Update: {
+          amount?: number | null
+          attrs?: Json | null
+          balance_type?: string | null
+          currency?: string | null
+        }
+        Relationships: []
+      }
       dj_events: {
         Row: {
           created_at: string
@@ -126,6 +147,63 @@ export type Database = {
           total_earnings?: number
           total_requests?: number
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      donations: {
+        Row: {
+          amount: number
+          dj_email_for_raffle: string
+          donation_date: string
+          id: string
+          stripe_payment_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          dj_email_for_raffle: string
+          donation_date?: string
+          id?: string
+          stripe_payment_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          dj_email_for_raffle?: string
+          donation_date?: string
+          id?: string
+          stripe_payment_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      memberships: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          id: string
+          start_date: string | null
+          status: string
+          type: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          status?: string
+          type?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          status?: string
+          type?: string | null
           user_id?: string
         }
         Relationships: []
@@ -286,6 +364,30 @@ export type Database = {
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      site_config: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          last_modified_by: string | null
+          value: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          last_modified_by?: string | null
+          value?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          last_modified_by?: string | null
+          value?: boolean
         }
         Relationships: []
       }

@@ -1,168 +1,154 @@
-import { useState, useEffect, ReactNode, createContext, useContext } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { AuthSession, User } from '@supabase/supabase-js';
-import { AuthContextType, Profile, DJProfile, UserRole } from '@/types/auth';
-
-// Creamos el contexto.
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Hook personalizado para usar el contexto de autenticación
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
-
+import { supabase } from '../integrations/supabase/client';
+import { User, AuthResponse, AuthChangeEvent, Session } from '@supabase/supabase-js';
+import { ReactNode, useState, useEffect, useCallback, useMemo } from 'react';
+import { AuthContextType, Profile, DJProfile, UserRole } from '../types/auth';
+import { Tables } from '@/integrations/supabase/types';
+import { AuthContext } from './authContextDefinition';
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [session, setSession] = useState<AuthSession | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [djProfile, setDjProfile] = useState<DJProfile | null>(null);
   const [userRole, setUserRole] = useState<UserRole>(null);
+  const [pricingVisible, setPricingVisible] = useState<boolean>(true);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfiles = async (userId: string) => {
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut();
+  }, []);
 
-    if (profileError) {
-      console.error('Error fetching user profile:', profileError.message);
-      setProfile(null);
-      setDjProfile(null);
-      setUserRole(null);
-      return;
-    }
-
-    setProfile(profileData as Profile);
-    setUserRole(profileData.role as UserRole);
-
-    if (profileData.role === 'dj') {
-      const { data: djProfileData, error: djProfileError } = await supabase
-        .from('dj_profiles')
+  const fetchFullProfile = useCallback(async (user: User) => {
+    try {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
         .select('*')
-        .eq('user_id', profileData.id)
+        .eq('user_id', user.id)
         .single();
 
-      if (djProfileError && djProfileError.code !== 'PGRST116') {
-        console.error('Error fetching DJ profile:', djProfileError.message);
-        setDjProfile(null);
-      } else {
-        setDjProfile(djProfileData || null);
+      if (profileError && profileError.code !== 'PGRST116') throw profileError;
+
+      if (!profileData) {
+        console.warn(`Profile not found for user ${user.id}. Signing out.`);
+        await signOut();
+        return;
       }
-    } else {
-      setDjProfile(null);
+
+      setProfile(profileData);
+      setUserRole(profileData.role as UserRole);
+
+      if (profileData.role === 'dj') {
+        const { data: djData, error: djError } = await supabase
+          .from('dj_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+        if (djError && djError.code !== 'PGRST116') throw djError;
+        setDjProfile(djData || null);
+      } else {
+        setDjProfile(null);
+      }
+    } catch (error) {
+      console.error('Error fetching full profile, signing out:', error);
+      await signOut();
     }
-  };
+  }, [signOut]);
 
   useEffect(() => {
-    const initializeAuth = async () => {
+        const fetchPricingVisibility = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) throw error;
+        const { data, error } = await supabase
+          .from('site_config')
+          .select('value')
+          .eq('key', 'pricing_visible')
+          .single();
 
-        if (session?.user) {
-          await fetchProfiles(session.user.id);
-        }
+        if (error) throw error;
         
-        setSession(session);
-        setUser(session?.user ?? null);
-      } catch (e) {
-        console.error("Error initializing session:", e);
-        setSession(null);
-        setUser(null);
-        setProfile(null);
-        setDjProfile(null);
-        setUserRole(null);
-      } finally {
-        setLoading(false);
+        // Aseguramos que el valor sea un booleano
+        setPricingVisible(Boolean(data.value));
+
+      } catch (error) {
+        console.error('Error fetching pricing visibility, defaulting to true:', error);
+        setPricingVisible(true);
       }
     };
 
-    initializeAuth();
+    fetchPricingVisibility();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setLoading(true);
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      setSession(session);
+    setLoading(true);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event: AuthChangeEvent, session: Session | null) => {
+      const currentUser = session?.user;
+      setUser(currentUser ?? null);
 
       if (currentUser) {
-        await fetchProfiles(currentUser.id);
+        await fetchFullProfile(currentUser);
       } else {
         setProfile(null);
         setDjProfile(null);
         setUserRole(null);
       }
+      // Solo poner loading en false cuando todo (auth y config) haya terminado.
+      // La config se obtiene una vez, así que el loading principal depende del estado de la sesión.
       setLoading(false);
     });
 
     return () => {
-      authListener.subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
+  }, [fetchFullProfile]);
+
+  const signIn = useCallback(async (email: string, password: string) => {
+    return supabase.auth.signInWithPassword({ email, password });
   }, []);
 
-  const refreshProfiles = async () => {
-    if (user) {
-      setLoading(true);
-      await fetchProfiles(user.id);
-      setLoading(false);
+  const signUp = useCallback(async (email: string, password: string, fullName: string, role: 'dj' | 'cliente') => {
+    const authResponse = await supabase.auth.signUp({ email, password });
+    if (authResponse.error) throw new Error(`Error on sign up: ${authResponse.error.message}`);
+    if (!authResponse.data.user) throw new Error('Could not create user.');
+
+    const { error: profileError } = await supabase.from('profiles').insert(
+      { user_id: authResponse.data.user.id, full_name: fullName, role: role, email: email }
+    );
+    if (profileError) throw new Error(`Error creating profile: ${profileError.message}`);
+
+    if (role === 'dj') {
+      const { error: djProfileError } = await supabase.from('dj_profiles').insert(
+        { user_id: authResponse.data.user.id, stage_name: `DJ ${fullName}` }
+      );
+      if (djProfileError) throw new Error(`Error creating DJ profile: ${djProfileError.message}`);
     }
-  };
+    return authResponse;
+  }, []);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
-    setUser(null);
-    setProfile(null);
-    setDjProfile(null);
-    setUserRole(null);
-  };
+  const signInWithGoogle = useCallback(async () => {
+    await supabase.auth.signInWithOAuth({ provider: 'google' });
+  }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, role: 'dj' | 'cliente') => {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+  const refreshProfiles = useCallback(async () => {
+    if (user) {
+      await fetchFullProfile(user);
+    }
+  }, [user, fetchFullProfile]);
 
-    if (error) throw error;
-    if (!data.user) throw new Error("Sign up successful, but no user data returned.");
-
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({ user_id: data.user.id, id: data.user.id, email: data.user.email!, full_name: fullName, role: role });
-
-    if (profileError) throw profileError;
-  };
-
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-  };
-
-  const value = {
-    session,
+    const value = useMemo(() => ({
     user,
     profile,
-    userRole,
     djProfile,
+    userRole,
     loading,
-    signOut,
-    refreshProfiles,
-    signUp,
+    pricingVisible,
     signIn,
-  };
+    signUp,
+    signOut,
+    signInWithGoogle,
+    refreshProfiles,
+  }), [user, profile, djProfile, userRole, loading, pricingVisible, signIn, signUp, signOut, signInWithGoogle, refreshProfiles]);
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
+

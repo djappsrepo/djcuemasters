@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
+import { useEnvironment } from '@/hooks/useEnvironment';
 import { LogIn, Download, PartyPopper, BarChart3 } from 'lucide-react';
 
 // La interfaz de User se importará desde AuthContext o un archivo de tipos global si es necesario.
@@ -17,6 +18,7 @@ interface HeroSectionProps {
 }
 
 export const HeroSection = ({ user, onDashboardClick, onAuthClick, onViewPlansClick }: HeroSectionProps) => {
+  const { isWebView } = useEnvironment();
   const apkUrl = 'https://github.com/djappsrepo/djcuemasters/releases/download/v1.0.0/app-release.apk';
 
   const containerVariants = {
@@ -61,11 +63,13 @@ export const HeroSection = ({ user, onDashboardClick, onAuthClick, onViewPlansCl
                 <LogIn className="mr-2 h-5 w-5" /> Ver Planes
             </Button>
         )}
-        <Button asChild size="lg" variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-500/10 hover:text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
-          <a href={apkUrl} target="_blank" rel="noopener noreferrer">
-            <Download className="mr-2 h-5 w-5" /> Descargar la APK
-          </a>
-        </Button>
+        {!isWebView && (
+          <Button asChild size="lg" variant="outline" className="border-blue-500 text-blue-400 hover:bg-blue-500/10 hover:text-white font-bold text-lg shadow-lg transform hover:scale-105 transition-transform">
+            <a href={apkUrl} target="_blank" rel="noopener noreferrer">
+              <Download className="mr-2 h-5 w-5" /> Descargar la APK
+            </a>
+          </Button>
+        )}
       </motion.div>
     </motion.section>
   );
