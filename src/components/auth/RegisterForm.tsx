@@ -10,7 +10,7 @@ import { AuthError } from "@supabase/supabase-js";
 import { Eye, EyeOff, User, Crown, CheckCircle2, XCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { UnifiedLoader } from "@/components/ui/UnifiedLoader";
 
 interface PasswordStrengthIndicatorProps {
   checks: {
@@ -182,7 +182,7 @@ export const RegisterForm = () => {
             </label>
           </div>
           <Button type="submit" className="w-full" variant="hero" disabled={loading || !agreedToTerms || !isPasswordValid}>
-            {loading ? <LoadingSpinner size={24} /> : "Crear Cuenta"}
+            {loading ? <UnifiedLoader variant="spinner" size="sm" /> : "Crear Cuenta"}
           </Button>
           <Button type="button" variant="outline" className="w-full" onClick={() => navigate(-1)} disabled={loading}>
             Regresar

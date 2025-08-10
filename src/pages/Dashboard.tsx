@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { PageLoader } from '@/components/ui/PageLoader';
+import { UnifiedLoader } from '@/components/ui/UnifiedLoader';
 import DashboardError from './DashboardError';
 import { DashboardContent } from './DashboardContent';
 
@@ -18,7 +18,7 @@ export const Dashboard = () => {
 
   // Muestra el cargador global mientras se obtiene la sesión y el perfil.
   if (loading) {
-    return <PageLoader message="Cargando tu espacio..." />;
+    return <UnifiedLoader variant="page" text="Cargando tu espacio..." />;
   }
 
   // Si hay un usuario autenticado pero no se pudo cargar su perfil, muestra un error.

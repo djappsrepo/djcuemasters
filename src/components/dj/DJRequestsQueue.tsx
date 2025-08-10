@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { UnifiedLoader } from '@/components/ui/UnifiedLoader';
 import { Check, XCircle, Music, User, Mail } from 'lucide-react';
 
 interface DJRequestsQueueProps {
@@ -52,7 +52,7 @@ export const DJRequestsQueue = ({ eventId, isEventActive }: DJRequestsQueueProps
   }
 
   if (isLoading) {
-    return <LoadingSpinner />;
+    return <UnifiedLoader variant="inline" />;
   }
 
   if (error) {

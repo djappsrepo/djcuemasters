@@ -62,13 +62,182 @@ En el archivo `package.json`, encontrarás varios scripts útiles:
 
 ## 📂 Estructura del Proyecto
 
-El proyecto sigue una arquitectura modular y escalable. Los componentes de la UI están organizados por funcionalidad (`layout`, `page-components`) para facilitar su mantenimiento y reutilización.
+El proyecto sigue una arquitectura modular y escalable con separación clara de responsabilidades. Cada directorio tiene un propósito específico para facilitar el mantenimiento y la escalabilidad.
 
-- `src/components/layout`: Componentes estructurales como `Header` y `Footer`.
-- `src/components/page-components`: Componentes específicos de cada página (ej. `home`, `request`).
-- `src/pages`: Contenedores de página que ensamblan los componentes.
-- `src/contexts`: Contextos de React para la gestión del estado global (ej. `AuthContext`).
-- `src/types`: Definiciones centralizadas de TypeScript para mantener la consistencia.
+### 🗂️ Directorio Raíz (`src/`)
+
+```
+src/
+├── 📁 assets/                    # Recursos estáticos
+├── 📁 components/               # Componentes React reutilizables
+├── 📁 contexts/                 # Contextos de React para estado global
+├── 📁 hooks/                    # Custom hooks reutilizables
+├── 📁 integrations/             # Integraciones con servicios externos
+├── 📁 lib/                      # Utilidades y configuraciones
+├── 📁 pages/                    # Componentes de página principales
+├── 📁 providers/                # Proveedores de contexto
+├── 📁 router/                   # Configuración de rutas
+├── 📄 App.tsx                   # Componente raíz de la aplicación
+├── 📄 main.tsx                  # Punto de entrada de la aplicación
+├── 📄 index.css                 # Estilos globales
+└── 📄 vite-env.d.ts            # Definiciones de tipos para Vite
+```
+
+### 📦 Desglose Detallado por Directorio
+
+#### 🎨 `assets/` - Recursos Estáticos
+```
+assets/
+├── cuemastersdj_logo_eq_animated.svg    # Logo animado principal
+├── dj-hero.jpg                          # Imagen de fondo principal
+└── dj-icon.jpg                          # Icono de DJ
+```
+
+#### 🧩 `components/` - Componentes React (92 archivos)
+```
+components/
+├── 📁 admin/                    # Componentes del panel administrativo
+│   ├── StatCards.tsx           # Tarjetas de estadísticas
+│   └── UserTable.tsx           # Tabla de gestión de usuarios
+├── 📁 auth/                     # Componentes de autenticación
+│   ├── LoginForm.tsx           # Formulario de inicio de sesión
+│   └── RegisterForm.tsx        # Formulario de registro
+├── 📁 dashboard/                # Componentes del dashboard
+│   ├── ClientView.tsx          # Vista para clientes
+│   └── DjView.tsx              # Vista para DJs
+├── 📁 discovery/                # Componentes de descubrimiento
+│   └── DJDiscovery.tsx         # Búsqueda y filtrado de DJs
+├── 📁 dj/                       # Componentes específicos para DJs (11 archivos)
+│   ├── DJEventForm.tsx         # Formulario de eventos
+│   ├── DJEventManager.tsx      # Gestor de eventos
+│   ├── DJProfileSetup.tsx      # Configuración de perfil
+│   ├── DJQRCodeSection.tsx     # Sección de código QR
+│   ├── DJRequestsQueue.tsx     # Cola de solicitudes
+│   ├── DJStatsCards.tsx        # Tarjetas de estadísticas
+│   └── DeleteAccountSection.tsx # Eliminación de cuenta
+├── 📁 donations/                # Sistema de donaciones
+│   └── DonationButton.tsx      # Botón de donación
+├── 📁 layout/                   # Componentes de layout
+│   ├── Footer.tsx              # Pie de página
+│   ├── Header.tsx              # Cabecera de navegación
+│   ├── LoadingScreen.tsx       # Pantalla de carga
+│   └── WelcomeModal.tsx        # Modal de bienvenida
+├── 📁 page-components/          # Componentes específicos de páginas
+│   ├── 📁 home/                # Componentes de la página principal (10 archivos)
+│   │   ├── BenefitsSection.tsx
+│   │   ├── HeroSection.tsx
+│   │   ├── PricingSection.tsx
+│   │   └── ...
+│   └── 📁 request/             # Componentes de solicitudes (3 archivos)
+│       ├── CheckoutForm.tsx
+│       ├── DjProfileCard.tsx
+│       └── RequestForm.tsx
+└── 📁 ui/                       # Componentes UI reutilizables (40+ archivos)
+    ├── UnifiedLoader.tsx       # ✨ Componente de carga unificado
+    ├── button.tsx              # Botones con variantes
+    ├── card.tsx                # Tarjetas
+    ├── form.tsx                # Formularios
+    ├── input.tsx               # Campos de entrada
+    └── ...                     # Más componentes UI de ShadCN
+```
+
+#### 🔗 `contexts/` - Gestión de Estado Global
+```
+contexts/
+└── AuthContext.tsx             # Contexto de autenticación con tipos Supabase
+```
+
+#### 🎣 `hooks/` - Custom Hooks (22 archivos)
+```
+hooks/
+├── use-dj-*.ts                 # Hooks específicos para funcionalidades DJ
+├── use-form-field.ts           # Hook para campos de formulario
+├── use-mobile.tsx              # Hook para detección móvil
+├── use-toast.ts                # Hook para notificaciones
+├── useAuth.ts                  # ❌ ELIMINADO - Hook de autenticación duplicado
+├── useCheckoutForm.ts          # Hook para formularios de pago
+├── useDJEvents.ts              # Hook para eventos de DJ
+├── useDJProfileSetup.ts        # Hook para configuración de perfil
+└── ...                         # Más hooks especializados
+```
+
+#### 🔌 `integrations/` - Servicios Externos
+```
+integrations/
+└── supabase/
+    ├── client.ts               # Cliente de Supabase configurado
+    └── types.ts                # Tipos generados automáticamente
+```
+
+#### 🛠️ `lib/` - Utilidades
+```
+lib/
+└── utils.ts                    # Funciones utilitarias (cn, clsx)
+```
+
+#### 📄 `pages/` - Páginas Principales (13 archivos)
+```
+pages/
+├── AdminDashboard.tsx          # Panel administrativo
+├── AuthPage.tsx                # Página de autenticación
+├── Dashboard.tsx               # Dashboard principal
+├── DashboardContent.tsx        # Contenido del dashboard
+├── DiscoveryPage.tsx           # Página de descubrimiento
+├── LandingPage.tsx             # Página de inicio
+├── NotFound.tsx                # Página 404
+├── PaymentSuccessPage.tsx      # Confirmación de pago
+├── RequestPage.tsx             # Página de solicitudes
+└── ...                         # Más páginas
+```
+
+#### 🎯 `providers/` - Proveedores de Contexto
+```
+providers/
+└── AuthProvider.tsx            # ✨ Proveedor de autenticación refactorizado
+```
+
+#### 🛣️ `router/` - Configuración de Rutas
+```
+router/
+└── AdminRoute.tsx              # Rutas protegidas para administradores
+```
+
+### 🧹 Optimizaciones Recientes
+
+#### ✅ **Componentes de Loading Consolidados**
+- **Antes:** 3 componentes separados (`GenericLoader`, `LoadingSpinner`, `PageLoader`)
+- **Ahora:** 1 componente unificado (`UnifiedLoader`) con 4 variantes configurables:
+  - `page` - Carga de página completa
+  - `inline` - Carga en línea
+  - `spinner` - Spinner simple
+  - `logo` - Con logo animado
+
+#### ✅ **Limpieza de Componentes UI**
+- **Componentes utilizados:** 40 de 51 componentes UI
+- **Componentes eliminados:** 11 componentes no utilizados
+- **Resultado:** Reducción del bundle size y mejor mantenibilidad
+
+#### ✅ **Eliminación de Duplicados**
+- **Eliminado:** `src/hooks/useAuth.ts` (duplicado)
+- **Mantenido:** `useAuth` hook en `AuthContext.tsx` (fuente única de verdad)
+
+### 🔧 Patrones de Arquitectura
+
+#### **Separación de Responsabilidades**
+- **Componentes UI:** Solo presentación y interacción
+- **Hooks:** Lógica de negocio y estado
+- **Contexts:** Estado global compartido
+- **Pages:** Composición de componentes
+
+#### **Gestión de Tipos**
+- **Fuente única:** Tipos generados automáticamente desde Supabase
+- **Consistencia:** Todos los componentes usan los mismos tipos
+- **Mantenibilidad:** Cambios en BD se reflejan automáticamente
+
+#### **Importaciones Organizadas**
+- **Alias de ruta:** `@/` apunta a `src/`
+- **Imports relativos:** Solo para archivos en el mismo directorio
+- **Barrel exports:** Centralizados donde sea apropiado
 
 ## 🚀 Cómo Empezar
 

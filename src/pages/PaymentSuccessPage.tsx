@@ -3,7 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePaymentSuccess } from '@/hooks/usePaymentSuccess';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { UnifiedLoader } from '@/components/ui/UnifiedLoader';
 import { CheckCircle, XCircle, Music, Home } from 'lucide-react';
 
 const PaymentSuccessPage = () => {
@@ -12,7 +12,7 @@ const PaymentSuccessPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size={80} />
+        <UnifiedLoader variant="spinner" size="lg" />
       </div>
     );
   }

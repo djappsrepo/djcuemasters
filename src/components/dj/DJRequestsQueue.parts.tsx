@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { UnifiedLoader } from '@/components/ui/UnifiedLoader';
 import { Check, XCircle, Music, User, Mail } from 'lucide-react';
 
 type MusicRequest = Tables<'music_requests'>;
@@ -28,7 +28,7 @@ export const NoActiveEvent = () => (
   </Card>
 );
 
-export const LoadingState = () => <LoadingSpinner />;
+export const LoadingState = () => <UnifiedLoader variant="inline" />;
 
 export const ErrorState = () => <p className="text-destructive text-center">Error al cargar las solicitudes.</p>;
 

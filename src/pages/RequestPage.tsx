@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useDJPublicProfile } from "@/hooks/useDJPublicProfile";
 import { useRequestForm } from "@/hooks/useRequestForm";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { UnifiedLoader } from '@/components/ui/UnifiedLoader';
 import { Music } from "lucide-react";
 import { CheckoutForm } from "@/components/page-components/request/CheckoutForm";
 import { DjProfileCard } from "@/components/page-components/request/DjProfileCard";
@@ -26,7 +26,7 @@ const RequestPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <LoadingSpinner size={80} />
+        <UnifiedLoader variant="spinner" size="lg" />
       </div>
     );
   }
