@@ -1,30 +1,21 @@
-import { useState, useEffect, ReactNode, createContext } from 'react';
+import { useState, useEffect, ReactNode, createContext, useContext } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthSession, User } from '@supabase/supabase-js';
-import { Tables } from '@/integrations/supabase/types';
-
-// Define la forma de nuestro contexto para una máxima seguridad de tipos
-export type UserRole = 'admin' | 'dj' | 'cliente' | null;
-
-export interface AuthContextType {
-  session: AuthSession | null;
-  user: User | null;
-  profile: Profile | null;
-  djProfile: DJProfile | null;
-  loading: boolean;
-  userRole: UserRole;
-  signOut: () => void;
-  refreshProfiles: () => Promise<void>;
-  signUp: (email: string, password: string, fullName: string, role: 'dj' | 'cliente') => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
-}
+import { AuthContextType, Profile, DJProfile, UserRole } from '@/types/auth';
 
 // Creamos el contexto.
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Define los tipos específicos para nuestros perfiles usando los tipos generados
-type Profile = Tables<'profiles'>;
-type DJProfile = Tables<'dj_profiles'>;
+// Hook personalizado para usar el contexto de autenticación
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -42,7 +33,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', userId)
+      .eq('user_id', userId)
       .single();
 
     if (profileError) {
@@ -146,7 +137,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     const { error: profileError } = await supabase
       .from('profiles')
-      .insert({ id: data.user.id, email: data.user.email!, full_name: fullName, role: role });
+      .insert({ user_id: data.user.id, id: data.user.id, email: data.user.email!, full_name: fullName, role: role });
 
     if (profileError) throw profileError;
   };

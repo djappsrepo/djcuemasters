@@ -5,7 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider, AuthContext } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
 import { Dashboard } from "./pages/Dashboard";
@@ -24,7 +24,7 @@ import { LoadingScreen } from "@/components/layout/LoadingScreen";
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const authContext = useContext(AuthContext);
+  const authContext = useAuth();
 
   useEffect(() => {
     if (!authContext?.loading) {
