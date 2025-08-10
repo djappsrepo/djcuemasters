@@ -81,7 +81,7 @@ export const RegisterForm = () => {
 
     setLoading(true);
     try {
-      const { error } = await signUp(email, password, fullName, role);
+      const { error } = await signUp(email, password, fullName, role === 'client' ? 'user' : role);
 
       if (error) {
         toast({
