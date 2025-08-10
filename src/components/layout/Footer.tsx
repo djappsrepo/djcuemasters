@@ -3,7 +3,7 @@ import { Twitter, Instagram, Facebook, Youtube } from 'lucide-react';
 import CueMastersLogo from '@/assets/cuemastersdj_logo_eq_animated.svg';
 
 const socialLinks = [
-  { icon: Twitter, href: '#', name: 'Twitter' },
+  { icon: Twitter, href: 'https://x.com/DjWackoCDMX', name: 'Twitter' },
   { icon: Instagram, href: '#', name: 'Instagram' },
   { icon: Facebook, href: '#', name: 'Facebook' },
   { icon: Youtube, href: '#', name: 'YouTube' },
