@@ -7,7 +7,7 @@ export type DJProfile = Tables<'dj_profiles'>;
 
 
 // Define el tipo para el rol de usuario, que puede ser 'dj' o 'cliente'
-export type UserRole = 'dj' | 'cliente' | null;
+export type UserRole = 'dj' | 'cliente' | 'admin' | null;
 
 // Define la forma del contexto de autenticación
 export interface AuthContextType {
