@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/page-components/home/HeroSection";
 import { HowItWorksSection } from "@/components/page-components/home/HowItWorksSection";
+import { RankingBanner } from '@/components/page-components/home/RankingBanner';
 import { BenefitsSection } from "@/components/page-components/home/BenefitsSection";
 import { PricingSection } from "@/components/page-components/home/PricingSection";
 import { WelcomeModal } from '@/components/layout/WelcomeModal';
@@ -74,6 +75,10 @@ const LandingPage = () => {
       />
 
       <HowItWorksSection />
+
+      <div className="container mx-auto px-4 md:px-6 py-12">
+        <RankingBanner />
+      </div>
 
       <BenefitsSection />
 
