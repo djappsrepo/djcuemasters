@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/ui/use-toast";
 import type { Tables } from '@/types';
 
 type DJProfile = Tables<'dj_profiles'> & { avatar_url: string | null };

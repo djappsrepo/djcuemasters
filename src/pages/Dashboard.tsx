@@ -7,7 +7,7 @@ import { Music, LogOut, Settings, BarChart3, Users, DollarSign } from "lucide-re
 import { useAuth } from '@/hooks/auth/useAuth';
 import { PageLoader } from '@/components/ui/PageLoader';
 import { DashboardError } from './DashboardError';
-import { DashboardContent } from './DashboardContent';
+
 import DJProfileSetup from '@/components/dj/DJProfileSetup';
 import DJStatsCards from '@/components/dj/DJStatsCards';
 import DJEventManager from '@/components/dj/DJEventManager';

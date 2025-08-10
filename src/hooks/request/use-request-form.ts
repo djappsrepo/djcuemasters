@@ -1,6 +1,6 @@
 import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/ui/use-toast';
 import { Tables } from '@/integrations/supabase/types';
 
 type DJProfile = Tables<'dj_profiles'>;

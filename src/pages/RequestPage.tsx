@@ -10,7 +10,7 @@ import { Music, DollarSign, User, MapPin, Calendar, Loader2, Send } from "lucide
 import { useRequestForm } from "@/hooks/request/use-request-form";
 import { supabase } from '@/integrations/supabase/client';
 import { Tables } from '@/integrations/supabase/types';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/ui/use-toast';
 
 type DJProfile = Tables<'dj_profiles'>;
 type DJEvent = Tables<'dj_events'>;

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { MusicWave } from "@/components/MusicWave";
+import { MusicWave } from "@/components/page-components/home/MusicWave";
 import { BarChart3, Crown, Play } from "lucide-react";
 import djHero from "@/assets/dj-hero.jpg";
 
