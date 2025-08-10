@@ -108,7 +108,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return supabase.auth.signInWithPassword({ email, password });
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string, fullName: string, role: 'dj' | 'cliente') => {
+  const signUp = useCallback(async (email: string, password: string, fullName: string, role: 'dj' | 'client') => {
     const authResponse = await supabase.auth.signUp({ email, password });
     if (authResponse.error) throw new Error(`Error on sign up: ${authResponse.error.message}`);
     if (!authResponse.data.user) throw new Error('Could not create user.');

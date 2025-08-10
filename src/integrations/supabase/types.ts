@@ -414,6 +414,10 @@ export type Database = {
         Args: { user_uuid: string };
         Returns: boolean;
       };
+      set_user_role: {
+        Args: { user_id: string; role: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       app_role: "admin" | "dj" | "client";
@@ -423,3 +427,8 @@ export type Database = {
     CompositeTypes: Record<string, never>;
   };
 };
+
+export type Tables<T extends keyof (Database['public']['Tables'] & Database['public']['Views'])> = (Database['public']['Tables'] & Database['public']['Views'])[T]['Row'];
+export type TablesInsert<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert'];
+export type TablesUpdate<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Update'];
+export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T];
