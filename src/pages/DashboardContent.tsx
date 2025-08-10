@@ -11,13 +11,11 @@ type Profile = Database['public']['Tables']['profiles']['Row'];
 type DJProfile = Database['public']['Tables']['dj_profiles']['Row'];
 
 interface DashboardContentProps {
-  user: User;
   profile: Profile;
   djProfile: DJProfile | null;
-  signOut: () => void;
 }
 
-export const DashboardContent = ({ user, profile, djProfile, signOut }: DashboardContentProps) => {
+export const DashboardContent = ({ profile, djProfile }: DashboardContentProps) => {
   const navigate = useNavigate();
 
   if (profile.role === 'dj' && !djProfile) {
@@ -27,9 +25,6 @@ export const DashboardContent = ({ user, profile, djProfile, signOut }: Dashboar
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header 
-        user={user} 
-        profile={profile} 
-        onSignOut={signOut} 
         onDashboardClick={() => navigate('/dashboard')}
         onAuthClick={() => navigate('/auth')}
       />

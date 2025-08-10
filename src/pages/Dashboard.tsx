@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { PageLoader } from '@/components/ui/PageLoader';
-import { DashboardError } from './DashboardError';
+import DashboardError from './DashboardError';
 import { DashboardContent } from './DashboardContent';
 
 export const Dashboard = () => {
@@ -32,5 +32,5 @@ export const Dashboard = () => {
   }
 
   // Si todo está correcto, renderiza el contenido principal del dashboard.
-  return <DashboardContent user={user} profile={profile} djProfile={djProfile} signOut={signOut} />;
+  return <DashboardContent profile={profile} djProfile={djProfile} />;
 };
