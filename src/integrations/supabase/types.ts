@@ -420,6 +420,6 @@ export type Database = {
       payment_status: "pending" | "succeeded" | "failed" | "canceled";
       request_status: "pending" | "accepted" | "rejected" | "played";
     };
-    CompositeTypes: {};
+    CompositeTypes: Record<string, never>;
   };
 };
