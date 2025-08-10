@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/layout/Header';
 import { ClientView } from '@/components/dashboard/ClientView';
 import { DjView } from '@/components/dashboard/DjView';
+import AdminDashboard from './AdminDashboard';
 import DJProfileSetup from '@/components/dj/DJProfileSetup';
 import { Profile, DJProfile, User } from '@/types';
 
@@ -29,9 +30,11 @@ export const DashboardContent = ({ user, profile, djProfile, signOut }: Dashboar
         onAuthClick={() => navigate('/auth')}
       />
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {profile.role === 'dj' 
-            ? <DjView profile={profile} djProfile={djProfile} /> 
-            : <ClientView profile={profile} />
+        {profile.role === 'admin' 
+            ? <AdminDashboard /> 
+            : profile.role === 'dj' 
+                ? <DjView profile={profile} djProfile={djProfile} /> 
+                : <ClientView profile={profile} />
         }
       </main>
     </div>
