@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import { usePaymentSuccess } from '@/hooks/payment/use-payment-success';
+import { usePaymentSuccess } from '@/hooks/usePaymentSuccess';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import LoadingSpinner from '@/components/ui/loading-spinner';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { CheckCircle, XCircle, Music, Home } from 'lucide-react';
 
 const PaymentSuccessPage = () => {
@@ -10,7 +10,7 @@ const PaymentSuccessPage = () => {
 
   if (loading) {
     return (
-            <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner size={80} />
       </div>
     );
@@ -19,7 +19,7 @@ const PaymentSuccessPage = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-                <Card className="max-w-md w-full text-center bg-destructive/20 backdrop-blur-sm border-destructive">
+        <Card className="max-w-md w-full text-center bg-destructive/10 border-destructive">
           <CardHeader>
             <XCircle className="w-16 h-16 mx-auto text-destructive" />
             <CardTitle className="mt-4">Error al Cargar la Solicitud</CardTitle>
@@ -38,9 +38,9 @@ const PaymentSuccessPage = () => {
     );
   }
 
-    return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background/50">
-            <Card className="max-w-md w-full text-center bg-card/70 backdrop-blur-sm border-white/20">
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Card className="max-w-md w-full text-center">
         <CardHeader>
           <CheckCircle className="w-16 h-16 mx-auto text-green-500" />
           <CardTitle className="mt-4">¡Pago Exitoso!</CardTitle>

@@ -1,11 +1,11 @@
-import { useDJProfileSetup } from "@/hooks/dj/use-dj-profile-setup";
+import { useDJProfileSetup } from "@/hooks/useDJProfileSetup";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { User, DollarSign, Loader2, Save, MapPin } from "lucide-react";
-import { useAuth } from "@/hooks/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { DJQRCodeSection } from "./DJQRCodeSection";
 import { DeleteAccountSection } from "./DeleteAccountSection";
 

@@ -2,7 +2,7 @@ import React from "react";
 import { PaymentElement } from "@stripe/react-stripe-js";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { useCheckoutForm } from "@/hooks/payment/use-checkout-form";
+import { useCheckoutForm } from "@/hooks/useCheckoutForm";
 
 interface CheckoutFormProps {
   requestId: string;

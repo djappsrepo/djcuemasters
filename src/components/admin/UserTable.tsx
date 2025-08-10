@@ -4,7 +4,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState } from 'react';
-import { useUserManagement } from '@/hooks/admin/use-user-management';
 import { Loader2, MoreHorizontal, Trash2 } from 'lucide-react';
 import {
   AlertDialog,
@@ -21,11 +20,15 @@ import type { Tables } from '@/integrations/supabase/types';
 export type UserWithProfile = Tables<'profiles'> & { dj_stage_name?: string };
 
 interface UserTableProps {
+  users: UserWithProfile[];
+  loading: boolean;
+  actionLoading: string | null;
   adminUserId: string | undefined;
+  onRoleChange: (targetUser: UserWithProfile, newRole: 'admin' | 'user') => void;
+  onDeleteUser: (targetUser: UserWithProfile) => void;
 }
 
-const UserTable: React.FC<UserTableProps> = ({ adminUserId }) => {
-  const { users, loading, actionLoading, handleRoleChange, handleDeleteUser } = useUserManagement();
+const UserTable: React.FC<UserTableProps> = ({ users, loading, actionLoading, adminUserId, onRoleChange, onDeleteUser }) => {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<UserWithProfile | null>(null);
 
@@ -36,7 +39,7 @@ const UserTable: React.FC<UserTableProps> = ({ adminUserId }) => {
 
   const handleConfirmDelete = () => {
     if (userToDelete) {
-      handleDeleteUser(userToDelete);
+      onDeleteUser(userToDelete);
     }
     setIsAlertOpen(false);
     setUserToDelete(null);
@@ -82,12 +85,12 @@ const UserTable: React.FC<UserTableProps> = ({ adminUserId }) => {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                           {user.role !== 'admin' && (
-                            <DropdownMenuItem onClick={() => handleRoleChange(user, 'admin')}>
+                            <DropdownMenuItem onClick={() => onRoleChange(user, 'admin')}>
                               Hacer Administrador
                             </DropdownMenuItem>
                           )}
                           {user.role === 'admin' && (
-                            <DropdownMenuItem onClick={() => handleRoleChange(user, 'user')}>
+                            <DropdownMenuItem onClick={() => onRoleChange(user, 'user')}>
                               Quitar Administrador
                             </DropdownMenuItem>
                           )}

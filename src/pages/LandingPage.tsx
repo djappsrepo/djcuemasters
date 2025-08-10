@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from "@/hooks/auth/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -15,12 +15,11 @@ const LandingPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    // const hasVisited = localStorage.getItem('hasVisitedCueMasters');
-    // if (!hasVisited) {
-    //   setIsModalOpen(true);
-    // }
-    // Forzar la visualización del modal para revisión:
-    setIsModalOpen(true);
+    const hasVisited = localStorage.getItem('hasVisitedCueMasters');
+    // Forzar la aparición del modal en desarrollo para facilitar las pruebas
+    if (import.meta.env.DEV || !hasVisited) {
+      setIsModalOpen(true);
+    }
   }, []);
 
   const handleCloseModal = () => {
@@ -63,7 +62,7 @@ const LandingPage = () => {
       />
 
       <HeroSection 
-        user={profile} 
+        user={user} 
         onDashboardClick={handleDashboardClick} 
         onAuthClick={handleAuthClick} 
         onViewPlansClick={() => {

@@ -15,7 +15,7 @@ export const CtaSection = ({ onAuthClick }: CtaSectionProps) => {
             ¿Listo para Revolucionar tu Set?
           </h2>
           <p className="text-xl text-muted-foreground mb-8">
-            Únete a miles de DJs que ya están monetizando sus eventos con CueFlow
+            Únete a miles de DJs que ya están monetizando sus eventos con CueMasters
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

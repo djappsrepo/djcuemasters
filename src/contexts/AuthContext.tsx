@@ -1,8 +1,26 @@
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect, ReactNode, createContext } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { AuthSession, User } from '@supabase/supabase-js';
 import { Tables } from '@/integrations/supabase/types';
-import { AuthContext, AuthContextType, UserRole } from './auth.context';
+
+// Define la forma de nuestro contexto para una máxima seguridad de tipos
+export type UserRole = 'admin' | 'dj' | 'cliente' | null;
+
+export interface AuthContextType {
+  session: AuthSession | null;
+  user: User | null;
+  profile: Profile | null;
+  djProfile: DJProfile | null;
+  loading: boolean;
+  userRole: UserRole;
+  signOut: () => void;
+  refreshProfiles: () => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, role: 'dj' | 'cliente') => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+}
+
+// Creamos el contexto.
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Define los tipos específicos para nuestros perfiles usando los tipos generados
 type Profile = Tables<'profiles'>;
@@ -138,7 +156,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     if (error) throw error;
   };
 
-  const value: AuthContextType = {
+  const value = {
     session,
     user,
     profile,
@@ -157,5 +175,3 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     </AuthContext.Provider>
   );
 };
-
-

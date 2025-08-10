@@ -1,61 +1,54 @@
-import { QrCode, Music, ListMusic, PartyPopper } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-const steps = [
-  {
-    icon: QrCode,
-    title: "Comparte tu QR Único",
-    description: "El DJ muestra un código QR en sus pantallas. El público lo escanea para acceder al portal de solicitudes, sin necesidad de apps.",
-  },
-  {
-    icon: Music,
-    title: "Solicita tus Canciones",
-    description: "La audiencia busca en un catálogo musical y envía sus canciones favoritas directamente a la cabina del DJ, con la opción de añadir una propina.",
-  },
-  {
-    icon: ListMusic,
-    title: "Gestiona el Flujo",
-    description: "El DJ ve una lista organizada de solicitudes, priorizadas por la energía del público y las propinas, manteniendo el control total del set.",
-  },
-  {
-    icon: PartyPopper,
-    title: "Una Fiesta Inolvidable",
-    description: "La música conecta a todos. El DJ crea una experiencia única y la audiencia se siente parte del show, resultando en eventos memorables.",
-  },
-];
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Users, MicVocal } from 'lucide-react';
 
 export const HowItWorksSection = () => {
   return (
-    <section className="py-24 bg-black">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tighter">
-            Una Nueva Forma de Conectar
-          </h2>
-          <p className="text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Nuestro proceso simplificado transforma la noche, permitiendo una interacción fluida y directa entre el DJ y su público.
-          </p>
-        </div>
+    <motion.section 
+      className="py-20 px-4"
+      initial={{ opacity: 0 }} 
+      whileInView={{ opacity: 1 }} 
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.8 }}
+    >
+      <h2 className="text-center text-4xl font-bold tracking-tight mb-12">¿Cómo Funciona?</h2>
+      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {steps.map((step, index) => (
-            <Card 
-              key={index} 
-              className="bg-gray-900/50 border-purple-500/20 rounded-xl shadow-lg hover:shadow-purple-500/20 hover:-translate-y-2 transition-all duration-300"
-            >
-              <CardHeader className="flex flex-col items-center text-center">
-                <div className="p-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full mb-4">
-                  <step.icon className="w-8 h-8 text-white" />
-                </div>
-                <CardTitle className="text-xl font-bold text-white">{step.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center text-gray-400">
-                {step.description}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {/* For DJs */}
+        <motion.div whileHover={{ scale: 1.03, y: -5, transition: { duration: 0.2 } }}>
+          <Card className="bg-gray-800/50 border-purple-500/30 shadow-xl h-full">
+            <CardHeader>
+              <div className="flex items-center gap-4">
+                <MicVocal className="h-10 w-10 text-purple-400" />
+                <CardTitle className="text-3xl font-bold text-purple-300">Para DJs</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="text-gray-300 text-lg space-y-3">
+              <p><strong>1. Regístrate:</strong> Crea tu perfil de DJ en segundos.</p>
+              <p><strong>2. Inicia un Evento:</strong> Define un nombre para tu sesión y compártela.</p>
+              <p><strong>3. Recibe Solicitudes:</strong> Tus invitados escanean tu QR y te envían sus canciones favoritas en tiempo real.</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* For Guests */}
+        <motion.div whileHover={{ scale: 1.03, y: -5, transition: { duration: 0.2 } }}>
+          <Card className="bg-gray-800/50 border-green-500/30 shadow-xl h-full">
+            <CardHeader>
+              <div className="flex items-center gap-4">
+                <Users className="h-10 w-10 text-green-400" />
+                <CardTitle className="text-3xl font-bold text-green-300">Para Invitados</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="text-gray-300 text-lg space-y-3">
+              <p><strong>1. Escanea el QR:</strong> Usa tu móvil para escanear el código del DJ.</p>
+              <p><strong>2. Pide tu Canción:</strong> Busca tu tema y envíalo con un solo clic.</p>
+              <p><strong>3. ¡A Bailar!:</strong> Disfruta de la fiesta mientras el DJ mezcla tus canciones.</p>
+            </CardContent>
+          </Card>
+        </motion.div>
+
       </div>
-    </section>
+    </motion.section>
   );
 };

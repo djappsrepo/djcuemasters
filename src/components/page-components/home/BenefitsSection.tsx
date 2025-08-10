@@ -1,74 +1,92 @@
-import { DollarSign, BarChart3, Shield, Zap, Crown, Heart } from "lucide-react";
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DollarSign, Zap, Shield, BarChart3, Crown, Heart } from "lucide-react";
 
-const features = [
+const benefits = [
   {
     icon: DollarSign,
     title: "Monetización Directa",
-    description: "Genera ingresos adicionales en cada evento a través de propinas por solicitudes de canciones. Un flujo de ganancias transparente y directo.",
-    color: "text-green-400",
-  },
-  {
-    icon: BarChart3,
-    title: "Control Total del Set",
-    description: "Un panel de control intuitivo te permite ver, aceptar y organizar las solicitudes, dándote el poder de curar la experiencia musical perfecta.",
-    color: "text-blue-400",
+    description: "Convierte cada solicitud en ingresos adicionales con el sistema de propinas integrado.",
   },
   {
     icon: Zap,
-    title: "Interacción Instantánea",
-    description: "El público se conecta al instante escaneando un QR. Sin barreras, sin apps, solo una conexión directa y fluida con la cabina del DJ.",
-    color: "text-yellow-400",
-  },
-  {
-    icon: Crown,
-    title: "Experiencia VIP",
-    description: "Los asistentes pueden dar propinas para priorizar sus canciones, sintiéndose como VIPs y añadiendo una nueva capa de emoción al evento.",
-    color: "text-purple-400",
+    title: "Priorización Inteligente",
+    description: "Las solicitudes se ordenan automáticamente por monto de propina y tiempo.",
   },
   {
     icon: Shield,
-    title: "Plataforma Segura",
-    description: "Tus datos y ganancias están protegidos. Nos centramos en la seguridad para que tú te centres en la música.",
-    color: "text-red-400",
+    title: "Seguridad Total",
+    description: "Sistema de roles y permisos que protege tu panel y datos financieros.",
+  },
+  {
+    icon: BarChart3,
+    title: "Analytics Avanzado",
+    description: "Estadísticas detalladas de ingresos, canciones más solicitadas y engagement.",
+  },
+  {
+    icon: Crown,
+    title: "Control Total",
+    description: "Configura montos mínimos, horarios de funcionamiento y preferencias musicales.",
   },
   {
     icon: Heart,
-    title: "Crea Momentos Únicos",
-    description: "Más que una herramienta, es una forma de co-crear la banda sonora de la noche con tu público, generando momentos que todos recordarán.",
-    color: "text-pink-400",
+    title: "Conexión Real",
+    description: "Fortalece la relación con tu audiencia a través de interacciones directas.",
   },
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.5 } },
+};
+
 export const BenefitsSection = () => {
   return (
-    <section className="py-24 bg-black relative overflow-hidden">
-      <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-      <div className="container mx-auto px-4 relative">
+    <section className="py-20 px-4">
+      <div className="container mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tighter">
-            Diseñado para el DJ Moderno
-          </h2>
-          <p className="text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed">
-            Hemos creado cada función pensando en potenciar tu creatividad, tu conexión con el público y tu carrera profesional.
+          <h2 className="text-4xl font-bold text-foreground mb-4">Todo lo que Necesitas en un Solo Lugar</h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Desde la monetización hasta el análisis de datos, CueMasters te da el poder de gestionar tus eventos de forma profesional.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div 
-              key={index}
-              className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center transform hover:-translate-y-2 transition-transform duration-300 shadow-lg"
-            >
-              <div className={`inline-block p-4 bg-gray-800 rounded-full mb-4 border border-white/10`}>
-                <feature.icon className={`w-8 h-8 ${feature.color}`} />
-              </div>
-              <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
-              <p className="text-gray-400 leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
-          ))}
-        </div>
+        <motion.div 
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          {benefits.map((benefit, index) => {
+            const Icon = benefit.icon;
+            return (
+              <motion.div key={index} variants={itemVariants}>
+                <Card className="bg-gray-800/50 border-purple-500/30 backdrop-blur-sm shadow-xl h-full transition-all duration-300 hover:border-purple-500/50 hover:bg-gray-800/70">
+                  <CardHeader className="flex-row items-center gap-4">
+                    <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/30">
+                      <Icon className="w-6 h-6 text-purple-400" />
+                    </div>
+                    <CardTitle className="text-lg font-semibold text-gray-100">{benefit.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-gray-400 text-sm">
+                      {benefit.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </motion.div>
       </div>
     </section>
   );

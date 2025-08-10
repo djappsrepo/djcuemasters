@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { User, MapPin, Calendar } from "lucide-react";
+import { MapPin, Calendar } from "lucide-react";
 import { Tables } from "@/integrations/supabase/types";
 
 type DJProfile = Tables<'dj_profiles'> & { avatar_url?: string | null };
@@ -49,9 +49,9 @@ export const DjProfileCard = ({ djProfile, activeEvent }: DjProfileCardProps) =>
         )}
 
         <div className="flex justify-between items-center text-sm">
-          <Badge className="border border-input bg-background text-foreground">Requests: {djProfile.total_requests}</Badge>
+          <Badge variant="outline">Requests: {djProfile.total_requests}</Badge>
           {djProfile.average_rating !== null && (
-            <Badge className="border border-input bg-background text-foreground">
+            <Badge variant="outline">
               Rating: {djProfile.average_rating.toFixed(1)} ★
             </Badge>
           )}

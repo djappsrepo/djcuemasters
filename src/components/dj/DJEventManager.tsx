@@ -1,111 +1,24 @@
-import { useEffect, useState, useCallback } from "react";
-import { useAuth } from "@/hooks/auth/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/ui/use-toast";
-import { Calendar, MapPin, Users, Play, Pause, Trash2 } from "lucide-react";
+import { Calendar, MapPin, Play, Pause, Trash2 } from "lucide-react";
 import DJEventForm from "./DJEventForm";
+import { useDJEvents } from "@/hooks/useDJEvents";
 
-interface Event {
-  id: string;
-  name: string;
-  description: string | null;
-  venue: string | null;
-  event_date: string | null;
-  is_active: boolean;
-  total_requests: number;
-  total_earnings: number;
-  created_at: string;
+interface DJEventManagerProps {
+  onEventActivated: (event: Tables<'dj_events'> | null) => void;
 }
 
-const DJEventManager = () => {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchEvents = useCallback(async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('dj_events')
-        .select('*')
-        .eq('dj_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setEvents(data || []);
-    } catch (error: unknown) {
-      toast({
-        title: "Error al cargar eventos",
-        description: error instanceof Error ? error.message : "Ocurrió un error desconocido",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [user, toast]);
-
-  useEffect(() => {
-    if (user) {
-      fetchEvents();
-    }
-  }, [user, fetchEvents]);
-
-  const toggleEventStatus = async (eventId: string, currentStatus: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('dj_events')
-        .update({ is_active: !currentStatus })
-        .eq('id', eventId);
-
-      if (error) throw error;
-
-      toast({
-        title: currentStatus ? "Evento pausado" : "Evento activado",
-        description: currentStatus 
-          ? "El evento ya no recibe solicitudes" 
-          : "El evento ahora recibe solicitudes",
-      });
-
-      fetchEvents();
-    } catch (error: unknown) {
-      toast({
-        title: "Error al actualizar evento",
-        description: error instanceof Error ? error.message : "Ocurrió un error desconocido",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const deleteEvent = async (eventId: string) => {
-    if (!confirm("¿Estás seguro de que quieres eliminar este evento?")) return;
-
-    try {
-      const { error } = await supabase
-        .from('dj_events')
-        .delete()
-        .eq('id', eventId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Evento eliminado",
-        description: "El evento ha sido eliminado correctamente.",
-      });
-
-      fetchEvents();
-    } catch (error: unknown) {
-      toast({
-        title: "Error al eliminar evento",
-        description: error instanceof Error ? error.message : "Ocurrió un error desconocido",
-        variant: "destructive",
-      });
-    }
-  };
+const DJEventManager = ({ onEventActivated }: DJEventManagerProps) => {
+  const { 
+    events, 
+    loading, 
+    activateEvent, 
+    deactivateCurrentEvent, 
+    deleteEvent, 
+    fetchEvents 
+  } = useDJEvents(onEventActivated);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -138,7 +51,7 @@ const DJEventManager = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <DJEventForm onEventCreated={fetchEvents} />
+        <DJEventForm onSuccess={fetchEvents} onCancel={() => {}} eventToEdit={null} />
         
         {events.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
@@ -174,11 +87,6 @@ const DJEventManager = () => {
                         </div>
                       )}
                       
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-                        <Users className="w-3 h-3" />
-                        {event.total_requests} solicitudes • ${event.total_earnings.toFixed(2)} recaudado
-                      </div>
-                      
                       {event.description && (
                         <p className="text-sm text-muted-foreground">{event.description}</p>
                       )}
@@ -188,7 +96,7 @@ const DJEventManager = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => toggleEventStatus(event.id, event.is_active)}
+                        onClick={() => event.is_active ? deactivateCurrentEvent() : activateEvent(event)}
                       >
                         {event.is_active ? (
                           <Pause className="w-3 h-3" />
@@ -198,7 +106,7 @@ const DJEventManager = () => {
                       </Button>
                       <Button
                         size="sm"
-                        variant="outline"
+                        variant="destructive"
                         onClick={() => deleteEvent(event.id)}
                       >
                         <Trash2 className="w-3 h-3" />

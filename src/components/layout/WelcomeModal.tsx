@@ -11,43 +11,64 @@ interface WelcomeModalProps {
 const steps = [
   {
     icon: PartyPopper,
-    title: 'Bienvenido a CueMasters',
-    description: 'La plataforma definitiva para revolucionar tus sets, recibir solicitudes y monetizar tus eventos.',
-    gradient: 'from-pink-500 to-purple-600',
+    title: '¡Bienvenido a CueMasters!',
+    description: 'La plataforma definitiva para revolucionar tus sets. Recibe solicitudes de canciones y monetiza tus eventos como nunca antes.',
   },
   {
     icon: Headphones,
-    title: 'Para DJs Profesionales',
-    description: 'Crea tu perfil, comparte tu enlace único y gestiona tu repertorio con estadísticas avanzadas.',
-    gradient: 'from-blue-500 to-teal-400',
+    title: '¿Eres DJ?',
+    description: 'Regístrate, crea tu perfil y comparte tu enlace único. Recibe solicitudes con propinas, gestiona tu repertorio y analiza tus estadísticas.',
   },
   {
     icon: Users,
-    title: 'Para la Audiencia',
-    description: 'Escanea el QR del evento, pide tus canciones favoritas y añade propinas para destacar tu solicitud.',
-    gradient: 'from-green-500 to-yellow-400',
+    title: '¿Eres parte del público?',
+    description: 'Escanea el QR del evento o accede al enlace del DJ. Pide tus canciones favoritas, añade una propina para que suene antes y sé parte de la fiesta.',
   },
   {
     icon: Rocket,
-    title: 'Lleva tu Evento al Futuro',
-    description: 'Estás a un paso de una nueva experiencia musical. ¿Listo para empezar?',
-    gradient: 'from-red-500 to-orange-500',
+    title: '¡Todo Listo!',
+    description: 'Estás a un paso de vivir una nueva experiencia musical. Explora la plataforma y descubre todo lo que CueMasters tiene para ti.',
   },
 ];
 
+const variants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 300 : -300,
+    opacity: 0,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction < 0 ? 300 : -300,
+    opacity: 0,
+  }),
+};
+
 export const WelcomeModal = ({ isOpen, onClose }: WelcomeModalProps) => {
   const [step, setStep] = useState(0);
+  const [direction, setDirection] = useState(1);
 
-  const handleNext = () => {
+    const handleNext = () => {
+    setDirection(1);
     if (step < steps.length - 1) {
       setStep(step + 1);
     } else {
+      // Acción final: ir a la sección de planes y cerrar modal
+      const pricingSection = document.getElementById('pricing');
+      if (pricingSection) {
+        pricingSection.scrollIntoView({ behavior: 'smooth' });
+      }
       onClose();
     }
   };
 
-  const handleBack = () => {
-    if (step > 0) setStep(step - 1);
+    const handleBack = () => {
+    setDirection(-1);
+    if (step > 0) {
+      setStep(step - 1);
+    }
   };
 
   const CurrentIcon = steps[step].icon;
@@ -59,61 +80,61 @@ export const WelcomeModal = ({ isOpen, onClose }: WelcomeModalProps) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
           onClick={onClose}
         >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0, y: 50 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 50 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="relative bg-white/10 border border-white/20 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+            className="relative bg-gray-800 border border-gray-700 rounded-xl shadow-2xl max-w-md w-full overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${steps[step].gradient}`} />
-            
-            <Button variant="ghost" size="icon" className="absolute top-4 right-4 text-white/70 hover:text-white hover:bg-white/20 rounded-full z-10" onClick={onClose}>
-              <X className="h-6 w-6" />
+            <Button variant="ghost" size="icon" className="absolute top-3 right-3 rounded-full z-10" onClick={onClose}>
+              <X className="h-5 w-5" />
             </Button>
 
-            <div className="p-10 text-center h-96 flex flex-col justify-center">
-              <AnimatePresence mode="wait">
+            <div className="p-8 text-center h-80 flex flex-col justify-between">
+              <AnimatePresence initial={false} custom={direction} mode="wait">
                 <motion.div
                   key={step}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  transition={{ duration: 0.3 }}
+                  custom={direction}
+                  variants={variants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ x: { type: 'spring', stiffness: 300, damping: 30 }, opacity: { duration: 0.2 } }}
                   className="flex flex-col items-center justify-center"
                 >
-                  <div className={`mb-6 bg-gradient-to-br ${steps[step].gradient} rounded-full h-20 w-20 flex items-center justify-center shadow-lg`}>
-                    <CurrentIcon className="h-12 w-12 text-white" />
+                  <div className="mx-auto mb-5 bg-purple-500/20 rounded-full h-16 w-16 flex items-center justify-center border-2 border-purple-500">
+                    <CurrentIcon className="h-10 w-10 text-purple-400" />
                   </div>
-                  <h2 className="text-3xl font-extrabold text-white mb-4 tracking-tight">{steps[step].title}</h2>
-                  <p className="text-gray-300 text-base leading-relaxed">{steps[step].description}</p>
+                  <h2 className="text-2xl font-bold text-white mb-3">{steps[step].title}</h2>
+                  <p className="text-gray-300 text-sm">{steps[step].description}</p>
                 </motion.div>
               </AnimatePresence>
             </div>
 
-            <div className="bg-black/20 p-4 flex items-center justify-between">
+            <div className="flex items-center justify-between p-4">
               <div className="flex items-center gap-2">
                 {steps.map((_, i) => (
-                  <button
+                  <div
                     key={i}
-                    onClick={() => setStep(i)}
-                    className={`h-2 rounded-full transition-all duration-300 ${i === step ? 'w-6 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'}`}
+                    className={`h-1.5 rounded-full ${i === step ? 'w-6 bg-purple-600' : 'w-3 bg-gray-300'}`}
                   />
                 ))}
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 {step > 0 && (
-                  <Button variant="outline" size="lg" onClick={handleBack} className="bg-transparent border-white/30 text-white/80 hover:bg-white/10 hover:text-white">
-                    <ArrowLeft className="h-5 w-5" />
+                  <Button variant="outline" size="sm" onClick={handleBack}>
+                    <ArrowLeft className="h-4 w-4 mr-1" />
+                    Atrás
                   </Button>
                 )}
-                <Button onClick={handleNext} size="lg" className={`bg-white text-black font-bold shadow-lg hover:scale-105 transform transition-transform duration-300`}>
-                  {step === steps.length - 1 ? 'Empezar' : 'Siguiente'}
-                  <ArrowRight className="h-5 w-5 ml-2" />
+                <Button onClick={handleNext} size="sm" className="bg-purple-600 hover:bg-purple-700">
+                  {step === steps.length - 1 ? 'Ver Planes' : 'Siguiente'}
+                  <ArrowRight className="h-4 w-4 ml-1" />
                 </Button>
               </div>
             </div>

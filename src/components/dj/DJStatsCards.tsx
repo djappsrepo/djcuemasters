@@ -1,64 +1,47 @@
-import { useEffect, useState } from "react";
-import { useAuth } from "@/hooks/auth/useAuth";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useDJStats } from "@/hooks/useDJStats";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
-interface Stats {
-  todayRequests: number;
-  todayEarnings: number;
-  activeEvents: number;
-  totalEarnings: number;
-  totalRequests: number;
-}
+const StatCardSkeleton = () => (
+  <Card>
+    <CardHeader className="pb-2">
+      <Skeleton className="h-4 w-2/3" />
+    </CardHeader>
+    <CardContent>
+      <Skeleton className="h-7 w-1/3 mb-2" />
+      <Skeleton className="h-3 w-1/2" />
+    </CardContent>
+  </Card>
+);
 
 const DJStatsCards = () => {
   const { user, djProfile } = useAuth();
-  const [stats, setStats] = useState<Stats>({
-    todayRequests: 0,
-    todayEarnings: 0,
-    activeEvents: 0,
-    totalEarnings: djProfile?.total_earnings || 0,
-    totalRequests: djProfile?.total_requests || 0
-  });
+  const { stats, isLoading, error } = useDJStats(user?.id);
 
-  useEffect(() => {
-    if (!user) return;
+  const { todayRequestsCount, todayEarnings, activeEventsCount } = stats;
 
-    const fetchStats = async () => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+  
 
-      try {
-        // Solicitudes de hoy
-        const { data: todayRequests } = await supabase
-          .from('music_requests')
-          .select('tip_amount')
-          .eq('dj_id', user.id)
-          .gte('created_at', today.toISOString());
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[...Array(4)].map((_, i) => <StatCardSkeleton key={i} />)}
+      </div>
+    );
+  }
 
-        // Eventos activos
-        const { data: activeEvents } = await supabase
-          .from('dj_events')
-          .select('id')
-          .eq('dj_id', user.id)
-          .eq('is_active', true);
-
-        const todayEarnings = todayRequests?.reduce((sum, req) => sum + Number(req.tip_amount), 0) || 0;
-
-        setStats({
-          todayRequests: todayRequests?.length || 0,
-          todayEarnings,
-          activeEvents: activeEvents?.length || 0,
-          totalEarnings: djProfile?.total_earnings || 0,
-          totalRequests: djProfile?.total_requests || 0
-        });
-      } catch (error) {
-        console.error('Error fetching stats:', error);
-      }
-    };
-
-    fetchStats();
-  }, [user, djProfile]);
+  if (error) {
+    return (
+      <Alert variant="destructive" className="md:col-span-2 lg:col-span-4">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>Error al cargar estadísticas</AlertTitle>
+        <AlertDescription>{error.message}</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -69,9 +52,9 @@ const DJStatsCards = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-foreground">{stats.todayRequests}</div>
+          <div className="text-2xl font-bold text-foreground">{todayRequestsCount}</div>
           <p className="text-xs text-muted-foreground">
-            {stats.todayRequests === 0 ? 'Sin solicitudes aún' : 'Solicitudes recibidas'}
+            {todayRequestsCount === 0 ? 'Sin solicitudes aún' : 'Solicitudes recibidas'}
           </p>
         </CardContent>
       </Card>
@@ -84,10 +67,10 @@ const DJStatsCards = () => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            ${stats.todayEarnings.toFixed(2)}
+            ${todayEarnings.toFixed(2)}
           </div>
           <p className="text-xs text-muted-foreground">
-            {stats.todayEarnings === 0 ? 'Sin propinas aún' : 'En propinas recibidas'}
+            {todayEarnings === 0 ? 'Sin propinas aún' : 'En propinas recibidas'}
           </p>
         </CardContent>
       </Card>
@@ -99,9 +82,9 @@ const DJStatsCards = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-foreground">{stats.activeEvents}</div>
+          <div className="text-2xl font-bold text-foreground">{activeEventsCount}</div>
           <p className="text-xs text-muted-foreground">
-            {stats.activeEvents === 0 ? 'No hay eventos activos' : 'Eventos en curso'}
+            {activeEventsCount === 0 ? 'No hay eventos activos' : 'Eventos en curso'}
           </p>
         </CardContent>
       </Card>
@@ -114,10 +97,10 @@ const DJStatsCards = () => {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold text-foreground">
-            ${stats.totalEarnings.toFixed(2)}
+            ${(djProfile?.total_earnings || 0).toFixed(2)}
           </div>
           <p className="text-xs text-muted-foreground">
-            {stats.totalRequests} solicitudes
+            {djProfile?.total_requests || 0} solicitudes
           </p>
         </CardContent>
       </Card>

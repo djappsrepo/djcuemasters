@@ -88,36 +88,6 @@ npm install
 npm run dev
 ```
 
-## 🚀 Changelog - v1.1.1 (06/08/2025)
-
-Esta versión se enfoca en la **auditoría y limpieza del código** para mejorar la consistencia, mantenibilidad y escalabilidad del proyecto.
-
-- **🔍 Auditoría Exhaustiva de Código:**
-  - Se realizó un análisis completo de la estructura de directorios y archivos.
-  - Se identificó y documentó la función específica de cada directorio y componente.
-  - Se creó un mapa detallado de la arquitectura del proyecto en `DEVELOPERS.md`.
-
-- **⚙️ Unificación de Imports `useAuth`:**
-  - **Problema Identificado:** 13+ archivos importaban `useAuth` desde ubicaciones inconsistentes.
-  - **Solución:** Se unificaron TODOS los imports para usar `@/contexts/AuthContext` como fuente única.
-  - **Archivos Corregidos:** Pages, hooks, componentes auth, componentes DJ, y rutas administrativas.
-
-- **🧹 Eliminación de Código Duplicado:**
-  - Se eliminó `src/hooks/useAuth.ts` (duplicado del contexto principal).
-  - Se eliminó `src/components/ui/use-toast.ts` (duplicado del hook principal).
-  - Se mejoró la consistencia en la gestión del estado de autenticación.
-
-- **📚 Documentación Mejorada:**
-  - **`DEVELOPERS.md`:** Estructura completa de directorios con descripción detallada de cada componente.
-  - **Convenciones Establecidas:** Guías claras para imports, estructura de componentes y hooks.
-  - **Próximos Pasos:** Roadmap para testing, performance y accesibilidad.
-
-- **🎯 Beneficios Obtenidos:**
-  - **Consistencia:** Eliminación de imports inconsistentes en toda la aplicación.
-  - **Mantenibilidad:** Código más limpio y fácil de mantener.
-  - **Escalabilidad:** Base sólida para futuras funcionalidades.
-  - **Claridad:** Documentación completa para nuevos desarrolladores.
-
 ## 🚀 Changelog - v1.1.0 (02/08/2025)
 
 Esta versión introduce una renovación completa de la identidad visual y la experiencia de usuario, junto con mejoras significativas en la estabilidad.
